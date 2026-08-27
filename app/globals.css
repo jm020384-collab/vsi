@@ -1,0 +1,226 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   Палітра «vsi» — Траєкторія цілісності.
+   Warm Ivory + Midnight Blue + Muted Gold + Parchment + Lavender Ash.
+   Теплий папір і глибоке чорнило; золото — лише делікатний акцент.
+   ============================================================================ */
+
+@layer base {
+  :root {
+    /* Основа: теплий папір + чорнильний синій */
+    --background: 40 46% 95%; /* #F8F4EC Warm Ivory */
+    --foreground: 216 55% 17%; /* #142744 Midnight Blue */
+
+    --card: 43 100% 99%; /* #FFFDF8 Warm White */
+    --card-foreground: 216 55% 17%;
+
+    --popover: 43 100% 99%;
+    --popover-foreground: 216 55% 17%;
+
+    /* Primary — глибокий синій */
+    --primary: 215 51% 23%; /* #1C3557 Deep Navy */
+    --primary-foreground: 43 100% 99%;
+
+    /* Secondary — пергамент */
+    --secondary: 36 38% 86%; /* #E9DECE Parchment */
+    --secondary-foreground: 216 55% 17%;
+
+    /* Muted — приглушені фони й текст */
+    --muted: 36 38% 90%;
+    --muted-foreground: 210 18% 34%;
+
+    /* Accent — Muted Gold: заливки і штрихи, НЕ текст на світлому */
+    --accent: 37 42% 49%; /* #B38B49 */
+    --accent-foreground: 216 55% 17%;
+
+    /* Destructive — приглушена глина */
+    --destructive: 17 39% 42%;
+    --destructive-foreground: 43 100% 99%;
+
+    /* Контури — теплі, не різкі */
+    --border: 36 30% 80%;
+    --input: 36 30% 76%;
+    --ring: 215 51% 23%;
+
+    /* Бренд-кольори (для прямого використання) */
+    --brand-ink: 216 55% 17%; /* midnight */
+    --brand-cream: 40 46% 95%; /* ivory */
+    --brand-oxblood: 215 51% 23%; /* deep navy (спадкова назва змінної) */
+    --brand-bronze: 37 42% 49%; /* muted gold */
+    --brand-leather: 36 38% 86%; /* parchment */
+
+    /* Радіус — м'який, аркоподібний */
+    --radius: 0.75rem;
+
+    /* Аліаси шрифтів знака vsi — компоненти бренду працюють будь-де */
+    --vsi-serif: var(--font-serif);
+    --vsi-sans: var(--font-sans);
+  }
+
+  .dark {
+    /* Темна тема: глибока ніч у синьому */
+    --background: 216 50% 9%;
+    --foreground: 40 46% 93%;
+
+    --card: 216 45% 12%;
+    --card-foreground: 40 46% 93%;
+
+    --popover: 216 45% 12%;
+    --popover-foreground: 40 46% 93%;
+
+    --primary: 214 42% 62%;
+    --primary-foreground: 216 55% 12%;
+
+    --secondary: 216 34% 16%;
+    --secondary-foreground: 40 46% 93%;
+
+    --muted: 216 28% 16%;
+    --muted-foreground: 40 24% 74%;
+
+    --accent: 37 45% 56%;
+    --accent-foreground: 216 55% 10%;
+
+    --destructive: 17 45% 52%;
+    --destructive-foreground: 40 46% 95%;
+
+    --border: 216 26% 22%;
+    --input: 216 26% 22%;
+    --ring: 214 42% 62%;
+
+    --brand-ink: 40 46% 93%;
+    --brand-cream: 216 50% 9%;
+    --brand-oxblood: 214 42% 62%;
+    --brand-bronze: 37 45% 56%;
+    --brand-leather: 216 34% 18%;
+  }
+}
+
+/* ============================================================================
+   Базова типографіка
+   ============================================================================ */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    /* Тонке зерно паперу — субтильна текстура */
+    background-image:
+      radial-gradient(circle at 25% 15%, hsl(var(--brand-leather) / 0.18) 0px, transparent 50%),
+      radial-gradient(circle at 75% 85%, hsl(var(--brand-leather) / 0.12) 0px, transparent 50%);
+    background-attachment: fixed;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1,
+      "kern" 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif tracking-tight text-foreground;
+    font-feature-settings:
+      "ss01" 1,
+      "lnum" 1,
+      "kern" 1;
+  }
+
+  h1 {
+    @apply text-4xl font-medium leading-[1.05] md:text-6xl;
+  }
+  h2 {
+    @apply text-3xl font-medium leading-[1.15] md:text-4xl;
+  }
+  h3 {
+    @apply text-2xl font-medium leading-[1.2] md:text-3xl;
+  }
+  h4 {
+    @apply text-xl font-medium leading-[1.3] md:text-2xl;
+  }
+
+  /* Капітель та цифри — для академічного звучання */
+  .small-caps {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.08em;
+  }
+
+  /* Першу велику літеру (Drop cap) — для лонгрідів у блозі */
+  .dropcap > p:first-of-type::first-letter {
+    @apply font-serif font-medium text-primary;
+    font-size: 5rem;
+    line-height: 0.85;
+    float: left;
+    padding: 0.4rem 0.6rem 0 0;
+  }
+}
+
+/* ============================================================================
+   Утилітарні класи
+   ============================================================================ */
+
+@layer utilities {
+  /* Шрифт-варіанти — серіф для маркетингу, гротеска для UI */
+  .font-display {
+    @apply font-serif;
+    font-feature-settings:
+      "ss01" 1,
+      "dlig" 1,
+      "lnum" 1;
+  }
+
+  /* Уніфіковані лонгрід-стилі для статей */
+  .prose-ariadna {
+    @apply prose prose-stone max-w-none dark:prose-invert;
+    @apply prose-headings:font-serif prose-headings:font-medium prose-headings:tracking-tight;
+    @apply prose-h1:text-5xl prose-h2:text-3xl prose-h3:text-2xl;
+    @apply prose-a:text-primary prose-a:no-underline prose-a:underline-offset-4 hover:prose-a:underline;
+    @apply prose-strong:font-medium prose-strong:text-foreground;
+    @apply prose-blockquote:border-l-primary prose-blockquote:font-serif prose-blockquote:italic;
+    @apply prose-blockquote:text-foreground/85;
+    @apply prose-img:rounded-md;
+  }
+
+  /* Subtle paper texture для карток */
+  .paper {
+    background-color: hsl(var(--card));
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      hsl(var(--foreground) / 0.025) 1px,
+      transparent 0
+    );
+    background-size: 8px 8px;
+  }
+
+  /* «Гравірувальна» рамка для семантичних блоків */
+  .etched {
+    @apply rounded-md border border-border/80;
+    box-shadow:
+      inset 0 0 0 1px hsl(var(--background)),
+      0 1px 0 0 hsl(var(--foreground) / 0.04);
+  }
+
+  /* Декоративний роздільник — стара книжкова орнаментика */
+  .ornament {
+    @apply text-muted-foreground;
+    text-align: center;
+    font-family: var(--font-serif);
+  }
+  .ornament::before {
+    content: "❦";
+    font-size: 1.25em;
+  }
+}

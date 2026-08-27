@@ -1,0 +1,225 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { MapPin, Languages, Clock } from "lucide-react";
+
+import { prisma } from "@/lib/db";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { therapistFilterSchema } from "@/lib/schemas/therapist";
+import { formatPriceRange, truncate, getInitials } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Каталог фахівців",
+  description: "Знайдіть фахівця з аналітично орієнтованої психотерапії за містом, форматом, ціною.",
+};
+
+export const dynamic = "force-dynamic";
+
+const FORMAT_LABEL: Record<"ONLINE" | "OFFLINE" | "BOTH", string> = {
+  ONLINE: "Онлайн",
+  OFFLINE: "Офлайн",
+  BOTH: "Онлайн + офлайн",
+};
+
+interface PageProps {
+  searchParams: Promise<Record<string, string | undefined>>;
+}
+
+export default async function TherapistsPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const parsed = therapistFilterSchema.safeParse(sp);
+  const filter = parsed.success ? parsed.data : { page: 1 };
+
+  const where = {
+    status: "APPROVED" as const,
+    deletedAt: null,
+    ...(filter.city ? { city: { contains: filter.city, mode: "insensitive" as const } } : {}),
+    ...(filter.format ? { sessionFormat: filter.format } : {}),
+    ...(filter.priceMax ? { priceFrom: { lte: filter.priceMax * 100 } } : {}),
+    ...(filter.spec
+      ? { specializations: { some: { specialization: { slug: filter.spec } } } }
+      : {}),
+    ...(filter.lang ? { languages: { some: { languageCode: filter.lang } } } : {}),
+    ...(filter.q
+      ? {
+          OR: [
+            { fullName: { contains: filter.q, mode: "insensitive" as const } },
+            { bio: { contains: filter.q, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+  };
+
+  const [therapists, specializations, languages] = await Promise.all([
+    prisma.therapistProfile.findMany({
+      where,
+      include: {
+        specializations: { include: { specialization: true } },
+        languages: { include: { language: true } },
+      },
+      orderBy: { publishedAt: "desc" },
+      take: 24,
+    }),
+    prisma.specialization.findMany({ orderBy: { nameUk: "asc" } }),
+    prisma.language.findMany({ orderBy: { nameUk: "asc" } }),
+  ]);
+
+  return (
+    <div className="container py-10">
+      <header className="mb-8">
+        <h1 className="text-3xl font-semibold md:text-4xl">Каталог фахівців</h1>
+        <p className="mt-2 text-muted-foreground">
+          {therapists.length} {therapists.length === 1 ? "профіль" : "профілів"} відповідає фільтрам.
+        </p>
+      </header>
+
+      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+        <aside className="rounded-lg border border-border bg-card p-4">
+          <form className="space-y-4" method="get">
+            <div>
+              <label className="text-sm font-medium" htmlFor="q">Пошук</label>
+              <input
+                id="q"
+                name="q"
+                defaultValue={filter.q ?? ""}
+                placeholder="Ім'я, ключове слово…"
+                className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium" htmlFor="city">Місто</label>
+              <input
+                id="city"
+                name="city"
+                defaultValue={filter.city ?? ""}
+                placeholder="Київ, Львів…"
+                className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium" htmlFor="format">Формат</label>
+              <select
+                id="format"
+                name="format"
+                defaultValue={filter.format ?? ""}
+                className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Будь-який</option>
+                <option value="ONLINE">Онлайн</option>
+                <option value="OFFLINE">Офлайн</option>
+                <option value="BOTH">Онлайн + офлайн</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium" htmlFor="spec">Спеціалізація</label>
+              <select
+                id="spec"
+                name="spec"
+                defaultValue={filter.spec ?? ""}
+                className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Усі</option>
+                {specializations.map((s) => (
+                  <option key={s.slug} value={s.slug}>
+                    {s.nameUk}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium" htmlFor="lang">Мова</label>
+              <select
+                id="lang"
+                name="lang"
+                defaultValue={filter.lang ?? ""}
+                className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Будь-яка</option>
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.nameUk}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium" htmlFor="priceMax">Макс. ціна (грн)</label>
+              <input
+                id="priceMax"
+                name="priceMax"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                defaultValue={filter.priceMax ?? ""}
+                className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              />
+            </div>
+            <button
+              type="submit"
+              className="h-10 w-full rounded-md bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Застосувати
+            </button>
+          </form>
+        </aside>
+
+        <section>
+          {therapists.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-border p-10 text-center text-muted-foreground">
+              За такими фільтрами поки немає фахівців. Спробуйте інші параметри.
+            </div>
+          ) : (
+            <ul className="grid gap-4 md:grid-cols-2">
+              {therapists.map((t) => (
+                <li key={t.id}>
+                  <Link href={`/therapists/${t.slug}`}>
+                    <Card className="h-full transition-shadow hover:shadow-md">
+                      <CardContent className="flex gap-4 p-5">
+                        <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-accent text-lg font-semibold">
+                          {t.photoUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={t.photoUrl} alt={t.fullName} className="h-full w-full object-cover" />
+                          ) : (
+                            <span>{getInitials(t.fullName)}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h2 className="truncate text-lg font-semibold">{t.fullName}</h2>
+                          <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5" />
+                              {t.city || "—"}
+                            </span>
+                            <span className="inline-flex items-center gap-1">
+                              <Clock className="h-3.5 w-3.5" />
+                              {FORMAT_LABEL[t.sessionFormat]}
+                            </span>
+                            <span className="inline-flex items-center gap-1">
+                              <Languages className="h-3.5 w-3.5" />
+                              {t.languages.map((l) => l.language.nameUk).join(", ") || "—"}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm text-muted-foreground">{truncate(t.bio, 160)}</p>
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            {t.specializations.slice(0, 3).map((sp) => (
+                              <Badge key={sp.specializationId} variant="secondary">
+                                {sp.specialization.nameUk}
+                              </Badge>
+                            ))}
+                            <span className="ml-auto text-sm font-medium">
+                              {formatPriceRange(t.priceFrom, t.priceTo, t.currency)}
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}

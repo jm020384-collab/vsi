@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#F8F4EC"/>
+  <defs>
+    <radialGradient id="vsi-favicon-planet" cx="34%" cy="28%" r="78%">
+      <stop offset="0%" stop-color="#F5E3B2"/>
+      <stop offset="36%" stop-color="#DDB66C"/>
+      <stop offset="76%" stop-color="#B38B49"/>
+      <stop offset="100%" stop-color="#835F26"/>
+    </radialGradient>
+  </defs>
+  <text x="115" y="144" text-anchor="end" font-family="Georgia, 'Times New Roman', serif" font-weight="600" font-size="97" fill="#142744">vs</text>
+  <ellipse cx="112" cy="114.5" rx="70" ry="25" transform="rotate(-30 112 114.5)" fill="none" stroke="#B38B49" stroke-width="5" stroke-linecap="round"/>
+  <rect x="127" y="105" width="8" height="39" rx="4" fill="#142744"/>
+  <circle cx="132" cy="78" r="12" fill="url(#vsi-favicon-planet)"/>
+</svg>
