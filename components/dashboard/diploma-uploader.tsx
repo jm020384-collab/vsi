@@ -55,20 +55,21 @@ export function DiplomaUploader({ initialDocuments }: { initialDocuments: Docume
       if (!res) return;
       startTransition(async () => {
         for (const f of res) {
-          try {
-            await addVerificationDocumentAction({
-              fileUrl: f.ufsUrl,
-              fileName: f.name,
-              fileKey: f.key,
-              docType,
-            });
-            setDocs((prev) => [
-              ...prev,
-              { id: f.key, fileName: f.name, docType, status: "PENDING" },
-            ]);
-          } catch (e) {
-            toast.error(e instanceof Error ? e.message : "Не вдалося зберегти документ");
+          const result = await addVerificationDocumentAction({
+            fileUrl: f.ufsUrl,
+            fileName: f.name,
+            fileKey: f.key,
+            docType,
+          });
+          if (!result.ok) {
+            toast.error(result.error);
+            continue;
           }
+          // id беремо з бази, а не f.key: саме за цим id працює видалення.
+          setDocs((prev) => [
+            ...prev,
+            { id: result.id, fileName: f.name, docType, status: "PENDING" },
+          ]);
         }
       });
     },
@@ -78,8 +79,15 @@ export function DiplomaUploader({ initialDocuments }: { initialDocuments: Docume
   });
 
   const remove = (id: string) => {
+    const snapshot = docs;
     setDocs((prev) => prev.filter((d) => d.id !== id));
-    startTransition(() => removeVerificationDocumentAction(id));
+    startTransition(async () => {
+      const result = await removeVerificationDocumentAction(id);
+      if (!result.ok) {
+        toast.error(result.error);
+        setDocs(snapshot); // повертаємо файл у список, якщо видалення не вдалось
+      }
+    });
   };
 
   return (

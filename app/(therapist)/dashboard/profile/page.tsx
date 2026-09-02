@@ -46,6 +46,8 @@ export default async function TherapistProfileEditorPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
+  // Валідність самого акаунта (JWT може пережити видалення User) уже
+  // перевірена в dashboard/layout.tsx — тут одразу до профілю.
   const therapist = await getOrCreateTherapist(session.user.id, session.user.name);
 
   const { specializations, languages } = await getProfileFormLookups();
@@ -65,6 +67,8 @@ export default async function TherapistProfileEditorPage() {
         workingHours: therapist.workingHours,
         contactEmail: therapist.contactEmail,
         contactPhone: therapist.contactPhone,
+        whatsapp: therapist.whatsapp,
+        telegram: therapist.telegram,
         website: therapist.website,
         socialLinks: therapist.socialLinks,
         specializationIds: therapist.specializations.map((s) => s.specializationId),

@@ -216,6 +216,9 @@ model TherapistProfile {
   workingHours    String?
   contactEmail    String?
   contactPhone    String?
+  // Месенджери — окремі номери/нік, бо часто відрізняються від основного телефону
+  whatsapp        String?
+  telegram        String?
   status          TherapistStatus @default(DRAFT)
 
   // Професійна позиція — «Мій простір»

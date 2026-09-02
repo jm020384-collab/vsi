@@ -39,6 +39,8 @@ export async function updateTherapistProfileAction(
     workingHours: formData.get("workingHours") || null,
     contactEmail: formData.get("contactEmail") || null,
     contactPhone: formData.get("contactPhone") || null,
+    whatsapp: formData.get("whatsapp") || null,
+    telegram: formData.get("telegram") || null,
     website: formData.get("website") || null,
     socialLinks: formData.getAll("socialLinks").filter(Boolean),
     specializationIds: formData.getAll("specializationIds"),

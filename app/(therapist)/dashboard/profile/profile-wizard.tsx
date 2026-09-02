@@ -29,6 +29,8 @@ interface TherapistDraft {
   workingHours: string | null;
   contactEmail: string | null;
   contactPhone: string | null;
+  whatsapp: string | null;
+  telegram: string | null;
   website: string | null;
   socialLinks: string[];
   specializationIds: string[];
@@ -60,6 +62,8 @@ interface FormValues {
   workingHours: string;
   contactEmail: string;
   contactPhone: string;
+  whatsapp: string;
+  telegram: string;
   website: string;
   socialLinks: string[];
   specializationIds: string[];
@@ -94,6 +98,8 @@ const FIELD_STEP: Record<string, number> = {
   workingHours: 4,
   contactEmail: 4,
   contactPhone: 4,
+  whatsapp: 4,
+  telegram: 4,
   website: 4,
   socialLinks: 4,
 };
@@ -141,6 +147,8 @@ function draftToValues(t: TherapistDraft): FormValues {
     workingHours: t.workingHours ?? "",
     contactEmail: t.contactEmail ?? "",
     contactPhone: t.contactPhone ?? "",
+    whatsapp: t.whatsapp ?? "",
+    telegram: t.telegram ?? "",
     website: t.website ?? "",
     socialLinks: t.socialLinks,
     specializationIds: t.specializationIds,
@@ -173,6 +181,8 @@ function buildFormData(v: FormValues): FormData {
   if (v.workingHours) fd.set("workingHours", v.workingHours);
   if (v.contactEmail) fd.set("contactEmail", v.contactEmail);
   if (v.contactPhone) fd.set("contactPhone", v.contactPhone);
+  if (v.whatsapp) fd.set("whatsapp", v.whatsapp);
+  if (v.telegram) fd.set("telegram", v.telegram);
   if (v.website) fd.set("website", v.website);
   v.socialLinks.forEach((url) => fd.append("socialLinks", url));
   v.specializationIds.forEach((id) => fd.append("specializationIds", id));
@@ -759,6 +769,24 @@ export function ProfileWizard({
                   value={values.contactPhone}
                   onChange={(e) => set("contactPhone", e.target.value)}
                   placeholder="+380…"
+                />
+              </div>
+              <div>
+                <FieldLabel>WhatsApp (необов'язково)</FieldLabel>
+                <input
+                  className={inputClass}
+                  value={values.whatsapp}
+                  onChange={(e) => set("whatsapp", e.target.value)}
+                  placeholder="+380…"
+                />
+              </div>
+              <div>
+                <FieldLabel>Telegram (необов'язково)</FieldLabel>
+                <input
+                  className={inputClass}
+                  value={values.telegram}
+                  onChange={(e) => set("telegram", e.target.value)}
+                  placeholder="@nickname або +380…"
                 />
               </div>
             </div>

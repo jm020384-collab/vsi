@@ -1,11 +1,23 @@
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { prisma } from "@/lib/db";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
+
+  // Сесія — JWT: вона лишається валідною, навіть якщо самого User у базі
+  // вже нема (видалений акаунт, зміна/скидання бази). Далі такі запити
+  // падали на foreign key і показували «Щось пішло не так» замість
+  // звичайного повернення на вхід. Перевіряємо тут, у спільній оболонці,
+  // щоб покрити всі сторінки кабінету одразу.
+  const account = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true },
+  });
+  if (!account) redirect("/login");
 
   return (
     <div className="bg-[#F8F4EC]">

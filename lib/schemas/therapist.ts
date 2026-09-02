@@ -27,9 +27,23 @@ export const therapistProfileSchema = z.object({
   sessionFormat: z.enum(SESSION_FORMATS).default("BOTH"),
   workingHours: z.string().max(200).optional().nullable(),
   contactEmail: z.string().email().optional().nullable(),
+  // Дозволяємо кілька номерів через кому/крапку з комою: фахівці часто
+  // вказують український і закордонний разом. Старе правило (до 20 символів,
+  // без ком) такий запис відхиляло.
   contactPhone: z
     .string()
-    .regex(/^\+?[0-9\s\-()]{7,20}$/, "Введіть коректний номер")
+    .regex(/^[+0-9\s\-(),;/]{7,120}$/, "Введіть коректний номер")
+    .optional()
+    .nullable(),
+  whatsapp: z
+    .string()
+    .regex(/^[+0-9\s\-(),;/]{7,120}$/, "Введіть коректний номер")
+    .optional()
+    .nullable(),
+  // Telegram — або @нік, або номер телефону.
+  telegram: z
+    .string()
+    .regex(/^(@[A-Za-z0-9_]{4,32}|[+0-9\s\-(),;/]{7,120})$/, "Вкажіть @нік або номер")
     .optional()
     .nullable(),
   website: z.preprocess(
