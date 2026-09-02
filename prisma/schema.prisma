@@ -219,7 +219,12 @@ model TherapistProfile {
   status          TherapistStatus @default(DRAFT)
 
   // Професійна позиція — «Мій простір»
-  analyticalOrientation String? // Терапевтичний/теоретичний підхід, напр. «Аналітична психологія К. Г. Юнга»
+  // approaches — фіксований список підходів (див. THERAPY_APPROACHES);
+  // otherApproach/otherLanguage заповнюються, лише коли обрано «Інший…».
+  approaches            String[]
+  otherApproach         String?
+  otherLanguage         String?
+  analyticalOrientation String? // вільний опис підходу — лишається як додатковий контекст
   ageGroups             AgeGroup[]
   workFormats           WorkFormat[]
   professionalInterests String[]

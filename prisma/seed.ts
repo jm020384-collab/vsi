@@ -77,12 +77,20 @@ const SPECIALIZATIONS: Array<{ slug: string; nameUk: string; description: string
   },
 ];
 
+// Порядок = порядок у випадаючому списку анкети. "other" — не мова, а
+// перемикач, що відкриває поле «Вкажіть іншу мову».
 const LANGUAGES = [
   { code: "uk", nameUk: "Українська" },
+  { code: "ru", nameUk: "Російська" },
   { code: "en", nameUk: "Англійська" },
   { code: "pl", nameUk: "Польська" },
   { code: "de", nameUk: "Німецька" },
-  { code: "ru", nameUk: "Російська" },
+  { code: "fr", nameUk: "Французька" },
+  { code: "es", nameUk: "Іспанська" },
+  { code: "it", nameUk: "Італійська" },
+  { code: "cs", nameUk: "Чеська" },
+  { code: "pt", nameUk: "Португальська" },
+  { code: "other", nameUk: "Інша мова" },
 ];
 
 async function main() {

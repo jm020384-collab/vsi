@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { updateTherapistProfileAction, type ProfileState } from "@/lib/actions/therapist-profile";
 import { PhotoUploader } from "@/components/dashboard/photo-uploader";
 import { DiplomaUploader, type DocumentItem } from "@/components/dashboard/diploma-uploader";
+import { MultiSelect } from "@/components/dashboard/multi-select";
+import { THERAPY_APPROACHES, OTHER_APPROACH, OTHER_LANGUAGE_CODE } from "@/lib/therapy-approaches";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
 
 type SessionFormat = "ONLINE" | "OFFLINE" | "BOTH";
@@ -31,6 +33,9 @@ interface TherapistDraft {
   socialLinks: string[];
   specializationIds: string[];
   languageCodes: string[];
+  approaches: string[];
+  otherApproach: string | null;
+  otherLanguage: string | null;
   slug: string;
   status: string;
   analyticalOrientation: string | null;
@@ -59,6 +64,9 @@ interface FormValues {
   socialLinks: string[];
   specializationIds: string[];
   languageCodes: string[];
+  approaches: string[];
+  otherApproach: string;
+  otherLanguage: string;
   analyticalOrientation: string;
   ageGroups: AgeGroup[];
   workFormats: TherapistWorkFormat[];
@@ -137,6 +145,9 @@ function draftToValues(t: TherapistDraft): FormValues {
     socialLinks: t.socialLinks,
     specializationIds: t.specializationIds,
     languageCodes: t.languageCodes,
+    approaches: t.approaches,
+    otherApproach: t.otherApproach ?? "",
+    otherLanguage: t.otherLanguage ?? "",
     analyticalOrientation: t.analyticalOrientation ?? "",
     ageGroups: t.ageGroups,
     workFormats: t.workFormats,
@@ -166,6 +177,15 @@ function buildFormData(v: FormValues): FormData {
   v.socialLinks.forEach((url) => fd.append("socialLinks", url));
   v.specializationIds.forEach((id) => fd.append("specializationIds", id));
   v.languageCodes.forEach((code) => fd.append("languageCodes", code));
+  v.approaches.forEach((a) => fd.append("approaches", a));
+  // «Інший…» зберігаємо, лише поки відповідний пункт справді обраний —
+  // інакше знятий чекбокс лишав би в базі мертвий текст.
+  if (v.approaches.includes(OTHER_APPROACH) && v.otherApproach) {
+    fd.set("otherApproach", v.otherApproach);
+  }
+  if (v.languageCodes.includes(OTHER_LANGUAGE_CODE) && v.otherLanguage) {
+    fd.set("otherLanguage", v.otherLanguage);
+  }
   if (v.analyticalOrientation) fd.set("analyticalOrientation", v.analyticalOrientation);
   v.ageGroups.forEach((g) => fd.append("ageGroups", g));
   v.workFormats.forEach((f) => fd.append("workFormats", f));
@@ -525,11 +545,56 @@ export function ProfileWizard({
           </div>
         )}
 
-        {/* ── Крок 2: Спеціалізації й мови ── */}
+        {/* ── Крок 2: Підхід, напрями й мови ── */}
         {step === 2 && (
           <div className="space-y-7">
             <div>
-              <FieldLabel hint="Оберіть теми, з якими працюєте. Можна кілька.">
+              <FieldLabel hint="Оберіть один або кілька підходів, у межах яких ви працюєте.">
+                Професійний підхід
+              </FieldLabel>
+              <MultiSelect
+                options={THERAPY_APPROACHES.map((a) => ({ value: a, label: a }))}
+                selected={values.approaches}
+                onChange={(next) => setValues((v) => ({ ...v, approaches: next }))}
+              />
+              {values.approaches.includes(OTHER_APPROACH) && (
+                <div className="mt-3">
+                  <FieldLabel>Вкажіть інший підхід</FieldLabel>
+                  <input
+                    className={inputClass}
+                    value={values.otherApproach}
+                    onChange={(e) => setValues((v) => ({ ...v, otherApproach: e.target.value }))}
+                    placeholder="Назва підходу"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div>
+              <FieldLabel hint="Оберіть одну або кілька мов, якими ви проводите консультації.">
+                Мови роботи
+              </FieldLabel>
+              <MultiSelect
+                options={languageOptions.map((l) => ({ value: l.code, label: l.label }))}
+                selected={values.languageCodes}
+                onChange={(next) => setValues((v) => ({ ...v, languageCodes: next }))}
+                placeholder="Оберіть одну або кілька"
+              />
+              {values.languageCodes.includes(OTHER_LANGUAGE_CODE) && (
+                <div className="mt-3">
+                  <FieldLabel>Вкажіть іншу мову</FieldLabel>
+                  <input
+                    className={inputClass}
+                    value={values.otherLanguage}
+                    onChange={(e) => setValues((v) => ({ ...v, otherLanguage: e.target.value }))}
+                    placeholder="Назва мови"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div>
+              <FieldLabel hint="Теми, з якими ви працюєте. Можна кілька.">
                 Напрями роботи
               </FieldLabel>
               <div className="flex flex-wrap gap-2">
@@ -546,22 +611,6 @@ export function ProfileWizard({
                 ))}
               </div>
             </div>
-            <div>
-              <FieldLabel>Мови роботи</FieldLabel>
-              <div className="flex flex-wrap gap-2">
-                {languageOptions.map((l) => (
-                  <button
-                    key={l.code}
-                    type="button"
-                    onClick={() => toggleIn("languageCodes", l.code)}
-                    aria-pressed={values.languageCodes.includes(l.code)}
-                    className={chipClass(values.languageCodes.includes(l.code))}
-                  >
-                    {l.label}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         )}
 
@@ -569,8 +618,8 @@ export function ProfileWizard({
         {step === 3 && (
           <div className="space-y-7">
             <div>
-              <FieldLabel hint="Вкажіть основні терапевтичні або теоретичні напрями, на які ви спираєтесь у своїй практиці. Наприклад: аналітична психологія К. Г. Юнга, психоаналітична психотерапія, психодинамічний підхід, КПТ, гештальт-терапія, символдрама, системна сімейна терапія, арт-терапія.">
-                Терапевтичний / теоретичний підхід
+              <FieldLabel hint="Необов'язково. Підходи ви вже обрали на попередньому кроці — тут можна додати, як саме ви їх поєднуєте у своїй практиці. Наприклад: «аналітична психологія К. Г. Юнга у поєднанні з арт-терапією».">
+                Опис підходу своїми словами
               </FieldLabel>
               <input
                 className={inputClass}
@@ -765,7 +814,7 @@ export function ProfileWizard({
                 <dd className="max-w-[60%] text-right">{values.professionalTitle || "—"}</dd>
               </div>
               <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
-                <dt className={ink.soft}>Підхід</dt>
+                <dt className={ink.soft}>Опис підходу</dt>
                 <dd className="max-w-[60%] text-right">{values.analyticalOrientation || "—"}</dd>
               </div>
               <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
@@ -775,6 +824,18 @@ export function ProfileWizard({
               <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
                 <dt className={ink.soft}>Формат</dt>
                 <dd>{FORMAT_LABEL[values.sessionFormat]}</dd>
+              </div>
+              <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
+                <dt className={ink.soft}>Підхід</dt>
+                <dd className="max-w-[60%] text-right">
+                  {values.approaches.length
+                    ? values.approaches
+                        .map((a) =>
+                          a === OTHER_APPROACH && values.otherApproach ? values.otherApproach : a,
+                        )
+                        .join(", ")
+                    : "—"}
+                </dd>
               </div>
               <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
                 <dt className={ink.soft}>Напрями</dt>
@@ -789,11 +850,15 @@ export function ProfileWizard({
               </div>
               <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
                 <dt className={ink.soft}>Мови</dt>
-                <dd>
+                <dd className="max-w-[60%] text-right">
                   {values.languageCodes.length
                     ? languageOptions
                         .filter((l) => values.languageCodes.includes(l.code))
-                        .map((l) => l.label)
+                        .map((l) =>
+                          l.code === OTHER_LANGUAGE_CODE && values.otherLanguage
+                            ? values.otherLanguage
+                            : l.label,
+                        )
                         .join(", ")
                     : "—"}
                 </dd>

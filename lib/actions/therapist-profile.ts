@@ -43,6 +43,9 @@ export async function updateTherapistProfileAction(
     socialLinks: formData.getAll("socialLinks").filter(Boolean),
     specializationIds: formData.getAll("specializationIds"),
     languageCodes: formData.getAll("languageCodes"),
+    approaches: formData.getAll("approaches"),
+    otherApproach: formData.get("otherApproach") || null,
+    otherLanguage: formData.get("otherLanguage") || null,
     analyticalOrientation: formData.get("analyticalOrientation") || null,
     ageGroups: formData.getAll("ageGroups"),
     workFormats: formData.getAll("workFormats"),
@@ -106,10 +109,22 @@ export async function updateTherapistProfileAction(
 }
 
 /** Довідники для форми — спеціалізації й мови з бази. */
+/** Порядок мов у списку анкети: найуживаніші вгорі, «Інша мова» — завжди останньою. */
+const LANGUAGE_ORDER = ["uk", "ru", "en", "pl", "de", "fr", "es", "it", "cs", "pt", "other"];
+
 export async function getProfileFormLookups() {
   const [specializations, languages] = await Promise.all([
     prisma.specialization.findMany({ orderBy: { nameUk: "asc" } }),
-    prisma.language.findMany({ orderBy: { nameUk: "asc" } }),
+    prisma.language.findMany(),
   ]);
+
+  // Сортуємо в коді, а не в БД: алфавітний порядок виносив «Інша мова»
+  // на перше місце, хоча це технічний пункт-перемикач, а не мова.
+  const rank = (code: string) => {
+    const i = LANGUAGE_ORDER.indexOf(code);
+    return i === -1 ? LANGUAGE_ORDER.length : i;
+  };
+  languages.sort((a, b) => rank(a.code) - rank(b.code) || a.nameUk.localeCompare(b.nameUk, "uk"));
+
   return { specializations, languages };
 }

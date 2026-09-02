@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { THERAPY_APPROACHES } from "@/lib/therapy-approaches";
+
 /** Дописує https://, якщо людина ввела посилання без протоколу (напр. "instagram.com/..."). */
 function normalizeUrl(val: unknown) {
   if (typeof val !== "string") return val;
@@ -42,6 +44,11 @@ export const therapistProfileSchema = z.object({
   languageCodes: z.array(z.string()).min(1, "Оберіть щонайменше одну мову"),
 
   // Професійна позиція — «Мій простір»
+  // Підходи — лише з фіксованого списку; довільний текст приймається
+  // тільки в otherApproach і лише разом із пунктом «Інший підхід».
+  approaches: z.array(z.enum(THERAPY_APPROACHES)).default([]),
+  otherApproach: z.string().max(120).optional().nullable(),
+  otherLanguage: z.string().max(120).optional().nullable(),
   analyticalOrientation: z.string().max(300).optional().nullable(),
   ageGroups: z.array(z.enum(AGE_GROUPS)).default([]),
   workFormats: z.array(z.enum(WORK_FORMATS)).default([]),
