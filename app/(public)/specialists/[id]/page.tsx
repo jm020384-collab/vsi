@@ -25,6 +25,12 @@ interface DiplomaCard {
   reviewStatus?: "pending" | "reviewed";
 }
 
+/** Публічні групи розділу «Освіта та професійна підготовка». */
+interface EducationGroup {
+  title: string;
+  items: DiplomaCard[];
+}
+
 interface TextLink {
   id: string;
   href: string;
@@ -52,6 +58,7 @@ interface SpaceViewModel {
   position: string[];
   practice: string[];
   diplomas: DiplomaCard[];
+  educationGroups: EducationGroup[];
   path: { period: string; text: string }[];
   research: string[];
   texts: TextLink[];
@@ -88,6 +95,87 @@ const REAL_FORMAT_LABEL: Record<"ONLINE" | "OFFLINE" | "BOTH", string> = {
   BOTH: "Онлайн і очно",
 };
 
+const DEGREE_LABEL: Record<string, string> = {
+  BACHELOR: "Бакалавр",
+  MASTER: "Магістр",
+  SPECIALIST: "Спеціаліст",
+  PHD: "Доктор філософії / PhD",
+  OTHER: "",
+};
+
+const ROLE_LABEL: Record<string, string> = {
+  PARTICIPANT: "Учасник",
+  SPEAKER: "Доповідач",
+  MODERATOR: "Модератор",
+  ORGANIZER: "Організатор",
+};
+
+/** Форма запису освіти, з якої будується публічна картка. */
+interface EducationRow {
+  kind: string;
+  title: string | null;
+  institution: string | null;
+  specialization: string | null;
+  degree: string | null;
+  startYear: number | null;
+  endYear: number | null;
+  ongoing: boolean;
+  expectedEndYear: number | null;
+  eventDate: string | null;
+  role: string | null;
+  presentationTitle: string | null;
+  duration: string | null;
+  documents: { status: string }[];
+}
+
+function educationPeriod(e: EducationRow) {
+  if (e.ongoing) {
+    if (e.startYear) return `Навчається з ${e.startYear}`;
+    return e.expectedEndYear ? `У процесі, до ${e.expectedEndYear}` : "У процесі навчання";
+  }
+  if (e.startYear && e.endYear) {
+    return e.startYear === e.endYear ? `${e.startYear}` : `${e.startYear}–${e.endYear}`;
+  }
+  return e.eventDate ?? (e.endYear ? `${e.endYear}` : e.startYear ? `з ${e.startYear}` : undefined);
+}
+
+/**
+ * Три публічні групи: освіта, професійна підготовка, додаткове навчання.
+ * Технічні поля (тип запису, файли) сюди не потрапляють — тільки те, що
+ * має сенс для читача. «Перевірено VSI» ставимо лише коли адміністратор
+ * справді підтвердив документ: решта — інформація зі слів фахівця.
+ */
+function buildEducationGroups(rows: EducationRow[]): EducationGroup[] {
+  const groups: { title: string; kinds: string[] }[] = [
+    { title: "Освіта", kinds: ["EDUCATION"] },
+    { title: "Професійна підготовка", kinds: ["SPECIALIZATION", "TRAINING"] },
+    { title: "Додаткове навчання", kinds: ["SHORT_PROGRAM", "CONFERENCE"] },
+  ];
+
+  return groups
+    .map(({ title, kinds }) => ({
+      title,
+      items: rows
+        .filter((e) => kinds.includes(e.kind))
+        .map((e): DiplomaCard => {
+          const degree = e.degree ? DEGREE_LABEL[e.degree] : "";
+          const subtitle = [degree, e.specialization].filter(Boolean).join(" ");
+          const period = educationPeriod(e);
+          const roleLabel = e.role ? ROLE_LABEL[e.role] : undefined;
+
+          return {
+            title: e.title || e.institution || subtitle || "Навчання",
+            meta: [e.title ? e.institution : subtitle, period, roleLabel, e.duration]
+              .filter(Boolean)
+              .join(" · "),
+            tags: e.presentationTitle ? [e.presentationTitle] : undefined,
+            reviewStatus: e.documents.some((d) => d.status === "VERIFIED") ? "reviewed" : undefined,
+          };
+        }),
+    }))
+    .filter((g) => g.items.length > 0);
+}
+
 function seedFromString(s: string) {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
@@ -104,6 +192,10 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
       specializations: { include: { specialization: true } },
       languages: { include: { language: true } },
       documents: { orderBy: { createdAt: "desc" } },
+      education: {
+        orderBy: [{ startYear: "desc" }, { createdAt: "asc" }],
+        include: { documents: { select: { status: true } } },
+      },
       user: true,
     },
   });
@@ -162,6 +254,7 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
           reviewStatus: d.status === "VERIFIED" ? "reviewed" : "pending",
         };
       }),
+      educationGroups: buildEducationGroups(real.education),
       path: [],
       research: [],
       texts: articles.map((a) => ({
@@ -219,6 +312,8 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
       meta: d.years,
       tags: d.specialties,
     })),
+    // Демо-персони описані кураторськими дипломами, без розділу освіти.
+    educationGroups: [],
     path: space.path,
     research: space.research,
     texts: texts.map((m) => ({
@@ -264,7 +359,7 @@ const SECTIONS = [
   { id: "texts", label: "Тексти" },
   { id: "events", label: "Події" },
   { id: "research", label: "Досліджую" },
-  { id: "path", label: "Професійний шлях" },
+  { id: "path", label: "Освіта" },
   { id: "conditions", label: "Умови роботи" },
   { id: "contact", label: "Контакт" },
 ] as const;
@@ -601,9 +696,62 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
         </section>
 
         <section aria-labelledby="path">
-          <SectionTitleRow id="path">Професійний шлях</SectionTitleRow>
+          <SectionTitleRow id="path">Освіта та професійна підготовка</SectionTitleRow>
 
-          {vm.diplomas.length > 0 ? (
+          {vm.educationGroups.length > 0 ? (
+            <div className="mt-5 space-y-7">
+              {vm.educationGroups.map((group) => (
+                <div key={group.title}>
+                  <h3 className={`text-[11px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
+                    {group.title}
+                  </h3>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {group.items.map((d, i) => (
+                      <div
+                        key={i}
+                        className="flex gap-3.5 rounded-xl border border-[#142744]/10 bg-[#FFFDF8] p-4"
+                      >
+                        <span
+                          aria-hidden
+                          className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-[#F8F4EC] text-[#876428]"
+                        >
+                          <GraduationCap className="h-5 w-5" />
+                        </span>
+                        <div className="min-w-0">
+                          <div className={`text-[15px] font-medium leading-snug ${ink.strong}`}>
+                            {d.title}
+                          </div>
+                          {d.meta && (
+                            <div className={`mt-0.5 text-[13px] ${ink.soft}`}>{d.meta}</div>
+                          )}
+                          {d.tags && d.tags.length > 0 && (
+                            <div className="mt-1.5 flex flex-wrap gap-1.5">
+                              {d.tags.map((s) => (
+                                <span
+                                  key={s}
+                                  className="rounded-full border border-[#142744]/10 bg-[#F8F4EC] px-2 py-0.5 text-[11px] text-[#4A5568]"
+                                >
+                                  {s}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {/* Позначку ставимо тільки на реально перевірене VSI —
+                              решта лишається інформацією зі слів фахівця. */}
+                          {d.reviewStatus === "reviewed" && (
+                            <div className="mt-1.5 text-[12px] text-[#245A41]">
+                              Документ перевірено VSI
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <p className={`text-[12px] ${ink.soft}`}>Інформацію додано фахівцем.</p>
+            </div>
+          ) : vm.diplomas.length > 0 ? (
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {vm.diplomas.map((d, i) => (
                 <div
@@ -631,16 +779,6 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                             {s}
                           </span>
                         ))}
-                      </div>
-                    )}
-                    {d.reviewStatus && (
-                      <div
-                        className={cn(
-                          "mt-1.5 text-[12px]",
-                          d.reviewStatus === "reviewed" ? "text-[#245A41]" : "text-[#876428]",
-                        )}
-                      >
-                        {d.reviewStatus === "reviewed" ? "Перевірено" : "На розгляді"}
                       </div>
                     )}
                   </div>

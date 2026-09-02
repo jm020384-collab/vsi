@@ -10,6 +10,10 @@ const PROFILE_INCLUDE = {
   specializations: true,
   languages: true,
   documents: { orderBy: { createdAt: "desc" as const } },
+  education: {
+    orderBy: { createdAt: "asc" as const },
+    include: { documents: { orderBy: { createdAt: "asc" as const } } },
+  },
 };
 
 /** Перший візит на анкету — профілю ще нема, створюємо порожній чернетковий запис. */
@@ -86,17 +90,33 @@ export default async function TherapistProfileEditorPage() {
         supervisionStatus: therapist.supervisionStatus,
         personalTherapyStatus: therapist.personalTherapyStatus,
       }}
-      documents={therapist.documents.map((d) => ({
-        id: d.id,
-        fileName: d.fileName,
-        docType: d.docType,
-        status: d.status,
-        reviewNote: d.reviewNote,
-        institution: d.institution,
-        specialization: d.specialization,
-        yearFrom: d.yearFrom,
-        yearTo: d.yearTo,
-        inProgress: d.inProgress,
+      education={therapist.education.map((e) => ({
+        id: e.id,
+        kind: e.kind,
+        title: e.title,
+        institution: e.institution,
+        faculty: e.faculty,
+        specialization: e.specialization,
+        degree: e.degree,
+        country: e.country,
+        trainer: e.trainer,
+        programType: e.programType,
+        duration: e.duration,
+        startYear: e.startYear,
+        endYear: e.endYear,
+        ongoing: e.ongoing,
+        expectedEndYear: e.expectedEndYear,
+        eventDate: e.eventDate,
+        role: e.role,
+        presentationTitle: e.presentationTitle,
+        link: e.link,
+        description: e.description,
+        documents: e.documents.map((d) => ({
+          id: d.id,
+          fileName: d.fileName,
+          status: d.status,
+          reviewNote: d.reviewNote,
+        })),
       }))}
       specializationOptions={specializations.map((s) => ({ id: s.id, label: s.nameUk }))}
       languageOptions={languages.map((l) => ({ code: l.code, label: l.nameUk }))}

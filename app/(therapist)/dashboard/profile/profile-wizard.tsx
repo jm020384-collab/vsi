@@ -7,7 +7,10 @@ import { ArrowLeft, ArrowRight, Check, PartyPopper, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { updateTherapistProfileAction, type ProfileState } from "@/lib/actions/therapist-profile";
 import { PhotoUploader } from "@/components/dashboard/photo-uploader";
-import { EducationEditor, type EducationItem } from "@/components/dashboard/education-editor";
+import {
+  EducationSection,
+  type EducationEntryItem,
+} from "@/components/dashboard/education-section";
 import { MultiSelect } from "@/components/dashboard/multi-select";
 import { THERAPY_APPROACHES, OTHER_APPROACH, OTHER_LANGUAGE_CODE } from "@/lib/therapy-approaches";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
@@ -304,12 +307,12 @@ function TagInput({
 
 export function ProfileWizard({
   therapist,
-  documents,
+  education,
   specializationOptions,
   languageOptions,
 }: {
   therapist: TherapistDraft;
-  documents: EducationItem[];
+  education: EducationEntryItem[];
   specializationOptions: { id: string; label: string }[];
   languageOptions: { code: string; label: string }[];
 }) {
@@ -823,7 +826,7 @@ export function ProfileWizard({
               Освіта та навчання
             </FieldLabel>
             <div className="mt-3">
-              <EducationEditor initialItems={documents} />
+              <EducationSection initialEntries={education} />
             </div>
           </div>
         )}

@@ -94,6 +94,33 @@ enum DocumentStatus {
   NEEDS_UPDATE
 }
 
+/// Розділ «Освіта та професійна підготовка». Один запис = одна позиція
+/// траєкторії; kind визначає, у якій секції вона показується і які поля
+/// має сенс заповнювати. Одна таблиця замість п'яти майже однакових —
+/// форми й публічний рендер у них спільні.
+enum EducationKind {
+  EDUCATION // базова вища освіта
+  SPECIALIZATION // професійна спеціалізація
+  TRAINING // додаткові навчальні програми
+  SHORT_PROGRAM // майстер-класи та семінари
+  CONFERENCE // конференції та професійні події
+}
+
+enum DegreeLevel {
+  BACHELOR
+  MASTER
+  SPECIALIST
+  PHD
+  OTHER
+}
+
+enum ConferenceRole {
+  PARTICIPANT
+  SPEAKER
+  MODERATOR
+  ORGANIZER
+}
+
 enum EventType {
   LECTURE
   SEMINAR
@@ -256,6 +283,7 @@ model TherapistProfile {
   specializations TherapistSpecialization[]
   languages       TherapistLanguage[]
   documents       VerificationDocument[]
+  education       EducationEntry[]
   requests        ContactRequest[]
   reviews         Review[]
   events          Event[]
@@ -312,17 +340,61 @@ model TherapistLanguage {
 //  Верифікація
 // ============================================================================
 
-/// Запис освіти. Файл НЕ обовʼязковий: навчання можна просто описати
-/// (заклад + спеціалізація) або позначити як «у процесі». Скан, коли він
-/// є, лишається приватним — публічно видно лише текстовий опис.
+/// Позиція розділу «Освіта та професійна підготовка».
+///
+/// Документ НЕ обовʼязковий: навчання можна просто описати або позначити
+/// як таке, що триває. Скан, коли він є, живе в VerificationDocument і
+/// лишається приватним — публічно показуємо тільки текст. Через це
+/// «інформацію додав фахівець» і «документ перевірено VSI» — різні речі.
+model EducationEntry {
+  id          String           @id @default(cuid())
+  therapistId String
+  therapist   TherapistProfile @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  kind        EducationKind
+
+  title          String? // назва програми/події (для не-EDUCATION)
+  institution    String? // заклад освіти / організатор
+  faculty        String?
+  specialization String?
+  degree         DegreeLevel?
+  country        String?
+  trainer        String? // викладач / спікер
+  programType    String? // тип програми — з фіксованого списку на клієнті
+  duration       String? // «120 годин», «2 роки» тощо
+
+  startYear       Int?
+  endYear         Int?
+  ongoing         Boolean @default(false)
+  expectedEndYear Int?
+  eventDate       String? // для коротких форматів — дата вільним текстом
+
+  role              ConferenceRole?
+  presentationTitle String?
+  link              String?
+  description       String?         @db.Text
+
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents VerificationDocument[]
+
+  @@index([therapistId])
+}
+
+/// Скан документа. Може бути привʼязаний до запису освіти (entryId) або
+/// лежати сам по собі — як було до появи EducationEntry.
 model VerificationDocument {
   id          String           @id @default(cuid())
   therapistId String
   therapist   TherapistProfile @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  entryId     String?
+  entry       EducationEntry?  @relation(fields: [entryId], references: [id], onDelete: Cascade)
   fileUrl     String? // приватний bucket, доступ через підписані URL
   fileName    String?
   fileKey     String? // ключ у UploadThing/R2 для генерації signed URL
 
+  title          String? // назва документа
   institution    String? // заклад освіти
   specialization String? // спеціальність / напрям навчання
   yearFrom       Int?
@@ -337,6 +409,7 @@ model VerificationDocument {
   createdAt   DateTime         @default(now())
 
   @@index([therapistId])
+  @@index([entryId])
 }
 
 // ============================================================================

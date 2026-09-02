@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { ink } from "@/components/preview/vsi/theme";
-import { EducationEditor } from "@/components/dashboard/education-editor";
+import { EducationSection } from "@/components/dashboard/education-section";
 
 export const metadata: Metadata = { title: "Кваліфікації · Кабінет фахівця" };
 
@@ -15,7 +15,12 @@ export default async function QualificationsPage() {
 
   const therapist = await prisma.therapistProfile.findUnique({
     where: { userId: session.user.id },
-    include: { documents: { orderBy: { createdAt: "desc" } } },
+    include: {
+      education: {
+        orderBy: { createdAt: "asc" },
+        include: { documents: { orderBy: { createdAt: "asc" } } },
+      },
+    },
   });
 
   return (
@@ -35,20 +40,36 @@ export default async function QualificationsPage() {
         файли не публікуються: вони лише підтверджують кваліфікацію для VSI.
       </p>
 
-      <div className="mt-8 max-w-lg">
+      <div className="mt-8 max-w-2xl">
         {therapist ? (
-          <EducationEditor
-            initialItems={therapist.documents.map((d) => ({
-              id: d.id,
-              fileName: d.fileName,
-              docType: d.docType,
-              status: d.status,
-              reviewNote: d.reviewNote,
-              institution: d.institution,
-              specialization: d.specialization,
-              yearFrom: d.yearFrom,
-              yearTo: d.yearTo,
-              inProgress: d.inProgress,
+          <EducationSection
+            initialEntries={therapist.education.map((e) => ({
+              id: e.id,
+              kind: e.kind,
+              title: e.title,
+              institution: e.institution,
+              faculty: e.faculty,
+              specialization: e.specialization,
+              degree: e.degree,
+              country: e.country,
+              trainer: e.trainer,
+              programType: e.programType,
+              duration: e.duration,
+              startYear: e.startYear,
+              endYear: e.endYear,
+              ongoing: e.ongoing,
+              expectedEndYear: e.expectedEndYear,
+              eventDate: e.eventDate,
+              role: e.role,
+              presentationTitle: e.presentationTitle,
+              link: e.link,
+              description: e.description,
+              documents: e.documents.map((d) => ({
+                id: d.id,
+                fileName: d.fileName,
+                status: d.status,
+                reviewNote: d.reviewNote,
+              })),
             }))}
           />
         ) : (
