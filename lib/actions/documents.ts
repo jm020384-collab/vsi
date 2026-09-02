@@ -6,20 +6,51 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 
-const docSchema = z.object({
-  fileUrl: z.string().url(),
-  fileName: z.string().min(1).max(200),
-  fileKey: z.string().min(1),
-  docType: z.enum(["DIPLOMA", "CERTIFICATE", "ID", "OTHER"]).default("DIPLOMA"),
-});
+export const EDUCATION_TYPES = [
+  "DIPLOMA",
+  "CERTIFICATE",
+  "COURSE",
+  "MASTERCLASS",
+  "CONFERENCE",
+  "ID",
+  "OTHER",
+] as const;
+
+/**
+ * Запис освіти. Файл необовʼязковий — навчання можна просто описати
+ * або позначити як «у процесі». Але порожній запис без жодного змісту
+ * зберігати немає сенсу, тож вимагаємо хоча б заклад або файл.
+ */
+const educationSchema = z
+  .object({
+    institution: z.string().max(200).optional().nullable(),
+    specialization: z.string().max(200).optional().nullable(),
+    yearFrom: z.number().int().min(1950).max(2100).optional().nullable(),
+    yearTo: z.number().int().min(1950).max(2100).optional().nullable(),
+    inProgress: z.boolean().default(false),
+    docType: z.enum(EDUCATION_TYPES).default("DIPLOMA"),
+    fileUrl: z.string().url().optional().nullable(),
+    fileName: z.string().min(1).max(200).optional().nullable(),
+    fileKey: z.string().min(1).optional().nullable(),
+  })
+  .refine((d) => Boolean(d.institution?.trim()) || Boolean(d.fileUrl), {
+    message: "Вкажіть заклад освіти або прикріпіть файл",
+    path: ["institution"],
+  })
+  .refine((d) => !(d.yearFrom && d.yearTo) || d.yearTo >= d.yearFrom, {
+    message: "Рік завершення не може бути раніше за рік початку",
+    path: ["yearTo"],
+  });
+
+export type EducationInput = z.input<typeof educationSchema>;
 
 export type DocumentActionResult = { ok: true; id: string } | { ok: false; error: string };
 
 /**
- * Додає завантажений диплом/сертифікат до профілю поточного фахівця.
- * Файл уже лежить в UploadThing (client widget завантажує напряму) —
- * тут лише прив'язуємо метадані до профілю. Перевірка — вручну,
- * адміністратором; reviewedAt лишається null до розгляду.
+ * Додає запис освіти до профілю поточного фахівця. Файл, якщо він є,
+ * уже лежить в UploadThing (віджет завантажує напряму) — тут лише
+ * зберігаємо метадані. Перевірка — вручну адміністратором, тож
+ * reviewedAt лишається null до розгляду.
  *
  * Повертає результат, а НЕ кидає виняток: цю дію викликають прямим
  * викликом з клієнта (не через <form action>), і кинутий тут Error
@@ -27,22 +58,17 @@ export type DocumentActionResult = { ok: true; id: string } | { ok: false; error
  * усередині try/catch на клієнті.
  */
 export async function addVerificationDocumentAction(
-  input: z.infer<typeof docSchema>,
+  input: EducationInput,
 ): Promise<DocumentActionResult> {
   const session = await auth();
   if (!session?.user || (session.user.role !== "THERAPIST" && session.user.role !== "ADMIN")) {
     return { ok: false, error: "Потрібно увійти як фахівець" };
   }
 
-  const parsed = docSchema.safeParse(input);
+  const parsed = educationSchema.safeParse(input);
   if (!parsed.success) {
     const first = parsed.error.issues[0];
-    return {
-      ok: false,
-      error: first
-        ? `Файл не збережено: ${first.path.join(".")} — ${first.message}`
-        : "Некоректні дані файлу",
-    };
+    return { ok: false, error: first?.message ?? "Некоректні дані запису" };
   }
 
   const profile = await prisma.therapistProfile.findUnique({
@@ -58,7 +84,7 @@ export async function addVerificationDocumentAction(
     revalidatePath("/dashboard/qualifications");
     return { ok: true, id: created.id };
   } catch {
-    return { ok: false, error: "Не вдалося зберегти документ. Спробуйте ще раз." };
+    return { ok: false, error: "Не вдалося зберегти запис. Спробуйте ще раз." };
   }
 }
 

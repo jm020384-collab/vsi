@@ -81,6 +81,10 @@ enum DocumentType {
   DIPLOMA
   CERTIFICATE
   ID
+  // Додаткове навчання: не завжди має диплом, часто взагалі без файлу
+  COURSE
+  MASTERCLASS
+  CONFERENCE
   OTHER
 }
 
@@ -308,13 +312,23 @@ model TherapistLanguage {
 //  Верифікація
 // ============================================================================
 
+/// Запис освіти. Файл НЕ обовʼязковий: навчання можна просто описати
+/// (заклад + спеціалізація) або позначити як «у процесі». Скан, коли він
+/// є, лишається приватним — публічно видно лише текстовий опис.
 model VerificationDocument {
   id          String           @id @default(cuid())
   therapistId String
   therapist   TherapistProfile @relation(fields: [therapistId], references: [id], onDelete: Cascade)
-  fileUrl     String // приватний bucket, доступ через підписані URL
-  fileName    String
-  fileKey     String // ключ у UploadThing/R2 для генерації signed URL
+  fileUrl     String? // приватний bucket, доступ через підписані URL
+  fileName    String?
+  fileKey     String? // ключ у UploadThing/R2 для генерації signed URL
+
+  institution    String? // заклад освіти
+  specialization String? // спеціальність / напрям навчання
+  yearFrom       Int?
+  yearTo         Int?
+  inProgress     Boolean @default(false) // навчання ще триває
+
   docType     DocumentType     @default(DIPLOMA)
   status      DocumentStatus   @default(PENDING)
   reviewedBy  String?

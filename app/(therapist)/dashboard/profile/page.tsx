@@ -92,6 +92,11 @@ export default async function TherapistProfileEditorPage() {
         docType: d.docType,
         status: d.status,
         reviewNote: d.reviewNote,
+        institution: d.institution,
+        specialization: d.specialization,
+        yearFrom: d.yearFrom,
+        yearTo: d.yearTo,
+        inProgress: d.inProgress,
       }))}
       specializationOptions={specializations.map((s) => ({ id: s.id, label: s.nameUk }))}
       languageOptions={languages.map((l) => ({ code: l.code, label: l.nameUk }))}

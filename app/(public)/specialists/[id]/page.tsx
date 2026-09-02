@@ -72,6 +72,16 @@ interface SpaceViewModel {
   acceptsRequestsViaVsi: boolean;
 }
 
+const EDUCATION_TYPE_LABEL: Record<string, string> = {
+  DIPLOMA: "Вища освіта",
+  CERTIFICATE: "Перепідготовка",
+  COURSE: "Курс",
+  MASTERCLASS: "Майстер-клас",
+  CONFERENCE: "Конференція",
+  ID: "Документ",
+  OTHER: "Навчання",
+};
+
 const REAL_FORMAT_LABEL: Record<"ONLINE" | "OFFLINE" | "BOTH", string> = {
   ONLINE: "Онлайн",
   OFFLINE: "Очно",
@@ -130,16 +140,28 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
         `Формат роботи: ${REAL_FORMAT_LABEL[real.sessionFormat].toLowerCase()}, ${real.city}.` +
           (real.workingHours ? ` Графік: ${real.workingHours}.` : ""),
       ],
-      diplomas: real.documents.map((d) => ({
-        title: d.fileName,
-        meta:
-          d.docType === "DIPLOMA"
-            ? "Диплом"
-            : d.docType === "CERTIFICATE"
-              ? "Сертифікат"
-              : "Документ",
-        reviewStatus: d.status === "VERIFIED" ? "reviewed" : "pending",
-      })),
+      // Публічно показуємо ТЕКСТ освіти (заклад, спеціальність, роки),
+      // а не назви файлів: скани лишаються приватними.
+      diplomas: real.documents.map((d): DiplomaCard => {
+        const period = d.inProgress
+          ? d.yearFrom
+            ? `з ${d.yearFrom}, триває`
+            : "триває"
+          : d.yearFrom && d.yearTo
+            ? d.yearFrom === d.yearTo
+              ? `${d.yearFrom}`
+              : `${d.yearFrom}–${d.yearTo}`
+            : (d.yearTo ?? d.yearFrom)
+              ? `${d.yearTo ?? d.yearFrom}`
+              : undefined;
+        const typeLabel = EDUCATION_TYPE_LABEL[d.docType] ?? "Навчання";
+        return {
+          title: d.institution ?? d.fileName ?? typeLabel,
+          meta: [typeLabel, period].filter(Boolean).join(" · "),
+          tags: d.specialization ? [d.specialization] : undefined,
+          reviewStatus: d.status === "VERIFIED" ? "reviewed" : "pending",
+        };
+      }),
       path: [],
       research: [],
       texts: articles.map((a) => ({

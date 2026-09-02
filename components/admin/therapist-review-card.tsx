@@ -72,7 +72,18 @@ export interface TherapistReviewData {
   specializations: string[];
   languages: string[];
   submittedAt: string;
-  documents: { id: string; fileName: string; fileUrl: string; docType: string; status: string }[];
+  documents: {
+    id: string;
+    fileName: string | null;
+    fileUrl: string | null;
+    docType: string;
+    status: string;
+    institution: string | null;
+    specialization: string | null;
+    yearFrom: number | null;
+    yearTo: number | null;
+    inProgress: boolean;
+  }[];
 }
 
 export function TherapistReviewCard({ therapist: t }: { therapist: TherapistReviewData }) {
@@ -223,30 +234,50 @@ export function TherapistReviewCard({ therapist: t }: { therapist: TherapistRevi
         </div>
 
         <div>
-          <p className="text-sm font-medium">Документи ({t.documents.length})</p>
+          <p className="text-sm font-medium">Освіта ({t.documents.length})</p>
           {t.documents.length === 0 ? (
-            <p className="mt-1 text-sm text-muted-foreground">Файлів не завантажено.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Записів немає.</p>
           ) : (
-            <ul className="mt-1.5 space-y-1">
-              {t.documents.map((d) => (
-                <li key={d.id} className="flex flex-wrap items-center gap-2 text-sm">
-                  <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
-                  <a
-                    href={d.fileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline underline-offset-2"
-                  >
-                    {d.fileName}
-                  </a>
-                  <span className="text-muted-foreground">
-                    ({DOC_TYPE_LABEL[d.docType] ?? d.docType})
-                  </span>
-                  <Badge variant={DOC_STATUS_VARIANT[d.status] ?? "outline"}>
-                    {DOC_STATUS_LABEL[d.status] ?? d.status}
-                  </Badge>
-                </li>
-              ))}
+            <ul className="mt-1.5 space-y-1.5">
+              {t.documents.map((d) => {
+                const period = d.inProgress
+                  ? d.yearFrom
+                    ? `з ${d.yearFrom}, триває`
+                    : "триває"
+                  : [d.yearFrom, d.yearTo].filter(Boolean).join("–");
+                return (
+                  <li key={d.id} className="flex flex-wrap items-center gap-2 text-sm">
+                    <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                    {/* Скан є не завжди — запис може бути лише текстовим описом. */}
+                    {d.fileUrl ? (
+                      <a
+                        href={d.fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline underline-offset-2"
+                      >
+                        {d.institution || d.fileName}
+                      </a>
+                    ) : (
+                      <span>{d.institution ?? "—"}</span>
+                    )}
+                    {d.specialization && (
+                      <span className="text-muted-foreground">{d.specialization}</span>
+                    )}
+                    {period && <span className="text-muted-foreground">{period}</span>}
+                    <span className="text-muted-foreground">
+                      ({DOC_TYPE_LABEL[d.docType] ?? d.docType})
+                    </span>
+                    {d.fileUrl ? (
+                      <Badge variant={DOC_STATUS_VARIANT[d.status] ?? "outline"}>
+                        {DOC_STATUS_LABEL[d.status] ?? d.status}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">Без документа</Badge>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

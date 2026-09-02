@@ -7,7 +7,7 @@ import { ArrowLeft, ArrowRight, Check, PartyPopper, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { updateTherapistProfileAction, type ProfileState } from "@/lib/actions/therapist-profile";
 import { PhotoUploader } from "@/components/dashboard/photo-uploader";
-import { DiplomaUploader, type DocumentItem } from "@/components/dashboard/diploma-uploader";
+import { EducationEditor, type EducationItem } from "@/components/dashboard/education-editor";
 import { MultiSelect } from "@/components/dashboard/multi-select";
 import { THERAPY_APPROACHES, OTHER_APPROACH, OTHER_LANGUAGE_CODE } from "@/lib/therapy-approaches";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
@@ -110,7 +110,7 @@ const STEPS = [
   "Напрями й мови",
   "Професійна ідентичність",
   "Формат і контакти",
-  "Дипломи",
+  "Освіта",
   "Огляд",
 ] as const;
 
@@ -309,7 +309,7 @@ export function ProfileWizard({
   languageOptions,
 }: {
   therapist: TherapistDraft;
-  documents: DocumentItem[];
+  documents: EducationItem[];
   specializationOptions: { id: string; label: string }[];
   languageOptions: { code: string; label: string }[];
 }) {
@@ -819,11 +819,11 @@ export function ProfileWizard({
         {/* ── Крок 5: Дипломи ── */}
         {step === 5 && (
           <div>
-            <FieldLabel hint="Завантажте скани — ми перевіримо їх вручну перед публікацією профілю.">
-              Дипломи та сертифікати
+            <FieldLabel hint="Вища освіта, перепідготовка, курси, майстер-класи, конференції. Скан прикріплювати не обов'язково — навчання можна просто описати або позначити як таке, що триває.">
+              Освіта та навчання
             </FieldLabel>
             <div className="mt-3">
-              <DiplomaUploader initialDocuments={documents} />
+              <EducationEditor initialItems={documents} />
             </div>
           </div>
         )}

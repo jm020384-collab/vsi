@@ -82,6 +82,11 @@ export default async function AdminTherapistsPage() {
                   fileUrl: d.fileUrl,
                   docType: d.docType,
                   status: d.status,
+                  institution: d.institution,
+                  specialization: d.specialization,
+                  yearFrom: d.yearFrom,
+                  yearTo: d.yearTo,
+                  inProgress: d.inProgress,
                 })),
               }}
             />
