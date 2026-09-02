@@ -87,10 +87,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="uk" suppressHydrationWarning className={`${sans.variable} ${serif.variable}`}>
       <body className="flex min-h-screen flex-col font-sans">
+        {/*
+          storageKey навмисно новий: у старому ключі в багатьох уже
+          лежить "system" з попередньої конфігурації, і next-themes
+          застосовує його як клас навіть при enableSystem={false} —
+          сторінка отримувала невалідний клас "system" замість light.
+        */}
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
+          storageKey="vsi-theme"
           disableTransitionOnChange
         >
           <SessionProvider session={session}>
