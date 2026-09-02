@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import {
   FileText,
   GraduationCap,
@@ -225,6 +225,10 @@ export function EducationSection({ initialEntries }: { initialEntries: Education
   const [form, setForm] = useState<FormState | null>(null);
   const [pending, startTransition] = useTransition();
   const [uploadingFor, setUploadingFor] = useState<string | null>(null);
+  // Дублюємо в ref: useUploadThing тримає колбеки з першого рендера, тож
+  // читання стану напряму давало null — файл вивантажувався, але мовчки
+  // не прикріплювався до запису.
+  const uploadingForRef = useRef<string | null>(null);
 
   const byKind = useMemo(() => {
     const map = new Map<EducationKind, EducationEntryItem[]>();
@@ -236,9 +240,13 @@ export function EducationSection({ initialEntries }: { initialEntries: Education
   const { startUpload } = useUploadThing("diplomaDocument", {
     onClientUploadComplete: (res) => {
       const f = res?.[0];
-      const entryId = uploadingFor;
+      const entryId = uploadingForRef.current;
+      uploadingForRef.current = null;
       setUploadingFor(null);
-      if (!f || !entryId) return;
+      if (!f || !entryId) {
+        toast.error("Не вдалося визначити, до якого запису додати документ");
+        return;
+      }
       startTransition(async () => {
         const result = await attachEducationDocumentAction({
           entryId,
@@ -267,6 +275,7 @@ export function EducationSection({ initialEntries }: { initialEntries: Education
       });
     },
     onUploadError: (error) => {
+      uploadingForRef.current = null;
       setUploadingFor(null);
       toast.error(error.message || "Не вдалося завантажити файл");
     },
@@ -416,10 +425,13 @@ export function EducationSection({ initialEntries }: { initialEntries: Education
 
                           <div className="mt-2.5 flex flex-wrap items-center gap-2">
                             <label
+                              aria-busy={uploadingFor === e.id}
                               className={cn(
-                                "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-dashed border-[#142744]/25 px-2.5 py-1 text-[12px] text-[#142744]",
-                                "hover:border-[#142744]/45",
+                                "inline-flex items-center gap-1.5 rounded-lg border border-dashed px-2.5 py-1 text-[12px]",
                                 focusRing,
+                                uploadingFor === e.id
+                                  ? "cursor-wait border-[#1C3557]/40 bg-[#1C3557]/[0.06] text-[#1C3557]"
+                                  : "cursor-pointer border-[#142744]/25 text-[#142744] hover:border-[#142744]/45",
                               )}
                             >
                               {uploadingFor === e.id ? (
@@ -427,14 +439,16 @@ export function EducationSection({ initialEntries }: { initialEntries: Education
                               ) : (
                                 <UploadCloud className="h-3 w-3" aria-hidden />
                               )}
-                              Додати документ
+                              {uploadingFor === e.id ? "Завантажуємо…" : "Додати документ"}
                               <input
                                 type="file"
                                 accept="image/*,.pdf"
                                 className="sr-only"
+                                disabled={uploadingFor !== null}
                                 onChange={(ev) => {
                                   const files = Array.from(ev.target.files ?? []);
                                   if (files.length) {
+                                    uploadingForRef.current = e.id;
                                     setUploadingFor(e.id);
                                     void startUpload(files);
                                   }

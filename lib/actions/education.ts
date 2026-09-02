@@ -6,17 +6,12 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 
-export const EDUCATION_KINDS = [
-  "EDUCATION",
-  "SPECIALIZATION",
-  "TRAINING",
-  "SHORT_PROGRAM",
-  "CONFERENCE",
-] as const;
-
-export const DEGREE_LEVELS = ["BACHELOR", "MASTER", "SPECIALIST", "PHD", "OTHER"] as const;
-
-export const CONFERENCE_ROLES = ["PARTICIPANT", "SPEAKER", "MODERATOR", "ORGANIZER"] as const;
+import {
+  EDUCATION_KINDS,
+  DEGREE_LEVELS,
+  CONFERENCE_ROLES,
+  DOCUMENT_TYPES,
+} from "@/lib/education-constants";
 
 const yearField = z
   .union([z.number(), z.string(), z.null()])
@@ -169,9 +164,7 @@ const attachSchema = z.object({
   fileName: z.string().min(1).max(200),
   fileKey: z.string().min(1),
   title: z.string().max(200).nullish(),
-  docType: z
-    .enum(["DIPLOMA", "CERTIFICATE", "COURSE", "MASTERCLASS", "CONFERENCE", "ID", "OTHER"])
-    .default("DIPLOMA"),
+  docType: z.enum(DOCUMENT_TYPES).default("DIPLOMA"),
 });
 
 /** Прикріплює завантажений файл до запису освіти. Записів без файлу це не стосується. */
