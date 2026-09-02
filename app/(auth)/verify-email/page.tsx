@@ -31,13 +31,23 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
   const result = await confirmEmail(email, token);
 
   if (result.ok) {
+    const isEmailChange = result.kind === "emailChange";
     return (
       <div className="container max-w-md py-24 text-center">
         <Check className="mx-auto h-8 w-8 text-primary" aria-hidden />
-        <h1 className="mt-3 text-2xl font-semibold">Email підтверджено</h1>
-        <p className="mt-3 text-muted-foreground">Реєстрацію завершено — тепер можна увійти.</p>
-        <Link href="/login" className="mt-6 inline-block text-primary underline">
-          Увійти
+        <h1 className="mt-3 text-2xl font-semibold">
+          {isEmailChange ? "Новий email підтверджено" : "Email підтверджено"}
+        </h1>
+        <p className="mt-3 text-muted-foreground">
+          {isEmailChange
+            ? "Адресу акаунта змінено. Використовуйте її для входу надалі."
+            : "Реєстрацію завершено — тепер можна увійти."}
+        </p>
+        <Link
+          href={isEmailChange ? "/dashboard/settings" : "/login"}
+          className="mt-6 inline-block text-primary underline"
+        >
+          {isEmailChange ? "До налаштувань" : "Увійти"}
         </Link>
       </div>
     );

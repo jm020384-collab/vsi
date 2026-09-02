@@ -38,7 +38,7 @@ const NAV: NavItem[] = [
   { href: "/dashboard/development", label: "Професійний розвиток", icon: BookOpen, soon: true },
   { href: "/dashboard/qualifications", label: "Кваліфікації", icon: GraduationCap },
   { href: "/dashboard/contact", label: "Контакт і доступність", icon: Phone },
-  { href: "/dashboard/settings", label: "Налаштування", icon: Settings, soon: true },
+  { href: "/dashboard/settings", label: "Налаштування", icon: Settings },
 ];
 
 const ADMIN_NAV: NavItem[] = [

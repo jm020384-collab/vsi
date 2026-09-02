@@ -42,7 +42,9 @@ export async function sendVerificationEmail(email: string, name: string | null) 
   }
 }
 
-export type ConfirmEmailResult = { ok: true } | { ok: false; error: "invalid" | "expired" };
+export type ConfirmEmailResult =
+  | { ok: true; kind: "registration" | "emailChange" }
+  | { ok: false; error: "invalid" | "expired" };
 
 /** Викликається зі сторінки /verify-email при переході за посиланням з листа. */
 export async function confirmEmail(email: string, token: string): Promise<ConfirmEmailResult> {
@@ -60,12 +62,47 @@ export async function confirmEmail(email: string, token: string): Promise<Confir
     return { ok: false, error: "expired" };
   }
 
+  // Зміна email (кабінет → Безпека): identifier — це НОВА, ще не
+  // основна адреса, записана як pendingEmail. Старий email лишається
+  // основним і активним, доки цей перехід не відбудеться.
+  const pendingUser = await prisma.user.findUnique({ where: { pendingEmail: lower } });
+  if (pendingUser) {
+    const oldEmail = pendingUser.email;
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: pendingUser.id },
+        data: { email: lower, pendingEmail: null, emailVerified: new Date() },
+      }),
+      prisma.verificationToken.delete({
+        where: { identifier_token: { identifier: lower, token } },
+      }),
+    ]);
+    await notifyEmailChanged(oldEmail, lower);
+    return { ok: true, kind: "emailChange" };
+  }
+
   await prisma.$transaction([
     prisma.user.updateMany({ where: { email: lower }, data: { emailVerified: new Date() } }),
     prisma.verificationToken.delete({ where: { identifier_token: { identifier: lower, token } } }),
   ]);
 
-  return { ok: true };
+  return { ok: true, kind: "registration" };
+}
+
+/** Best-effort сповіщення на СТАРУ адресу — щоб власник одразу побачив, якщо зміну ініціював не він. */
+async function notifyEmailChanged(oldEmail: string, newEmail: string) {
+  if (!process.env.RESEND_API_KEY) return;
+  try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: process.env.EMAIL_FROM ?? "VSI <noreply@example.com>",
+      to: oldEmail,
+      subject: "Електронну адресу вашого акаунта VSI змінено",
+      text: `Електронну адресу акаунта VSI змінено на ${newEmail}.\n\nЯкщо це зробили не ви — акаунт могли скомпрометувати. Зверніться до підтримки якнайшвидше.`,
+    });
+  } catch {
+    // best-effort
+  }
 }
 
 export type ResendState = { ok: true } | { ok: false; error: string };

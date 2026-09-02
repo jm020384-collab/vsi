@@ -17,7 +17,7 @@ export default async function AdminTherapistsPage() {
     prisma.therapistProfile.findMany({
       where: { status: "PENDING", deletedAt: null },
       include: {
-        user: { select: { email: true } },
+        user: { select: { email: true, emailVerified: true, createdAt: true, lastLoginAt: true } },
         documents: { orderBy: { createdAt: "desc" } },
         specializations: { include: { specialization: true } },
         languages: { include: { language: true } },
@@ -56,6 +56,9 @@ export default async function AdminTherapistsPage() {
                 id: t.id,
                 fullName: t.fullName,
                 email: t.user.email,
+                emailVerified: !!t.user.emailVerified,
+                registeredAt: t.user.createdAt.toISOString(),
+                lastLoginAt: t.user.lastLoginAt?.toISOString() ?? null,
                 city: t.city,
                 yearsExperience: t.yearsExperience,
                 sessionFormat: t.sessionFormat,

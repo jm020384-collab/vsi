@@ -52,6 +52,9 @@ export interface TherapistReviewData {
   id: string;
   fullName: string;
   email: string;
+  emailVerified: boolean;
+  registeredAt: string;
+  lastLoginAt: string | null;
   city: string;
   yearsExperience: number;
   sessionFormat: string;
@@ -194,6 +197,30 @@ export function TherapistReviewCard({ therapist: t }: { therapist: TherapistRevi
         {t.associations.length > 0 && (
           <p className="text-sm text-muted-foreground">Асоціації: {t.associations.join(", ")}</p>
         )}
+
+        <div className="rounded-md border p-3">
+          <p className="text-sm font-medium">Акаунт і безпека</p>
+          <dl className="mt-2 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
+            <div className="flex items-center justify-between gap-2 sm:justify-start">
+              <dt className="text-muted-foreground">Email</dt>
+              <dd>
+                {t.emailVerified ? (
+                  <span className="text-[#245A41]">✓ Підтверджено</span>
+                ) : (
+                  <span className="text-[#876428]">⚠ Не підтверджено</span>
+                )}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-2 sm:justify-start">
+              <dt className="text-muted-foreground">Реєстрація</dt>
+              <dd>{new Date(t.registeredAt).toLocaleDateString("uk-UA")}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-2 sm:justify-start">
+              <dt className="text-muted-foreground">Останній вхід</dt>
+              <dd>{t.lastLoginAt ? new Date(t.lastLoginAt).toLocaleDateString("uk-UA") : "—"}</dd>
+            </div>
+          </dl>
+        </div>
 
         <div>
           <p className="text-sm font-medium">Документи ({t.documents.length})</p>

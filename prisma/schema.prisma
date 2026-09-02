@@ -123,17 +123,20 @@ enum EventRegistrationStatus {
 // ============================================================================
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime?
-  passwordHash  String?
-  role          Role      @default(PATIENT)
-  name          String?
-  image         String?
-  locale        String    @default("uk")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
+  id                String    @id @default(cuid())
+  email             String    @unique
+  pendingEmail      String?   @unique
+  emailVerified     DateTime?
+  passwordHash      String?
+  passwordChangedAt DateTime?
+  lastLoginAt       DateTime?
+  role              Role      @default(PATIENT)
+  name              String?
+  image             String?
+  locale            String    @default("uk")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
 
   therapist          TherapistProfile?
   articles           Article[]           @relation("AuthorArticles")
@@ -173,6 +176,15 @@ model Session {
 }
 
 model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Короткоживучий (30-60 хв), одноразовий токен для «забули пароль».
+model PasswordResetToken {
   identifier String
   token      String   @unique
   expires    DateTime

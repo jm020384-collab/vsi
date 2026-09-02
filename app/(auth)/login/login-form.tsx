@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,13 @@ export function LoginForm() {
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? "Вхід…" : "Увійти"}
       </Button>
+
+      <Link
+        href="/forgot-password"
+        className="block text-center text-sm text-muted-foreground hover:text-primary"
+      >
+        Забули пароль?
+      </Link>
     </form>
   );
 }

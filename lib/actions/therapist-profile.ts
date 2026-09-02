@@ -72,7 +72,6 @@ export async function updateTherapistProfileAction(
 
   // DRAFT → PENDING саме в момент завершення анкети; з PENDING/APPROVED
   // повторне редагування статус не змінює (щоб не губити верифікацію).
-  // Після цього виклику статус завжди не-DRAFT, тож publishedAt фіксуємо разом.
   const nextStatus = existing.status === "DRAFT" ? "PENDING" : existing.status;
 
   await prisma.$transaction([

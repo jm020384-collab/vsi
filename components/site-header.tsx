@@ -31,7 +31,7 @@ export function SiteHeader() {
   const user = session?.user;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 bg-[#142744]">
       <div className="container flex items-center justify-between gap-4 py-3">
         <div className="flex items-center gap-8">
           <Link
@@ -39,7 +39,7 @@ export function SiteHeader() {
             className="group flex items-center"
             aria-label={`${BRAND.name} — на головну`}
           >
-            <LogoVsi className="font-serif text-[2.2rem] text-foreground" />
+            <LogoVsi className="font-serif text-[2.2rem] text-[#F8F4EC]" />
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Основна навігація">
@@ -53,8 +53,8 @@ export function SiteHeader() {
                     "relative px-4 py-2.5 text-sm transition-colors",
                     "after:absolute after:inset-x-4 after:bottom-1 after:h-px after:origin-left after:bg-[#B38B49] after:transition-transform",
                     active
-                      ? "font-medium text-foreground after:scale-x-100"
-                      : "text-foreground/70 after:scale-x-0 hover:text-foreground hover:after:scale-x-100",
+                      ? "font-medium text-[#F8F4EC] after:scale-x-100"
+                      : "text-[#F8F4EC]/70 after:scale-x-0 hover:text-[#F8F4EC] hover:after:scale-x-100",
                   )}
                 >
                   {item.label}
@@ -71,7 +71,7 @@ export function SiteHeader() {
               {user.role === "THERAPIST" || user.role === "ADMIN" ? (
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary"
+                  className="border-[#F8F4EC]/28 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm text-[#F8F4EC] hover:border-[#F8F4EC]/55 hover:bg-[#F8F4EC]/[0.08]"
                 >
                   <User className="h-4 w-4" />
                   Кабінет фахівця
@@ -79,19 +79,29 @@ export function SiteHeader() {
               ) : (
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary"
+                  className="border-[#F8F4EC]/28 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm text-[#F8F4EC] hover:border-[#F8F4EC]/55 hover:bg-[#F8F4EC]/[0.08]"
                 >
                   <User className="h-4 w-4" />
                   {user.name ?? user.email}
                 </Link>
               )}
-              <Button variant="ghost" size="sm" onClick={() => signOut({ callbackUrl: "/" })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-[#F8F4EC]/70 hover:bg-[#F8F4EC]/[0.08] hover:text-[#F8F4EC]"
+                onClick={() => signOut({ callbackUrl: "/" })}
+              >
                 Вийти
               </Button>
             </div>
           ) : (
             <div className="hidden items-center gap-2 lg:flex">
-              <Button asChild variant="ghost" size="sm">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="border-[#F8F4EC]/28 border text-[#F8F4EC] hover:border-[#F8F4EC]/55 hover:bg-[#F8F4EC]/[0.08] hover:text-[#F8F4EC]"
+              >
                 <Link href="/login">Увійти</Link>
               </Button>
             </div>
@@ -99,7 +109,7 @@ export function SiteHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="text-[#F8F4EC] hover:bg-[#F8F4EC]/[0.08] hover:text-[#F8F4EC] lg:hidden"
             aria-label="Меню"
             onClick={() => setOpen((v) => !v)}
           >
@@ -109,36 +119,47 @@ export function SiteHeader() {
       </div>
 
       {/* ── Мобільне меню ── */}
-      <div className={cn("lg:hidden", open ? "block border-t border-border" : "hidden")}>
+      <div className={cn("lg:hidden", open ? "border-[#F8F4EC]/12 block border-t" : "hidden")}>
         <nav className="container flex flex-col py-2">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className="rounded-md px-3 py-3 text-sm font-medium hover:bg-secondary"
+              className="rounded-md px-3 py-3 text-sm font-medium text-[#F8F4EC]/90 hover:bg-[#F8F4EC]/[0.08]"
             >
               {item.label}
             </Link>
           ))}
-          <div className="mt-2 flex flex-col gap-2 border-t border-border pt-2">
+          <div className="border-[#F8F4EC]/12 mt-2 flex flex-col gap-2 border-t pt-2">
             {status === "authenticated" && user ? (
               <>
                 <Link
                   onClick={() => setOpen(false)}
                   href={user.role === "THERAPIST" || user.role === "ADMIN" ? "/dashboard" : "/"}
-                  className="rounded-md border border-border px-3 py-2 text-center text-sm"
+                  className="border-[#F8F4EC]/28 rounded-md border px-3 py-2 text-center text-sm text-[#F8F4EC]"
                 >
                   {user.role === "THERAPIST" || user.role === "ADMIN"
                     ? "Кабінет фахівця"
                     : "Кабінет"}
                 </Link>
-                <Button variant="ghost" size="sm" onClick={() => signOut({ callbackUrl: "/" })}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-[#F8F4EC]/70 hover:bg-[#F8F4EC]/[0.08] hover:text-[#F8F4EC]"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                >
                   Вийти
                 </Button>
               </>
             ) : (
-              <Button asChild variant="ghost" size="sm" onClick={() => setOpen(false)}>
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="border-[#F8F4EC]/28 border text-[#F8F4EC] hover:bg-[#F8F4EC]/[0.08] hover:text-[#F8F4EC]"
+                onClick={() => setOpen(false)}
+              >
                 <Link href="/login">Увійти</Link>
               </Button>
             )}

@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { ButtonLink, Wrap } from "../ui";
-import { focusRing, ink } from "../theme";
+import { focusRing, focusRingDark, ink } from "../theme";
 
 /**
  * Два природні входи в один професійний простір VSI — не аудиторні
@@ -16,12 +16,14 @@ const AUDIENCES = [
     text: "Досліджуйте теми, читайте матеріали фахівців і знайомтеся з їхньою професійною позицією.",
     cta: "Досліджувати",
     href: "/explore",
+    icon: "/brand/motifs/arch-client.png",
   },
   {
     title: "Для фахівців",
     text: "Публікуйте дослідження, знаходьте супервізію, навчальні можливості та професійне середовище для розвитку й обміну.",
     cta: "Для фахівців",
     href: "/register?role=THERAPIST",
+    icon: "/brand/motifs/arch-pro.png",
   },
 ];
 
@@ -65,7 +67,7 @@ export function Hero() {
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </ButtonLink>
               <ButtonLink href="/therapists" variant="outline">
-                Фахівці
+                Знайти фахівця
               </ButtonLink>
             </div>
           </div>
@@ -92,39 +94,65 @@ export function Hero() {
         </div>
 
         {/* ── Два входи в один простір ── */}
-        <div className="border-t border-[#B38B49]/25 pb-8 pt-6 lg:pb-10 lg:pt-8">
-          <div className="grid items-start gap-8 sm:grid-cols-2 sm:gap-12 lg:gap-16">
-            {AUDIENCES.map((a, i) => (
-              <div
-                key={a.title}
-                className={cn(
-                  "max-w-md",
-                  i === 1 && "sm:border-l sm:border-[#B38B49]/20 sm:pl-12 lg:pl-20",
-                )}
-              >
-                <h2
-                  className={`text-xl font-normal leading-snug sm:text-[1.35rem] ${ink.strong}`}
-                  style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
-                >
-                  {a.title}
-                </h2>
-                <p className={`mt-3 text-[15px] leading-relaxed ${ink.soft}`}>{a.text}</p>
-                <a
-                  href={a.href}
+        <div className="pb-14 lg:pb-20">
+          <div className="grid gap-6 sm:grid-cols-2">
+            {AUDIENCES.map((a, i) => {
+              const dark = i === 1;
+              return (
+                <div
+                  key={a.title}
                   className={cn(
-                    "group/cta mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-[#1C3557]",
-                    "transition-colors hover:text-[#142744] motion-reduce:transition-none",
-                    focusRing,
+                    "flex items-center gap-5 rounded-2xl p-6 sm:gap-6 sm:p-8",
+                    dark ? "bg-[#142744]" : "border border-[#142744]/10 bg-[#FFFDF8]",
                   )}
                 >
-                  {a.cta}
-                  <ArrowRight
-                    className="h-3.5 w-3.5 transition-transform duration-200 group-hover/cta:translate-x-1 motion-reduce:transition-none"
+                  <Image
+                    src={a.icon}
+                    alt=""
                     aria-hidden
+                    width={200}
+                    height={200}
+                    className="h-28 w-28 shrink-0 object-contain sm:h-40 sm:w-40"
                   />
-                </a>
-              </div>
-            ))}
+                  <div>
+                    <h2
+                      className={cn(
+                        "text-xl font-normal leading-snug sm:text-[1.35rem]",
+                        dark ? "text-[#F8F4EC]" : ink.strong,
+                      )}
+                      style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
+                    >
+                      {a.title}
+                    </h2>
+                    <p
+                      className={cn(
+                        "mt-3 text-[15px] leading-relaxed",
+                        dark ? "text-[#C9C7D1]" : ink.soft,
+                      )}
+                    >
+                      {a.text}
+                    </p>
+                    <a
+                      href={a.href}
+                      className={cn(
+                        "group/cta mt-5 inline-flex items-center gap-1.5 text-sm font-medium",
+                        dark
+                          ? "text-[#F8F4EC] hover:text-[#E9DECE]"
+                          : "text-[#1C3557] hover:text-[#142744]",
+                        "transition-colors motion-reduce:transition-none",
+                        dark ? focusRingDark : focusRing,
+                      )}
+                    >
+                      {a.cta}
+                      <ArrowRight
+                        className="h-3.5 w-3.5 transition-transform duration-200 group-hover/cta:translate-x-1 motion-reduce:transition-none"
+                        aria-hidden
+                      />
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </Wrap>

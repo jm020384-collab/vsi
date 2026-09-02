@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "web",
+      "name": "vsi-web",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["next", "dev", "--port", "3300"],
-      "port": 3300
+      "runtimeArgs": ["next", "dev", "--port", "3301"],
+      "port": 3301
     }
   ]
 }
