@@ -12,13 +12,13 @@ import { LogoVsi } from "@/components/brand/vsi/logo-vsi";
 import { cn } from "@/lib/utils";
 import { BRAND } from "@/lib/brand";
 
+// «Навчання» і «Супервізія» з макета поки не додані — під ними ще немає
+// сторінок, а пункт меню в нікуди гірший за його відсутність.
 const NAV = [
-  { href: "/explore", label: "Досліджувати" },
+  { href: "/pro-metod", label: "Про простір" },
   { href: "/therapists", label: "Фахівці" },
-  { href: "/library", label: "Бібліотека" },
+  { href: "/library", label: "Тексти" },
   { href: "/events", label: "Події" },
-  { href: "/pro-metod", label: "Про терапію" },
-  { href: "/register?role=THERAPIST", label: "Для фахівців" },
 ];
 
 /**
@@ -95,14 +95,16 @@ export function SiteHeader() {
               </Button>
             </div>
           ) : (
-            <div className="hidden items-center gap-2 lg:flex">
-              <Button
-                asChild
-                variant="ghost"
-                size="sm"
-                className="border-[#F8F4EC]/28 border text-[#F8F4EC] hover:border-[#F8F4EC]/55 hover:bg-[#F8F4EC]/[0.08] hover:text-[#F8F4EC]"
+            <div className="hidden items-center gap-3 lg:flex">
+              <Link
+                href="/login"
+                className="px-1 text-sm text-[#F8F4EC]/75 transition-colors hover:text-[#F8F4EC]"
               >
-                <Link href="/login">Увійти</Link>
+                Увійти
+              </Link>
+              {/* Головна дія шапки — реєстрація фахівця, як у макеті */}
+              <Button asChild size="sm" className="bg-[#F8F4EC] text-[#142744] hover:bg-[#FFFDF8]">
+                <Link href="/register">Створити профіль</Link>
               </Button>
             </div>
           )}

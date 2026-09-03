@@ -1,22 +1,24 @@
 import { Hero } from "@/components/preview/vsi/sections/hero";
-import { Themes } from "@/components/preview/vsi/sections/themes";
+import { ThemeCircles } from "@/components/preview/vsi/sections/theme-circles";
+import { SpecialistsRow } from "@/components/preview/vsi/sections/specialists-row";
+import { TextsRow } from "@/components/preview/vsi/sections/texts-row";
+import { ForProfessionals } from "@/components/preview/vsi/sections/for-professionals";
+import { EventsRow } from "@/components/preview/vsi/sections/events-row";
 import { Approach } from "@/components/preview/vsi/sections/approach";
-import { Therapists } from "@/components/preview/vsi/sections/therapists";
 import { HowToChoose } from "@/components/preview/vsi/sections/how-to-choose";
 import { QuoteBand } from "@/components/preview/vsi/sections/quote-band";
-import { Materials } from "@/components/preview/vsi/sections/materials";
-import { Events } from "@/components/preview/vsi/sections/events";
 import { Ethics } from "@/components/preview/vsi/sections/ethics";
-import { FinalCta } from "@/components/preview/vsi/sections/cta";
+import { Closing } from "@/components/preview/vsi/sections/closing";
 import { PaperTexture } from "@/components/preview/vsi/decor";
 
 /**
- * Головна сторінка «vsi».
+ * Головна сторінка «vsi» — за макетом користувача.
  *
- * Складається з секцій дизайн-системи vsi (components/preview/vsi).
- * Хедер і футер дає глобальний layout (SiteHeader / SiteFooter),
- * тому власні Header/Footer прототипу тут не підключаються.
- * Демо-дані секцій згодом заміняться на дані з Prisma.
+ * Порядок згори: знайомство (hero з двома входами), теми, фахівці,
+ * тексти, темна смуга для фахівців, найближчі події. Далі — довші
+ * пояснювальні блоки (підхід, як обрати, цитата, етика), яких у макеті
+ * немає, але вони несуть реальний зміст, тож лишені нижче за основним
+ * потоком. Завершує сторінку слоган бренду.
  */
 export default function HomePage() {
   return (
@@ -28,15 +30,16 @@ export default function HomePage() {
 
       <div className="relative z-[2]">
         <Hero />
-        <Themes />
+        <ThemeCircles />
+        <SpecialistsRow />
+        <TextsRow />
+        <ForProfessionals />
+        <EventsRow />
         <Approach />
-        <Therapists />
         <HowToChoose />
         <QuoteBand />
-        <Materials />
-        <Events />
         <Ethics />
-        <FinalCta />
+        <Closing />
       </div>
     </div>
   );

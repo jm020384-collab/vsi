@@ -12,17 +12,17 @@ import { focusRing, focusRingDark, ink } from "../theme";
  */
 const AUDIENCES = [
   {
-    title: "Для тих, хто шукає терапію або хоче краще зрозуміти себе",
-    text: "Досліджуйте теми, читайте матеріали фахівців і знайомтеся з їхньою професійною позицією.",
+    title: "Для тих, хто шукає підтримку",
+    text: "Досліджуйте теми, читайте тексти фахівців і знайомтеся з їхньою професійною позицією.",
     cta: "Досліджувати",
     href: "/explore",
     icon: "/brand/motifs/arch-client.png",
   },
   {
     title: "Для фахівців",
-    text: "Публікуйте дослідження, знаходьте супервізію, навчальні можливості та професійне середовище для розвитку й обміну.",
-    cta: "Для фахівців",
-    href: "/register?role=THERAPIST",
+    text: "Професійний простір для практики, публікацій, супервізії, навчання та участі в аналітичному середовищі.",
+    cta: "У простір фахівців",
+    href: "/register",
     icon: "/brand/motifs/arch-pro.png",
   },
 ];
@@ -40,25 +40,31 @@ export function Hero() {
       <Wrap>
         <div className="grid items-center gap-10 pb-14 pt-8 md:grid-cols-2 md:gap-12 lg:pb-20 lg:pt-10">
           {/* ── Текст ── */}
+          {/*
+            Знак «VSI» — великим планом, як у макеті, але це декор:
+            заголовком сторінки лишається сам напрям роботи, інакше
+            в пошуку й для скрінрідера сторінка звалася б просто «VSI».
+          */}
           <div className="relative max-w-[34rem]">
-            <h1
-              className={`text-balance text-[2rem] font-normal leading-[1.15] tracking-[-0.01em] sm:text-[2.5rem] lg:text-[2.75rem] ${ink.strong}`}
+            <p
+              aria-hidden
+              className={`text-[3.5rem] font-normal leading-none tracking-[0.14em] sm:text-[4.5rem] ${ink.strong}`}
               style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
+            >
+              VSI
+            </p>
+            <h1
+              className={`mt-4 text-balance text-[15px] font-medium uppercase leading-relaxed tracking-[0.2em] ${ink.strong}`}
             >
               Аналітично орієнтована психотерапія
             </h1>
-            <p className="mt-3 text-[15px] font-medium uppercase tracking-[0.28em] text-[#876428]">
+            <p className="mt-3 flex items-center gap-3 text-[13px] font-medium uppercase tracking-[0.24em] text-[#876428]">
+              <span aria-hidden className="h-px w-6 bg-[#B38B49]/70" />
               Траєкторія цілісності
             </p>
 
-            <p className={`mt-6 text-pretty text-[17px] leading-[1.75] sm:text-lg ${ink.body}`}>
-              VSI створює професійний простір аналітично орієнтованої психотерапії та юнгіанської
-              традиції.
-            </p>
-            <p className={`mt-3.5 text-pretty text-[15px] leading-[1.7] ${ink.soft}`}>
-              Тут можна знайомитися з аналітичною психологією, читати тексти й дослідження,
-              знаходити фахівців і супервізорів, а також долучатися до професійних груп, лекцій,
-              семінарів та інших освітніх подій.
+            <p className={`mt-6 text-pretty text-[16px] leading-[1.75] ${ink.body}`}>
+              Професійний простір аналітичної думки, психотерапевтичної практики та зустрічі.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -67,7 +73,8 @@ export function Hero() {
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </ButtonLink>
               <ButtonLink href="/therapists" variant="outline">
-                Знайти фахівця
+                Познайомитися з фахівцями
+                <ArrowRight className="h-4 w-4" aria-hidden />
               </ButtonLink>
             </div>
           </div>
