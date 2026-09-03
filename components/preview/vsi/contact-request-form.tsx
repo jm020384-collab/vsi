@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -26,6 +26,15 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
     (prev, fd) => createContactRequestAction(prev, fd),
     null,
   );
+  // Помилка поля живе до наступної відправки, тож без цього вона висіла
+  // під уже виправленим полем — виглядало так, ніби форма відхиляє
+  // коректний текст. Прибираємо її, щойно людина щось у полі змінила.
+  const [edited, setEdited] = useState<Record<string, boolean>>({});
+  const clearOnEdit = (name: string) => () => {
+    setEdited((prev) => (prev[name] ? prev : { ...prev, [name]: true }));
+  };
+  const errorFor = (name: string, errors?: Record<string, string[]>) =>
+    edited[name] ? undefined : errors?.[name]?.[0];
 
   if (state?.ok) {
     return (
@@ -39,9 +48,12 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
   }
 
   const fieldErrors = state?.ok === false ? state.fieldErrors : undefined;
+  // React очищає неконтрольовані поля після кожної відправки, тож
+  // повертаємо введене назад через defaultValue.
+  const prev = state?.ok === false ? state.values : undefined;
 
   return (
-    <form action={formAction} className="mt-5 max-w-md space-y-4">
+    <form action={formAction} onSubmit={() => setEdited({})} className="mt-5 max-w-md space-y-4">
       <input type="hidden" name="therapistSlug" value={therapistSlug} />
 
       {/* Пастка для ботів — прихована від людей */}
@@ -53,9 +65,18 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
       </div>
 
       <div>
-        <input name="patientName" required placeholder="Ваше ім'я" className={inputClass} />
-        {fieldErrors?.patientName?.[0] && (
-          <p className="mt-1.5 text-[13px] text-[#8A4B33]">{fieldErrors.patientName[0]}</p>
+        <input
+          name="patientName"
+          required
+          defaultValue={prev?.patientName ?? ""}
+          placeholder="Ваше ім'я"
+          className={inputClass}
+          onInput={clearOnEdit("patientName")}
+        />
+        {errorFor("patientName", fieldErrors) && (
+          <p className="mt-1.5 text-[13px] text-[#8A4B33]">
+            {errorFor("patientName", fieldErrors)}
+          </p>
         )}
       </div>
 
@@ -65,18 +86,36 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
             name="patientEmail"
             type="email"
             required
+            defaultValue={prev?.patientEmail ?? ""}
             placeholder="Email"
             className={inputClass}
+            onInput={clearOnEdit("patientEmail")}
           />
-          {fieldErrors?.patientEmail?.[0] && (
-            <p className="mt-1.5 text-[13px] text-[#8A4B33]">{fieldErrors.patientEmail[0]}</p>
+          {errorFor("patientEmail", fieldErrors) && (
+            <p className="mt-1.5 text-[13px] text-[#8A4B33]">
+              {errorFor("patientEmail", fieldErrors)}
+            </p>
           )}
         </div>
-        <input name="patientPhone" placeholder="Телефон (необов'язково)" className={inputClass} />
+        <div>
+          <input
+            name="patientPhone"
+            defaultValue={prev?.patientPhone ?? ""}
+            placeholder="Телефон (необов'язково)"
+            className={inputClass}
+            onInput={clearOnEdit("patientPhone")}
+          />
+          {errorFor("patientPhone", fieldErrors) && (
+            <p className="mt-1.5 text-[13px] text-[#8A4B33]">
+              {errorFor("patientPhone", fieldErrors)}
+            </p>
+          )}
+        </div>
       </div>
 
       <input
         name="preferredTime"
+        defaultValue={prev?.preferredTime ?? ""}
         placeholder="Зручний час (необов'язково)"
         className={inputClass}
       />
@@ -85,12 +124,15 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
         <textarea
           name="message"
           required
+          minLength={10}
+          defaultValue={prev?.message ?? ""}
           rows={4}
           placeholder="Коротко опишіть, що вас турбує і чому звертаєтесь саме зараз"
           className={cn(inputClass, "h-auto py-3 leading-relaxed")}
+          onInput={clearOnEdit("message")}
         />
-        {fieldErrors?.message?.[0] && (
-          <p className="mt-1.5 text-[13px] text-[#8A4B33]">{fieldErrors.message[0]}</p>
+        {errorFor("message", fieldErrors) && (
+          <p className="mt-1.5 text-[13px] text-[#8A4B33]">{errorFor("message", fieldErrors)}</p>
         )}
       </div>
 
@@ -99,6 +141,7 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
           type="checkbox"
           name="consent"
           required
+          defaultChecked={prev?.consent ?? false}
           className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#142744]/25"
         />
         Погоджуюся на обробку цих даних фахівцем для першого контакту.

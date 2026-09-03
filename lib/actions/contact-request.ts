@@ -9,9 +9,24 @@ import { prisma } from "@/lib/db";
 import { hashIp } from "@/lib/hash";
 import { contactRequestSchema } from "@/lib/schemas/contact-request";
 
+/** Значення, які повертаємо назад у форму після невдалої спроби. */
+export interface ContactRequestValues {
+  patientName: string;
+  patientEmail: string;
+  patientPhone: string;
+  preferredTime: string;
+  message: string;
+  consent: boolean;
+}
+
 export type ContactRequestState =
   | { ok: true }
-  | { ok: false; error: string; fieldErrors?: Record<string, string[]> };
+  | {
+      ok: false;
+      error: string;
+      fieldErrors?: Record<string, string[]>;
+      values?: ContactRequestValues;
+    };
 
 const MAX_REQUESTS_PER_DAY = 3;
 
@@ -41,12 +56,24 @@ export async function createContactRequestAction(
     consent: formData.get("consent") === "on",
   };
 
+  // React скидає неконтрольовані поля після кожної відправки, тож без
+  // цього людина втрачала все введене й бачила саму лише помилку.
+  const submitted: ContactRequestValues = {
+    patientName: String(raw.patientName ?? ""),
+    patientEmail: String(raw.patientEmail ?? ""),
+    patientPhone: String(raw.patientPhone ?? ""),
+    preferredTime: String(raw.preferredTime ?? ""),
+    message: String(raw.message ?? ""),
+    consent: raw.consent,
+  };
+
   const parsed = contactRequestSchema.safeParse(raw);
   if (!parsed.success) {
     return {
       ok: false,
       error: "Перевірте форму — деякі поля заповнені некоректно",
       fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+      values: submitted,
     };
   }
 
@@ -55,7 +82,11 @@ export async function createContactRequestAction(
     select: { id: true, contactEmail: true, fullName: true, acceptsRequestsViaVsi: true },
   });
   if (!therapist || !therapist.acceptsRequestsViaVsi) {
-    return { ok: false, error: "Цей фахівець наразі не приймає звернення через VSI" };
+    return {
+      ok: false,
+      error: "Цей фахівець наразі не приймає звернення через VSI",
+      values: submitted,
+    };
   }
 
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
@@ -69,6 +100,7 @@ export async function createContactRequestAction(
     return {
       ok: false,
       error: "Забагато звернень з цієї адреси за останню добу. Спробуйте пізніше.",
+      values: submitted,
     };
   }
 

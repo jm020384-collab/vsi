@@ -7,7 +7,9 @@ import { prisma } from "@/lib/db";
 import { therapistProfileSchema } from "@/lib/schemas/therapist";
 
 export type ProfileState =
-  | { ok: true; slug: string }
+  // status — щоб екран після збереження не обіцяв «перевірку» тому,
+  // чий профіль уже схвалений: там правки йдуть у публікацію одразу.
+  | { ok: true; slug: string; status: string }
   | { ok: false; error: string; fieldErrors?: Record<string, string[]> };
 
 /**
@@ -107,7 +109,7 @@ export async function updateTherapistProfileAction(
   revalidatePath("/dashboard/profile");
   revalidatePath(`/specialists/${existing.slug}`);
 
-  return { ok: true, slug: existing.slug };
+  return { ok: true, slug: existing.slug, status: nextStatus };
 }
 
 /** Довідники для форми — спеціалізації й мови з бази. */
