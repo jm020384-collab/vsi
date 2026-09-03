@@ -13,7 +13,10 @@ import { Label } from "@/components/ui/label";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  // Акаунти у VSI мають лише фахівці й адміністратори, тож після входу
+  // природне місце — кабінет, а не головна. Якщо людину сюди перекинуло
+  // із закритої сторінки, повертаємо саме на неї.
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
   const [pending, setPending] = useState(false);
 
   async function onSubmit(formData: FormData) {
