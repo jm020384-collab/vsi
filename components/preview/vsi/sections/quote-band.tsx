@@ -84,7 +84,7 @@ function CornerRays({ flip }: { flip?: boolean }) {
 export function QuoteBand() {
   return (
     <section aria-label="Цитата" className="bg-[#F8F4EC]">
-      <Wrap className="py-6 lg:py-10">
+      <Wrap className="py-4 lg:py-6">
         <figure className="relative overflow-hidden rounded-3xl bg-[#142744] px-6 py-14 sm:px-12 lg:py-16">
           {/* Кутове золоте мереживо */}
           <div className="pointer-events-none absolute -left-2 top-1/2 -translate-y-1/2 opacity-80">

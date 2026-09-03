@@ -32,7 +32,7 @@ function Ornament({ flip }: { flip?: boolean }) {
 export function Closing() {
   return (
     <section id="closing" className="bg-[#F8F4EC]">
-      <Wrap className="pb-16 pt-6 text-center lg:pb-24 lg:pt-10">
+      <Wrap className="pb-12 pt-4 text-center lg:pb-16 lg:pt-6">
         <div className="flex items-center justify-center gap-4">
           <Ornament />
           <h2

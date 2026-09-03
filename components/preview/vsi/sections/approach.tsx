@@ -99,7 +99,7 @@ const PRINCIPLES = [
 export function Approach() {
   return (
     <section id="approach" className="relative bg-[#FFFDF8]">
-      <Wrap className="py-20 lg:py-28">
+      <Wrap className="py-10 lg:py-14">
         <div className="mx-auto max-w-2xl text-center">
           <Eyebrow className="justify-center">Про підхід</Eyebrow>
           <SectionTitle className="mt-6">
@@ -113,7 +113,7 @@ export function Approach() {
           </Lead>
         </div>
 
-        <div className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4">
+        <div className="mt-8 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:mt-10 lg:grid-cols-4">
           {PRINCIPLES.map(({ icon: Icon, title, body }) => (
             <div key={title} className="group text-center">
               {/* Іконка в тонкому колі — мотив бренд-борду */}

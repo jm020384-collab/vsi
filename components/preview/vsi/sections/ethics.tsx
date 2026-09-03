@@ -39,7 +39,7 @@ export function Ethics() {
         }}
       />
 
-      <Wrap className="relative py-20 lg:py-28">
+      <Wrap className="relative py-10 lg:py-14">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,420px)_1fr] lg:gap-16">
           <div>
             <Eyebrow tone="dark">Етика і безпека</Eyebrow>

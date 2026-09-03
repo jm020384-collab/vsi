@@ -50,7 +50,7 @@ export function EventsRow() {
 
   return (
     <section id="events" className="bg-[#F8F4EC]">
-      <Wrap className="py-14 lg:py-16">
+      <Wrap className="py-10 lg:py-12">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className={cn("text-[13px] font-medium uppercase tracking-[0.18em]", ink.strong)}>
             Найближче в аналітичному середовищі

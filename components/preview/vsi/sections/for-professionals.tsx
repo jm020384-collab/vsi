@@ -37,7 +37,7 @@ const FEATURES = [
 export function ForProfessionals() {
   return (
     <section id="for-professionals" className="bg-[#142744]">
-      <Wrap className="py-14 lg:py-16">
+      <Wrap className="py-10 lg:py-12">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-14">
           <div>
             <h2 className="text-[13px] font-medium uppercase tracking-[0.2em] text-[#E9DECE]">

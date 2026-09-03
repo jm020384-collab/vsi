@@ -38,7 +38,7 @@ export function Hero() {
   return (
     <section id="top" className="relative overflow-hidden bg-[#F8F4EC]">
       <Wrap>
-        <div className="grid items-center gap-10 pb-14 pt-8 md:grid-cols-2 md:gap-12 lg:pb-20 lg:pt-10">
+        <div className="grid items-center gap-6 pb-8 pt-6 md:grid-cols-2 md:gap-10 lg:pb-10 lg:pt-8">
           {/* ── Текст ── */}
           {/*
             Знак «VSI» — великим планом, як у макеті, але це декор:
@@ -67,7 +67,7 @@ export function Hero() {
               Професійний простір аналітичної думки, психотерапевтичної практики та зустрічі.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href="/explore" variant="primary">
                 Досліджувати
                 <ArrowRight className="h-4 w-4" aria-hidden />
@@ -101,7 +101,7 @@ export function Hero() {
         </div>
 
         {/* ── Два входи в один простір ── */}
-        <div className="pb-14 lg:pb-20">
+        <div className="pb-10 lg:pb-12">
           <div className="grid gap-6 sm:grid-cols-2">
             {AUDIENCES.map((a, i) => {
               const dark = i === 1;

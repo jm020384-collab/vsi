@@ -31,7 +31,7 @@ const ENTRIES: {
 export function ThemeCircles() {
   return (
     <section id="themes" className="bg-[#F8F4EC]">
-      <Wrap className="py-14 lg:py-20">
+      <Wrap className="py-10 lg:py-12">
         <p
           className={cn(
             "flex items-center justify-center gap-3 text-center text-[11px] font-medium uppercase tracking-[0.22em]",

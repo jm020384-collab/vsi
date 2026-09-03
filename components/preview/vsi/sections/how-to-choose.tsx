@@ -27,7 +27,7 @@ const STEPS = [
 export function HowToChoose() {
   return (
     <section id="how-to-choose" className="bg-[#E9DECE]">
-      <Wrap className="py-20 lg:py-28">
+      <Wrap className="py-10 lg:py-14">
         <div className="max-w-2xl">
           <Eyebrow>Як обрати фахівця</Eyebrow>
           <SectionTitle className="mt-6">Чотири кроки без поспіху</SectionTitle>
