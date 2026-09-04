@@ -44,6 +44,19 @@ const serwist = new Serwist({
         cacheName: "assets-cache",
       }),
     },
+    /*
+      Решта зображень — SWR, і саме тому це правило стоїть перед defaultCache.
+      Типовий набір Serwist кешує файли з /public стратегією CacheFirst на
+      30 днів: замінена картинка не з'явилась би в того, хто вже був на
+      сайті, цілий місяць. Тут браузер показує наявну копію одразу, але
+      паралельно тягне свіжу, тож заміну видно з наступного заходу.
+    */
+    {
+      matcher: ({ request }) => request.destination === "image",
+      handler: new StaleWhileRevalidate({
+        cacheName: "image-cache",
+      }),
+    },
     // Шрифти Google — CacheFirst з обмеженим TTL
     {
       matcher: ({ url }) =>
@@ -72,3 +85,25 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+/**
+ * Прибирання кешів зображень при активації нового service worker.
+ *
+ * Зміна стратегії сама по собі не чіпає вже збережені копії: вони лежать
+ * під власними іменами кешів і не зникають при оновленні worker'а. Без
+ * цього той, хто вже був на сайті, ще довго бачив би замінені зображення
+ * старими. Ціна — одне повторне завантаження картинок після деплою.
+ */
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    self.caches
+      .keys()
+      .then((names) =>
+        Promise.all(
+          names
+            .filter((name) => name.includes("image") || name === "assets-cache")
+            .map((name) => self.caches.delete(name)),
+        ),
+      ),
+  );
+});
