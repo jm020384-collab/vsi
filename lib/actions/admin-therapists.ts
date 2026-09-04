@@ -1,9 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { THERAPISTS_TAG } from "@/lib/therapists";
 
 export type AdminActionResult = { ok: true } | { ok: false; error: string };
 
@@ -52,6 +53,8 @@ export async function approveTherapistAction(therapistId: string): Promise<Admin
   revalidatePath("/admin/therapists");
   revalidatePath("/dashboard");
   revalidatePath("/therapists");
+  revalidateTag(THERAPISTS_TAG);
+  revalidatePath("/");
   revalidatePath(`/specialists/${therapist.slug}`);
   return { ok: true };
 }
@@ -132,6 +135,8 @@ export async function suspendTherapistAction(
   revalidatePath("/admin/therapists");
   revalidatePath("/dashboard");
   revalidatePath("/therapists");
+  revalidateTag(THERAPISTS_TAG);
+  revalidatePath("/");
   revalidatePath(`/specialists/${therapist.slug}`);
   return { ok: true };
 }
@@ -164,6 +169,8 @@ export async function reactivateTherapistAction(therapistId: string): Promise<Ad
   revalidatePath("/admin/therapists");
   revalidatePath("/dashboard");
   revalidatePath("/therapists");
+  revalidateTag(THERAPISTS_TAG);
+  revalidatePath("/");
   revalidatePath(`/specialists/${therapist.slug}`);
   return { ok: true };
 }

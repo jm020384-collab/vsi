@@ -10,6 +10,7 @@ import { QuoteBand } from "@/components/preview/vsi/sections/quote-band";
 import { Ethics } from "@/components/preview/vsi/sections/ethics";
 import { Closing } from "@/components/preview/vsi/sections/closing";
 import { PaperTexture } from "@/components/preview/vsi/decor";
+import { loadTherapistsCached } from "@/lib/therapists";
 
 /**
  * Головна сторінка «vsi» — за макетом користувача.
@@ -20,7 +21,9 @@ import { PaperTexture } from "@/components/preview/vsi/decor";
  * немає, але вони несуть реальний зміст, тож лишені нижче за основним
  * потоком. Завершує сторінку слоган бренду.
  */
-export default function HomePage() {
+export default async function HomePage() {
+  const therapists = await loadTherapistsCached();
+
   return (
     <div className="relative">
       {/* Зерно теплого паперу поверх сторінки */}
@@ -31,7 +34,7 @@ export default function HomePage() {
       <div className="relative z-[2]">
         <Hero />
         <ThemeCircles />
-        <SpecialistsRow />
+        <SpecialistsRow therapists={therapists} />
         <TextsRow />
         <ForProfessionals />
         <EventsRow />

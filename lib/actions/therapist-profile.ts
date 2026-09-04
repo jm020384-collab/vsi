@@ -1,10 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { therapistProfileSchema } from "@/lib/schemas/therapist";
+import { THERAPISTS_TAG } from "@/lib/therapists";
 
 export type ProfileState =
   // status — щоб екран після збереження не обіцяв «перевірку» тому,
@@ -108,6 +109,9 @@ export async function updateTherapistProfileAction(
 
   revalidatePath("/dashboard/profile");
   revalidatePath(`/specialists/${existing.slug}`);
+  // Ім'я, звання й теми з анкети показує ще й ряд фахівців на головній,
+  // а він читає базу через кеш — без скидання тега там лишиться старе.
+  revalidateTag(THERAPISTS_TAG);
 
   return { ok: true, slug: existing.slug, status: nextStatus };
 }
