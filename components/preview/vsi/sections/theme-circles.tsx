@@ -10,8 +10,9 @@ import { focusRing, ink } from "../theme";
  *
  * Повні назви тем («Я і мій внутрішній світ») живуть на сторінці теми;
  * тут потрібне одне слово, щоб ряд читався як ряд, а не як список.
- * Кожне коло — власна ілюстрація з /brand/motifs/themes; у файла вже є
- * своя кремова основа і золотий обідок, тож рамку в розмітці не малюємо.
+ * Кожне коло — власний знак із /brand/motifs/themes: золота лінійна
+ * графіка на прозорому тлі. Обідок намальований у самому файлі, тож
+ * рамку й підкладку в розмітці не робимо — знак лягає прямо на фон.
  */
 const ENTRIES = [
   { slug: "inner-life", label: "Внутрішній світ" },
@@ -52,7 +53,7 @@ export function ThemeCircles() {
                   height={512}
                   sizes="(min-width: 1024px) 112px, 92px"
                   className={cn(
-                    "h-[92px] w-[92px] rounded-full sm:h-[112px] sm:w-[112px]",
+                    "h-[92px] w-[92px] sm:h-[112px] sm:w-[112px]",
                     "transition-transform duration-300 group-hover:scale-[1.04] motion-reduce:transition-none",
                   )}
                 />
