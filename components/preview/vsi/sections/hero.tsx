@@ -36,34 +36,64 @@ const AUDIENCES = [
  */
 export function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden bg-[#F8F4EC]">
-      <Wrap>
-        <div className="grid items-center gap-6 pb-8 pt-6 md:grid-cols-2 md:gap-10 lg:pb-10 lg:pt-8">
-          {/* ── Текст ── */}
+    <section id="top" className="relative bg-[#F8F4EC]">
+      {/*
+        Фонове зображення на всю ширину. Композиція сама тримає арку
+        праворуч, а ліворуч лишає небо й воду — саме туди лягає текст.
+        Затемнення-скрим ліворуч гарантує контраст навіть тоді, коли
+        кадрування зрізає світлу частину (вузькі екрани).
+      */}
+      <div className="relative min-h-[440px] w-full sm:min-h-[520px] lg:min-h-[600px]">
+        <Image
+          src="/brand/motifs/hero.png"
+          alt="Арка, розділена навпіл: ліворуч денне небо із сонцем, праворуч нічне із місяцем; довкола гори, вода й золоті орбіти"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[72%_center] lg:object-center"
+        />
+        {/*
+          Позиції всіх трьох точок задані явно: без них Tailwind ставив
+          кінцеву точку раніше за середню, і градієнт вироджувався в
+          суцільну заливку, яка перекривала зображення.
+        */}
+        <div
+          aria-hidden
+          className={cn(
+            "absolute inset-0 bg-gradient-to-r",
+            // На вузьких екранах кадр не встигає відійти від арки, тож
+            // вуаль там ніде не сходить нанівець — інакше текст лягав
+            // просто на візерунок і ставав нечитабельним.
+            "from-[#F8F4EC] from-0% via-[#F8F4EC]/90 via-55% to-[#F8F4EC]/55 to-100%",
+            "lg:via-[#F8F4EC]/60 lg:via-30% lg:to-transparent lg:to-60%",
+          )}
+        />
+
+        <Wrap className="relative flex min-h-[440px] items-center py-10 sm:min-h-[520px] lg:min-h-[600px]">
           {/*
             Знак «VSI» — великим планом, як у макеті, але це декор:
             заголовком сторінки лишається сам напрям роботи, інакше
             в пошуку й для скрінрідера сторінка звалася б просто «VSI».
           */}
-          <div className="relative max-w-[34rem]">
+          <div className="max-w-[30rem]">
             <p
               aria-hidden
-              className={`text-[3.5rem] font-normal leading-none tracking-[0.14em] sm:text-[4.5rem] ${ink.strong}`}
+              className={`text-[3.25rem] font-normal leading-none tracking-[0.14em] sm:text-[4rem] ${ink.strong}`}
               style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
             >
               VSI
             </p>
             <h1
-              className={`mt-4 text-balance text-[15px] font-medium uppercase leading-relaxed tracking-[0.2em] ${ink.strong}`}
+              className={`mt-4 text-balance text-[14px] font-medium uppercase leading-relaxed tracking-[0.2em] sm:text-[15px] ${ink.strong}`}
             >
               Аналітично орієнтована психотерапія
             </h1>
-            <p className="mt-3 flex items-center gap-3 text-[13px] font-medium uppercase tracking-[0.24em] text-[#876428]">
+            <p className="mt-3 flex items-center gap-3 text-[12px] font-medium uppercase tracking-[0.24em] text-[#876428] sm:text-[13px]">
               <span aria-hidden className="h-px w-6 bg-[#B38B49]/70" />
               Траєкторія цілісності
             </p>
 
-            <p className={`mt-6 text-pretty text-[16px] leading-[1.75] ${ink.body}`}>
+            <p className={`mt-5 max-w-sm text-pretty text-[16px] leading-[1.75] ${ink.body}`}>
               Професійний простір аналітичної думки, психотерапевтичної практики та зустрічі.
             </p>
 
@@ -78,30 +108,12 @@ export function Hero() {
               </ButtonLink>
             </div>
           </div>
+        </Wrap>
+      </div>
 
-          {/* ── Візуал: арка дня і ночі ── */}
-          {/*
-            front-trim.png — та сама картинка зі зрізаними полями і
-            СПРАВЖНІМ прозорим фоном: scripts/trim-front.js м'яко
-            ключує папір у альфа-канал. Композиція ціла — арка й
-            повні еліпси орбіт; маски та фільтри не потрібні.
-          */}
-          {/* Портретна композиція — вужча колонка, щоб не тиснути на текст */}
-          <div className="relative mx-auto w-full max-w-[280px] sm:max-w-[330px] md:max-w-[400px]">
-            <Image
-              src="/brand/motifs/front-trim.png"
-              alt="Арка, розділена навпіл: ліворуч денне небо із сонцем, праворуч нічне з місяцем; внизу гори й морський горизонт, навколо — золоті орбіти"
-              width={1024}
-              height={1450}
-              priority
-              sizes="(max-width: 768px) 330px, 400px"
-              className="h-auto w-full"
-            />
-          </div>
-        </div>
-
+      <Wrap>
         {/* ── Два входи в один простір ── */}
-        <div className="pb-10 lg:pb-12">
+        <div className="pb-10 pt-10 lg:pb-12 lg:pt-12">
           <div className="grid gap-6 sm:grid-cols-2">
             {AUDIENCES.map((a, i) => {
               const dark = i === 1;
