@@ -190,8 +190,8 @@ export function Approach() {
           {PRINCIPLES.map(({ icon: Icon, title, body }) => (
             <div key={title} className="group text-center">
               {/* Іконка в тонкому колі — мотив бренд-борду */}
-              <span className="mx-auto inline-grid h-[84px] w-[84px] place-items-center rounded-full border border-[#B38B49]/30 bg-[#F8F4EC] transition-colors duration-300 group-hover:border-[#B38B49]/70 motion-reduce:transition-none">
-                <svg viewBox="0 0 64 64" className="h-20 w-20" aria-hidden>
+              <span className="mx-auto inline-grid h-[42px] w-[42px] place-items-center rounded-full border border-[#B38B49]/30 bg-[#F8F4EC] transition-colors duration-300 group-hover:border-[#B38B49]/70 motion-reduce:transition-none">
+                <svg viewBox="0 0 64 64" className="h-10 w-10" aria-hidden>
                   <Icon />
                 </svg>
               </span>

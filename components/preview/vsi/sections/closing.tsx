@@ -11,7 +11,7 @@ function Ornament({ flip }: { flip?: boolean }) {
       viewBox="0 0 160 40"
       aria-hidden
       fill="none"
-      className={cn("h-9 w-40 shrink-0", flip && "-scale-x-100")}
+      className={cn("hidden h-9 w-40 shrink-0 md:block", flip && "-scale-x-100")}
     >
       <g stroke={VSI.gold} strokeOpacity="0.5" strokeWidth="1">
         <line x1="0" y1="20" x2="96" y2="20" strokeDasharray="1 5" />

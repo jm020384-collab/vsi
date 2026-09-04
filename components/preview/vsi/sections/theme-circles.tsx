@@ -45,18 +45,28 @@ export function ThemeCircles() {
                 href={`/themes/${slug}`}
                 className={cn("group flex flex-col items-center gap-3 rounded-xl py-1", focusRing)}
               >
-                <Image
-                  src={`/brand/motifs/themes/${slug}.png`}
-                  alt=""
-                  aria-hidden
-                  width={512}
-                  height={512}
-                  sizes="(min-width: 1024px) 112px, 92px"
+                {/*
+                  Диск під знаком — темно-синій, а не кремовий. Ці знаки
+                  намальовані світлим золотом для темного тла: на кремовому
+                  вони бліднули майже до невидимості, а на синьому світяться
+                  так, як задумані.
+                */}
+                <span
                   className={cn(
-                    "h-[92px] w-[92px] sm:h-[112px] sm:w-[112px]",
+                    "grid h-[92px] w-[92px] place-items-center overflow-hidden rounded-full bg-[#142744] sm:h-[112px] sm:w-[112px]",
                     "transition-transform duration-300 group-hover:scale-[1.04] motion-reduce:transition-none",
                   )}
-                />
+                >
+                  <Image
+                    src={`/brand/motifs/themes/${slug}.png`}
+                    alt=""
+                    aria-hidden
+                    width={512}
+                    height={512}
+                    sizes="(min-width: 1024px) 112px, 92px"
+                    className="h-full w-full"
+                  />
+                </span>
                 <span
                   className={cn(
                     "text-center text-[11px] font-medium uppercase leading-tight tracking-[0.14em]",

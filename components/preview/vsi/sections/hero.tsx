@@ -114,14 +114,14 @@ export function Hero() {
       <Wrap>
         {/* ── Два входи в один простір ── */}
         <div className="pb-10 pt-10 lg:pb-12 lg:pt-12">
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="grid gap-6 lg:grid-cols-2">
             {AUDIENCES.map((a, i) => {
               const dark = i === 1;
               return (
                 <div
                   key={a.title}
                   className={cn(
-                    "flex items-center gap-5 rounded-2xl p-6 sm:gap-6 sm:p-8",
+                    "flex items-center gap-5 rounded-2xl p-6 lg:gap-6 lg:p-8",
                     dark ? "bg-[#142744]" : "border border-[#142744]/10 bg-[#FFFDF8]",
                   )}
                 >
@@ -131,9 +131,9 @@ export function Hero() {
                     aria-hidden
                     width={200}
                     height={200}
-                    className="h-28 w-28 shrink-0 object-contain sm:h-40 sm:w-40"
+                    className="h-28 w-28 shrink-0 object-contain lg:h-40 lg:w-40"
                   />
-                  <div>
+                  <div className="min-w-0">
                     <h2
                       className={cn(
                         "text-xl font-normal leading-snug sm:text-[1.35rem]",
