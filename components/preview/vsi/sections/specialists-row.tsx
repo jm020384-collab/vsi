@@ -7,8 +7,14 @@ import { AvatarPortrait } from "../decor";
 import type { Therapist } from "../data";
 import { focusRing, ink } from "../theme";
 
-/** Скільки карток кладемо в стрічку. Далі — «Усі фахівці». */
-const COUNT = 8;
+/**
+ * Троє на головній, решта — за посиланням «Усі фахівці».
+ *
+ * Менше карток — ширша кожна, а ширша картка вміщає повне звання. Коли
+ * їх було більше, звання доводилось обрізати трьома крапками, і замість
+ * представлення виходив натяк на нього.
+ */
+const COUNT = 3;
 
 /** Максимум тем на картці: більше не читається, а перетворюється на список. */
 const TOPICS = 3;
@@ -86,19 +92,39 @@ function TopicGlyph({ topic }: { topic: string }) {
 }
 
 /**
- * Знайомство з фахівцями — одна горизонтальна стрічка вузьких карток.
+ * Знайомство з фахівцями — три широкі картки в ряд.
  *
- * Заголовок тримається сітки сторінки, а сама стрічка виходить за її
- * праву межу: остання картка обрізається краєм екрана і тим самим каже,
- * що список гортається — без стрілок і крапок, які тут виглядали б як
- * елементи каталогу. Ліворуч стрічка вирівняна з рештою сторінки через
- * calc: до 1180px це звичайний відступ, ширше — половина вільного поля.
+ * На широкому екрані це звичайна сітка в межах сітки сторінки: троє
+ * вміщаються повністю, тож ані гортати, ані обрізати текст не треба.
+ * Нижче за 1024px картки стають стрічкою зі свайпом, і там вона виходить
+ * за праву межу екрана — обрізана картка каже, що список гортається.
+ * Ліва межа стрічки вирівняна із заголовком через calc: до 1180px це
+ * звичайний відступ, ширше — половина вільного поля плюс він же.
  *
  * На картці немає ні цін, ні рейтингів, ні кнопки «забронювати»: на
  * головній ідеться про знайомство, а не про вибір за прайсом.
  */
+/**
+ * Порядок фахівців тасується на кожен запит.
+ *
+ * На головній вміщаються лише троє, а фахівців більше — при фіксованому
+ * зрізі решта не потрапила б на головну ніколи. Сторінка й так рендериться
+ * на кожен запит (кореневий layout читає сесію), тож тасування нічого не
+ * ламає в кешуванні: кешується список із бази, а не вибір із нього.
+ */
+function shuffle(list: Therapist[]): Therapist[] {
+  const pool = [...list];
+  for (let i = pool.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const held = pool[i]!;
+    pool[i] = pool[j]!;
+    pool[j] = held;
+  }
+  return pool;
+}
+
 export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
-  const items = therapists.slice(0, COUNT);
+  const items = shuffle(therapists).slice(0, COUNT);
   if (items.length === 0) return null;
 
   return (
@@ -133,10 +159,8 @@ export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
 
       <div
         className={cn(
-          "overflow-x-auto overscroll-x-contain pb-6 lg:pb-8",
+          "overflow-x-auto overscroll-x-contain pb-6 lg:overflow-x-visible lg:pb-8",
           "snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-          // Ліва межа стрічки = ліва межа сітки сторінки: до 1180px це
-          // звичайний відступ, ширше — половина вільного поля плюс він же.
           "[--rail-pad:1.25rem] sm:[--rail-pad:2rem]",
           "lg:[--rail-pad:max(2.5rem,calc((100%-1180px)/2+2.5rem))]",
           // scroll-padding обов'язковий: зі snap-mandatory браузер інакше
@@ -144,16 +168,17 @@ export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
           "scroll-pl-[var(--rail-pad)] pl-[var(--rail-pad)] pr-[var(--rail-pad)]",
         )}
       >
-        <ul className="flex items-stretch gap-3 sm:gap-4 lg:gap-[18px]">
+        <ul className="flex items-stretch gap-3 sm:gap-4 lg:grid lg:grid-cols-3 lg:gap-5">
           {items.map((t, i) => (
             <li
               key={t.id}
-              className="w-[78vw] max-w-[290px] shrink-0 snap-start sm:w-[290px] lg:w-[256px]"
+              className="w-[78vw] max-w-[290px] shrink-0 snap-start sm:w-[290px] lg:w-auto lg:max-w-none"
             >
               <Link
                 href={`/specialists/${t.id}`}
                 className={cn(
                   "group flex h-full min-h-[292px] gap-3.5 rounded-[18px] p-3.5",
+                  "lg:min-h-[212px] lg:gap-4 lg:p-4",
                   "border border-[#142744]/10 bg-[#FFFDF8]",
                   "transition-[transform,border-color] duration-300",
                   "hover:-translate-y-0.5 hover:border-[#B38B49]/55",
@@ -161,13 +186,13 @@ export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
                   focusRing,
                 )}
               >
-                <div className="w-[86px] shrink-0 self-stretch overflow-hidden rounded-[13px] lg:w-[92px]">
+                <div className="w-[86px] shrink-0 self-stretch overflow-hidden rounded-[13px] lg:w-[104px] xl:w-[124px]">
                   <AvatarPortrait
                     name={t.name}
                     seed={i}
                     photo={t.photo}
                     arch={t.portraitStyle === "arch"}
-                    sizes="(min-width: 1024px) 92px, 86px"
+                    sizes="(min-width: 1280px) 124px, (min-width: 1024px) 104px, 86px"
                     className={cn(
                       "h-full w-full transition-transform duration-500",
                       "group-hover:scale-[1.015] motion-reduce:transition-none",
@@ -177,22 +202,16 @@ export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
 
                 <div className="flex min-w-0 flex-1 flex-col">
                   <h3
-                    className={cn("text-[15px] leading-snug lg:text-[16px]", ink.strong)}
+                    className={cn("text-[15px] leading-snug lg:text-[17px]", ink.strong)}
                     style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
                   >
                     {t.name}
                   </h3>
-                  <p
-                    className={cn(
-                      // Чотири рядки, а не три: реальні звання на кшталт
-                      // «аналітично орієнтована психологиня, психотерапевтка,
-                      // арт-терапевтка» інакше обриваються на півслові.
-                      "mt-1.5 line-clamp-4 text-[10px] uppercase leading-[1.5] tracking-[0.08em]",
-                      ink.muted,
-                    )}
-                  >
-                    {t.status}
-                  </p>
+                  {/*
+                    Звання не обрізаємо: ширша картка вміщає його повністю,
+                    а обірване трьома крапками — це вже не представлення.
+                  */}
+                  <p className={cn("mt-1.5 text-[12px] leading-[1.45]", ink.muted)}>{t.status}</p>
 
                   {t.topics.length > 0 && (
                     <>
@@ -201,7 +220,7 @@ export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
                         {t.topics.slice(0, TOPICS).map((topic) => (
                           <li
                             key={topic}
-                            className={cn("flex gap-2 text-[11px] leading-tight", ink.soft)}
+                            className={cn("flex gap-2 text-[12px] leading-tight", ink.soft)}
                           >
                             <TopicGlyph topic={topic} />
                             <span className="min-w-0">{topic}</span>
@@ -211,14 +230,23 @@ export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
                     </>
                   )}
 
-                  <ArrowRight
+                  <span
                     aria-hidden
                     className={cn(
-                      "mt-auto h-4 w-4 self-end text-[#B38B49]",
-                      "transition-transform duration-200 group-hover:translate-x-1",
+                      "mt-auto grid h-8 w-8 shrink-0 place-items-center self-end rounded-full",
+                      "border border-[#B38B49]/45 text-[#B38B49]",
+                      "transition-colors duration-200",
+                      "group-hover:border-[#B38B49] group-hover:bg-[#B38B49]/[0.08]",
                       "motion-reduce:transition-none",
                     )}
-                  />
+                  >
+                    <ArrowRight
+                      className={cn(
+                        "h-3.5 w-3.5 transition-transform duration-200",
+                        "group-hover:translate-x-0.5 motion-reduce:transition-none",
+                      )}
+                    />
+                  </span>
                 </div>
               </Link>
             </li>
