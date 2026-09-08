@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
-import { CalendarDays } from "lucide-react";
+import Link from "next/link";
+import { CalendarDays, Pencil } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { ink } from "@/components/preview/vsi/theme";
+import { focusRing, ink } from "@/components/preview/vsi/theme";
 import { EventComposer } from "@/components/dashboard/event-composer";
 import { EventDeleteButton } from "@/components/dashboard/event-delete-button";
 import { EventRegistrationToggle } from "@/components/dashboard/event-registration-toggle";
@@ -123,6 +124,18 @@ export default async function DashboardEventsPage() {
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
+                      <Link
+                        href={`/dashboard/events/${e.id}/edit`}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-lg border border-[#142744]/15 px-3 py-2 text-[13px] font-medium",
+                          "text-[#4A5568] transition-colors hover:border-[#142744]/35 hover:text-[#142744]",
+                          "motion-reduce:transition-none",
+                          focusRing,
+                        )}
+                      >
+                        <Pencil className="h-3.5 w-3.5" aria-hidden />
+                        Редагувати
+                      </Link>
                       <EventRegistrationToggle eventId={e.id} initialOpen={e.registrationOpen} />
                       <EventDeleteButton eventId={e.id} />
                     </div>

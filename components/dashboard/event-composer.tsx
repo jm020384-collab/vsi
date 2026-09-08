@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { Check, Image as ImageIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { createEventAction, type EventState } from "@/lib/actions/events";
+import { createEventAction, updateEventAction, type EventState } from "@/lib/actions/events";
 import { EVENT_TYPES } from "@/lib/schemas/event";
 import { PhotoUploader } from "@/components/dashboard/photo-uploader";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
@@ -26,19 +26,42 @@ const inputClass = cn(
   "focus:border-[#1C3557] focus:outline-none focus:ring-2 focus:ring-[#1C3557]/25",
 );
 
-export function EventComposer() {
+/** Поточні значення події — коли передані, форма редагує, а не створює. */
+export interface EventInitialValues {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string | null;
+  type: string;
+  format: string;
+  /**
+   * Уже у форматі datetime-local. Рахується на сервері тим самим поясом,
+   * у якому дата й показується, інакше час поїхав би на редагуванні.
+   */
+  startsAt: string;
+  seatsTotal: number | null;
+  audience: string;
+  price: number | null;
+  contactName: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+}
+
+export function EventComposer({ initial }: { initial?: EventInitialValues }) {
   const [state, formAction, pending] = useActionState<EventState | null, FormData>(
-    (prev, fd) => createEventAction(prev, fd),
+    (prev, fd) => (initial ? updateEventAction(initial.id, prev, fd) : createEventAction(prev, fd)),
     null,
   );
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(initial?.imageUrl ?? null);
 
   if (state?.ok) {
     return (
       <div className="mt-6 flex items-start gap-3 rounded-2xl border border-[#2F6B4F]/25 bg-[#2F6B4F]/[0.06] p-6">
         <Check className="mt-0.5 h-5 w-5 shrink-0 text-[#245A41]" aria-hidden />
         <p className="text-[15px] leading-relaxed text-[#245A41]">
-          Подію опубліковано — вона вже видна на{" "}
+          {initial
+            ? "Зміни збережено — подія оновлена на"
+            : "Подію опубліковано — вона вже видна на"}{" "}
           <a href="/events" className="underline">
             сторінці подій
           </a>
@@ -59,6 +82,7 @@ export function EventComposer() {
         <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>Назва</label>
         <input
           name="title"
+          defaultValue={initial?.title}
           required
           className={inputClass}
           placeholder="Вступ до аналітичної психології"
@@ -72,6 +96,7 @@ export function EventComposer() {
         <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>Опис</label>
         <textarea
           name="description"
+          defaultValue={initial?.description}
           required
           rows={3}
           className={cn(inputClass, "h-auto py-3 leading-relaxed")}
@@ -104,7 +129,7 @@ export function EventComposer() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>Тип</label>
-          <select name="type" defaultValue="SEMINAR" className={inputClass}>
+          <select name="type" defaultValue={initial?.type ?? "SEMINAR"} className={inputClass}>
             {EVENT_TYPES.map((t) => (
               <option key={t} value={t}>
                 {EVENT_TYPE_LABEL[t]}
@@ -114,7 +139,7 @@ export function EventComposer() {
         </div>
         <div>
           <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>Формат</label>
-          <select name="format" defaultValue="ONLINE" className={inputClass}>
+          <select name="format" defaultValue={initial?.format ?? "ONLINE"} className={inputClass}>
             <option value="ONLINE">Онлайн</option>
             <option value="OFFLINE">Очно</option>
             <option value="BOTH">Онлайн і очно</option>
@@ -125,7 +150,13 @@ export function EventComposer() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>Дата й час</label>
-          <input name="startsAt" type="datetime-local" required className={inputClass} />
+          <input
+            name="startsAt"
+            type="datetime-local"
+            required
+            defaultValue={initial?.startsAt}
+            className={inputClass}
+          />
           {fieldErrors?.startsAt?.[0] && (
             <p className="mt-1.5 text-[13px] text-[#8A4B33]">{fieldErrors.startsAt[0]}</p>
           )}
@@ -136,6 +167,7 @@ export function EventComposer() {
           </label>
           <input
             name="seatsTotal"
+            defaultValue={initial?.seatsTotal ?? undefined}
             type="number"
             min={1}
             className={inputClass}
@@ -148,7 +180,7 @@ export function EventComposer() {
         <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>
           Хто побачить подію
         </label>
-        <select name="audience" defaultValue="PUBLIC" className={inputClass}>
+        <select name="audience" defaultValue={initial?.audience ?? "PUBLIC"} className={inputClass}>
           <option value="PUBLIC">Усі — і клієнти, і фахівці</option>
           <option value="PROFESSIONALS">Лише фахівці VSI</option>
         </select>
@@ -160,6 +192,7 @@ export function EventComposer() {
         </label>
         <input
           name="price"
+          defaultValue={initial?.price ?? undefined}
           type="number"
           min={0}
           className={inputClass}
@@ -175,9 +208,25 @@ export function EventComposer() {
           Контакт для питань про подію <span className={ink.soft}>(необов'язково)</span>
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
-          <input name="contactName" className={inputClass} placeholder="Ім'я" />
-          <input name="contactEmail" type="email" className={inputClass} placeholder="Email" />
-          <input name="contactPhone" className={inputClass} placeholder="Телефон" />
+          <input
+            name="contactName"
+            defaultValue={initial?.contactName ?? undefined}
+            className={inputClass}
+            placeholder="Ім'я"
+          />
+          <input
+            name="contactEmail"
+            type="email"
+            defaultValue={initial?.contactEmail ?? undefined}
+            className={inputClass}
+            placeholder="Email"
+          />
+          <input
+            name="contactPhone"
+            defaultValue={initial?.contactPhone ?? undefined}
+            className={inputClass}
+            placeholder="Телефон"
+          />
         </div>
         {fieldErrors?.contactEmail?.[0] && (
           <p className="mt-1.5 text-[13px] text-[#8A4B33]">{fieldErrors.contactEmail[0]}</p>
@@ -205,7 +254,13 @@ export function EventComposer() {
           focusRing,
         )}
       >
-        {pending ? "Публікуємо…" : "Опублікувати подію"}
+        {initial
+          ? pending
+            ? "Зберігаємо…"
+            : "Зберегти зміни"
+          : pending
+            ? "Публікуємо…"
+            : "Опублікувати подію"}
       </button>
     </form>
   );

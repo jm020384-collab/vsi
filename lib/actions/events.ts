@@ -99,6 +99,60 @@ export async function createEventAction(
   return { ok: true, slug };
 }
 
+/**
+ * Редагування вже створеної події.
+ *
+ * Slug лишається старий, навіть коли змінюється назва: на нього
+ * посилаються з /events як на якір, і зміна тихо ламала б уже
+ * розіслані посилання. Статус і registrationOpen теж не чіпаємо —
+ * ними керують окремі дії.
+ */
+export async function updateEventAction(
+  eventId: string,
+  _prev: EventState | null,
+  formData: FormData,
+): Promise<EventState> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: "Потрібно увійти" };
+
+  const existing = await prisma.event.findUnique({
+    where: { id: eventId },
+    select: { slug: true, host: { select: { userId: true } } },
+  });
+  if (!existing?.host || existing.host.userId !== session.user.id) {
+    return { ok: false, error: "Подію не знайдено" };
+  }
+
+  const parsed = eventSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    imageUrl: formData.get("imageUrl") || null,
+    type: formData.get("type"),
+    format: formData.get("format"),
+    language: formData.get("language") || "uk",
+    startsAt: formData.get("startsAt"),
+    seatsTotal: formData.get("seatsTotal") || null,
+    audience: formData.get("audience") || "PUBLIC",
+    contactName: formData.get("contactName") || null,
+    contactEmail: formData.get("contactEmail") || null,
+    contactPhone: formData.get("contactPhone") || null,
+    price: formData.get("price") || null,
+  });
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "Перевірте форму — деякі поля заповнені некоректно",
+      fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+    };
+  }
+
+  await prisma.event.update({ where: { id: eventId }, data: parsed.data });
+
+  revalidatePath("/dashboard/events");
+  revalidatePath("/events");
+  return { ok: true, slug: existing.slug };
+}
+
 export type EventDeleteResult = { ok: true } | { ok: false; error: string };
 
 /**
