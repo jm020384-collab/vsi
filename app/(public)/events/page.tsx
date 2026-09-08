@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { EVENTS, FORMAT_LABEL } from "@/components/preview/vsi/data";
 import { EventInterestButtons } from "@/components/preview/vsi/event-interest-buttons";
 import { ink } from "@/components/preview/vsi/theme";
+import { registrationClosedReason } from "@/lib/event-registration";
 
 export const metadata: Metadata = {
   title: "Події",
@@ -44,6 +45,8 @@ interface EventViewModel {
   format: "online" | "offline" | "both";
   seatsLeft: number | null;
   seatsTotal: number | null;
+  /** null — запис відкрито; інакше причина, чому вже ні. */
+  closedReason: "closed" | "full" | null;
   leadLabel: string;
   leadSlug: string | null;
   myStatus: "SAVED" | "REGISTERED" | null;
@@ -90,6 +93,7 @@ async function loadEvents(): Promise<{ events: EventViewModel[]; isLoggedIn: boo
     format: REAL_FORMAT[e.format],
     seatsLeft: e.seatsTotal ? Math.max(0, e.seatsTotal - e._count.registrations) : null,
     seatsTotal: e.seatsTotal,
+    closedReason: registrationClosedReason(e, e._count.registrations),
     leadLabel: e.host?.fullName ?? "VSI",
     leadSlug: e.host?.slug ?? null,
     myStatus: (Array.isArray(e.registrations) ? e.registrations[0]?.status : null) ?? null,
@@ -111,6 +115,7 @@ async function loadEvents(): Promise<{ events: EventViewModel[]; isLoggedIn: boo
     format: e.format,
     seatsLeft: e.seatsLeft,
     seatsTotal: e.seatsTotal,
+    closedReason: e.seatsLeft === 0 ? "full" : null,
     leadLabel: e.lead,
     leadSlug: null,
     myStatus: null,
@@ -185,7 +190,14 @@ export default async function EventsPage() {
                   <span className="inline-flex items-center rounded-full bg-[#1C3557]/[0.08] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.1em] text-[#1C3557]">
                     {e.typeLabel}
                   </span>
-                  {e.seatsTotal !== null &&
+                  {/*
+                    Закритий запис важливіший за лічильник місць: коли
+                    ведучий закрив набір, «Вільно 5 з 10» вводило б в оману.
+                  */}
+                  {e.closedReason === "closed" ? (
+                    <span className="text-xs font-medium text-[#876428]">Запис закрито</span>
+                  ) : (
+                    e.seatsTotal !== null &&
                     e.seatsLeft !== null &&
                     (full ? (
                       <span className="text-xs font-medium text-[#8A4B33]">Місць немає</span>
@@ -193,7 +205,8 @@ export default async function EventsPage() {
                       <span className="text-xs font-medium text-[#245A41]">
                         Вільно {e.seatsLeft} з {e.seatsTotal}
                       </span>
-                    ))}
+                    ))
+                  )}
                 </div>
 
                 <h2
@@ -277,6 +290,7 @@ export default async function EventsPage() {
                     eventId={e.id}
                     initialStatus={e.myStatus}
                     isLoggedIn={isLoggedIn}
+                    closedReason={e.closedReason}
                   />
                 )}
               </div>

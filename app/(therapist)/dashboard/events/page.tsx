@@ -9,6 +9,8 @@ import { prisma } from "@/lib/db";
 import { ink } from "@/components/preview/vsi/theme";
 import { EventComposer } from "@/components/dashboard/event-composer";
 import { EventDeleteButton } from "@/components/dashboard/event-delete-button";
+import { EventRegistrationToggle } from "@/components/dashboard/event-registration-toggle";
+import { acceptsRegistrations } from "@/lib/event-registration";
 
 export const metadata: Metadata = { title: "Події · Кабінет фахівця" };
 
@@ -97,6 +99,11 @@ export default async function DashboardEventsPage() {
                             {e._count.registrations} записаних
                             {e.seatsTotal ? ` з ${e.seatsTotal}` : ""}
                           </span>
+                          {!acceptsRegistrations(e, e._count.registrations) && (
+                            <span className="inline-flex items-center rounded-full bg-[#B38B49]/[0.14] px-2.5 py-1 font-medium text-[#876428]">
+                              {e.registrationOpen ? "Місць немає" : "Запис закрито"}
+                            </span>
+                          )}
                         </div>
                         <h2
                           className={cn("mt-1.5 truncate text-lg font-normal", ink.strong)}
@@ -115,7 +122,10 @@ export default async function DashboardEventsPage() {
                         </p>
                       </div>
                     </div>
-                    <EventDeleteButton eventId={e.id} />
+                    <div className="flex shrink-0 items-center gap-2">
+                      <EventRegistrationToggle eventId={e.id} initialOpen={e.registrationOpen} />
+                      <EventDeleteButton eventId={e.id} />
+                    </div>
                   </div>
 
                   {e.registrations.length > 0 && (

@@ -9,6 +9,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { hashIp } from "@/lib/hash";
 import { EVENT_TYPES } from "@/lib/schemas/event";
+import { registrationClosedReason } from "@/lib/event-registration";
 
 const eventSchema = z.object({
   title: z.string().min(4, "Заголовок надто короткий").max(160),
@@ -126,6 +127,55 @@ export async function deleteEventAction(eventId: string): Promise<EventDeleteRes
   return { ok: true };
 }
 
+/**
+ * Чи закритий запис і чому — рахуємо на сервері перед кожним записом.
+ * Інтерфейс ховає кнопку, але покладатися на це не можна: дія
+ * викликається напряму й має відмовляти сама.
+ */
+async function closedReasonFor(eventId: string): Promise<"closed" | "full" | null> {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    select: {
+      registrationOpen: true,
+      seatsTotal: true,
+      _count: { select: { registrations: { where: { status: "REGISTERED" } } } },
+    },
+  });
+  if (!event) return "closed";
+  return registrationClosedReason(event, event._count.registrations);
+}
+
+export type EventRegistrationOpenResult =
+  | { ok: true; open: boolean }
+  | { ok: false; error: string };
+
+/**
+ * Закрити або відкрити запис на власну подію.
+ *
+ * Подія при цьому лишається на сайті з усією інформацією — на відміну
+ * від status = CANCELLED, який ховає її зовсім.
+ */
+export async function setEventRegistrationOpenAction(
+  eventId: string,
+  open: boolean,
+): Promise<EventRegistrationOpenResult> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: "Потрібно увійти" };
+
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    select: { host: { select: { userId: true } } },
+  });
+  if (!event?.host || event.host.userId !== session.user.id) {
+    return { ok: false, error: "Подію не знайдено" };
+  }
+
+  await prisma.event.update({ where: { id: eventId }, data: { registrationOpen: open } });
+  revalidatePath("/dashboard/events");
+  revalidatePath("/events");
+  return { ok: true, open };
+}
+
 export type EventInterestState =
   | { ok: true; status: "SAVED" | "REGISTERED" | null }
   | { ok: false; error: string };
@@ -156,6 +206,19 @@ export async function setEventInterestAction(
   const existing = await prisma.eventRegistration.findUnique({
     where: { eventId_userId: { eventId, userId: session.user.id } },
   });
+
+  // Закритий запис не має обходитись повз інтерфейс. «Зберегти на потім»
+  // лишається доступним завжди — воно не займає місця; забрати вже
+  // наявний запис теж можна, інакше учасник опинився б у пастці.
+  if (status === "REGISTERED" && existing?.status !== "REGISTERED") {
+    const reason = await closedReasonFor(eventId);
+    if (reason) {
+      return {
+        ok: false,
+        error: reason === "full" ? "Місць більше немає" : "Запис на цю подію закрито",
+      };
+    }
+  }
 
   let nextStatus: "SAVED" | "REGISTERED" | null;
   if (existing?.status === status) {
@@ -230,6 +293,16 @@ export async function registerForEventAction(
   });
   if (!event || event.status !== "PUBLISHED") {
     return { ok: false, error: "Подію не знайдено" };
+  }
+
+  // Раніше тут не перевірялось нічого, крім статусу: сторінка показувала
+  // «Місць немає», а дія все одно приймала реєстрацію.
+  const reason = await closedReasonFor(event.id);
+  if (reason) {
+    return {
+      ok: false,
+      error: reason === "full" ? "Місць більше немає" : "Запис на цю подію закрито",
+    };
   }
 
   // Логін в іншій вкладці між рендером і сабмітом — реєструємо на акаунт,

@@ -103,10 +103,13 @@ export function EventInterestButtons({
   eventId,
   initialStatus,
   isLoggedIn,
+  closedReason,
 }: {
   eventId: string;
   initialStatus: "SAVED" | "REGISTERED" | null;
   isLoggedIn: boolean;
+  /** null — запис відкрито; інакше причина, чому вже ні. */
+  closedReason: "closed" | "full" | null;
 }) {
   const [status, setStatus] = useState(initialStatus);
   const [pending, startTransition] = useTransition();
@@ -133,6 +136,22 @@ export function EventInterestButtons({
 
   if (guestMode) {
     return <GuestRegistrationForm eventId={eventId} onCancel={() => setGuestMode(false)} />;
+  }
+
+  /*
+    Запис закрито — кнопки немає взагалі, а не заблокованої: сама подія
+    лишається на сторінці з усією інформацією, і рядок пояснює, чому в
+    неї не можна записатися. Виняток — той, хто вже зареєстрований: він
+    має бачити свій статус, інакше здаватиметься, що запис злетів.
+  */
+  if (closedReason && status !== "REGISTERED") {
+    return (
+      <p className="mt-4 text-xs font-medium text-[#876428]">
+        {closedReason === "full"
+          ? "Місць немає — запис закрито"
+          : "Запис закрито. Подія відбудеться за розкладом"}
+      </p>
+    );
   }
 
   return (

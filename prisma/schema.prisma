@@ -475,6 +475,11 @@ model Event {
   status      EventStatus       @default(DRAFT)
   audience    EventAudience     @default(PUBLIC)
 
+  /// Запис можна закрити, не знімаючи подію з сайту: уся інформація
+  /// лишається видимою, але нових учасників подія більше не приймає.
+  /// Це не те саме, що status = CANCELLED — там подія зникає зовсім.
+  registrationOpen Boolean @default(true)
+
   // Контакт для питань про подію (не обов'язково той самий, що в профілі) і вартість
   contactName  String?
   contactEmail String?
