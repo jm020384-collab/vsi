@@ -24,6 +24,12 @@ function toDateTimeLocal(date: Date): string {
   );
 }
 
+/** Те саме для input[type=date] — лише дата, без часу. */
+function toDateOnly(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
@@ -71,6 +77,8 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
           type: event.type,
           format: event.format,
           startsAt: toDateTimeLocal(event.startsAt),
+          recurrence: event.recurrence,
+          recurrenceEndsAt: event.recurrenceEndsAt ? toDateOnly(event.recurrenceEndsAt) : null,
           seatsTotal: event.seatsTotal,
           audience: event.audience,
           price: event.price,

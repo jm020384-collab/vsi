@@ -12,6 +12,7 @@ import { EventComposer } from "@/components/dashboard/event-composer";
 import { EventDeleteButton } from "@/components/dashboard/event-delete-button";
 import { EventRegistrationToggle } from "@/components/dashboard/event-registration-toggle";
 import { acceptsRegistrations } from "@/lib/event-registration";
+import { scheduleLabel } from "@/lib/event-recurrence";
 
 export const metadata: Metadata = { title: "Події · Кабінет фахівця" };
 
@@ -114,12 +115,7 @@ export default async function DashboardEventsPage() {
                         </h2>
                         <p className={cn("mt-0.5 flex items-center gap-1.5 text-[13px]", ink.soft)}>
                           <CalendarDays className="h-3.5 w-3.5" aria-hidden />
-                          {e.startsAt.toLocaleString("uk-UA", {
-                            day: "numeric",
-                            month: "long",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {scheduleLabel(e)}
                         </p>
                       </div>
                     </div>

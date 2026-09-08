@@ -6,6 +6,7 @@ import { Check, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createEventAction, updateEventAction, type EventState } from "@/lib/actions/events";
 import { EVENT_TYPES } from "@/lib/schemas/event";
+import { EVENT_RECURRENCES, RECURRENCE_LABEL, type EventRecurrence } from "@/lib/event-recurrence";
 import { PhotoUploader } from "@/components/dashboard/photo-uploader";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
 
@@ -39,6 +40,9 @@ export interface EventInitialValues {
    * у якому дата й показується, інакше час поїхав би на редагуванні.
    */
   startsAt: string;
+  /** У форматі YYYY-MM-DD для input[type=date]; null — без кінця. */
+  recurrenceEndsAt: string | null;
+  recurrence: EventRecurrence;
   seatsTotal: number | null;
   audience: string;
   price: number | null;
@@ -53,6 +57,10 @@ export function EventComposer({ initial }: { initial?: EventInitialValues }) {
     null,
   );
   const [imageUrl, setImageUrl] = useState<string | null>(initial?.imageUrl ?? null);
+  // Ритм тримаємо в стані: від нього залежить, чи показувати дату
+  // останньої зустрічі й як підписати поле дати.
+  const [recurrence, setRecurrence] = useState<string>(initial?.recurrence ?? "ONCE");
+  const repeats = recurrence !== "ONCE";
 
   if (state?.ok) {
     return (
@@ -147,9 +155,32 @@ export function EventComposer({ initial }: { initial?: EventInitialValues }) {
         </div>
       </div>
 
+      <div>
+        <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>Ритм зустрічей</label>
+        <select
+          name="recurrence"
+          value={recurrence}
+          onChange={(e) => setRecurrence(e.target.value)}
+          className={inputClass}
+        >
+          {EVENT_RECURRENCES.map((r) => (
+            <option key={r} value={r}>
+              {RECURRENCE_LABEL[r]}
+            </option>
+          ))}
+        </select>
+        {repeats && (
+          <p className={cn("mt-1.5 text-[13px]", ink.soft)}>
+            День тижня береться з дати першої зустрічі — окремо його вказувати не треба.
+          </p>
+        )}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>Дата й час</label>
+          <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>
+            {repeats ? "Перша зустріч" : "Дата й час"}
+          </label>
           <input
             name="startsAt"
             type="datetime-local"
@@ -175,6 +206,23 @@ export function EventComposer({ initial }: { initial?: EventInitialValues }) {
           />
         </div>
       </div>
+
+      {repeats && (
+        <div>
+          <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>
+            Остання зустріч <span className={ink.soft}>(необов'язково)</span>
+          </label>
+          <input
+            name="recurrenceEndsAt"
+            type="date"
+            defaultValue={initial?.recurrenceEndsAt ?? undefined}
+            className={inputClass}
+          />
+          <p className={cn("mt-1.5 text-[13px]", ink.soft)}>
+            Порожньо — група триває без визначеного кінця й лишається на сайті.
+          </p>
+        </div>
+      )}
 
       <div>
         <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>

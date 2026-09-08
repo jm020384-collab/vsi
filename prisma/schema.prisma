@@ -138,6 +138,13 @@ enum EventStatus {
   CANCELLED
 }
 
+enum EventRecurrence {
+  ONCE // одна зустріч у вказану дату
+  WEEKLY // щотижня в той самий день
+  BIWEEKLY // раз на два тижні
+  MONTHLY // раз на місяць
+}
+
 enum EventAudience {
   PUBLIC // видно всім, зокрема неавторизованим
   PROFESSIONALS // видно лише залогіненим THERAPIST/ADMIN
@@ -470,8 +477,18 @@ model Event {
   type        EventType
   format      SessionFormat     @default(ONLINE)
   language    String            @default("uk")
+  /// Для регулярних груп — дата й час ПЕРШОЇ зустрічі. День тижня
+  /// береться звідси ж, окремого поля під нього не треба.
   startsAt    DateTime
   seatsTotal  Int?
+
+  /// Ритм зустрічей. Регулярна група лишається одним записом, а не
+  /// розсипається на окремі події: люди записуються в групу, а не на
+  /// одну зустріч, тож і місця, і список учасників у неї спільні.
+  recurrence EventRecurrence @default(ONCE)
+  /// Коли група триває обмежений час — дата останньої зустрічі.
+  /// Порожньо в регулярної означає «без визначеного кінця».
+  recurrenceEndsAt DateTime?
   status      EventStatus       @default(DRAFT)
   audience    EventAudience     @default(PUBLIC)
 

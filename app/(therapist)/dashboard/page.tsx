@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { focusRing, ink } from "@/components/preview/vsi/theme";
+import { upcomingEventFilter } from "@/lib/event-recurrence";
 
 const STATUS_LABEL: Record<"DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED", string> = {
   DRAFT: "Чернетка",
@@ -79,11 +80,13 @@ export default async function DashboardPage() {
 
   const articlesCount = await prisma.article.count({ where: { authorId: session.user.id } });
 
-  // Рахуємо лише майбутні: минулі події на оглядовій плитці нічого не
+  // Рахуємо лише чинні: минулі події на оглядовій плитці нічого не
   // підказують, а число з ними виглядало б як робота, якої вже немає.
+  // Регулярна група чинна, поки триває, а не лише до першої зустрічі —
+  // тому та сама умова, що й на публічній сторінці.
   const upcomingEvents = therapist
     ? await prisma.event.count({
-        where: { hostId: therapist.id, startsAt: { gte: new Date() } },
+        where: { hostId: therapist.id, ...upcomingEventFilter() },
       })
     : 0;
 

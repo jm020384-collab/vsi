@@ -10,6 +10,7 @@ import { EVENTS, FORMAT_LABEL } from "@/components/preview/vsi/data";
 import { EventInterestButtons } from "@/components/preview/vsi/event-interest-buttons";
 import { ink } from "@/components/preview/vsi/theme";
 import { registrationClosedReason } from "@/lib/event-registration";
+import { scheduleLabel, upcomingEventFilter } from "@/lib/event-recurrence";
 
 export const metadata: Metadata = {
   title: "Події",
@@ -63,7 +64,9 @@ async function loadEvents(): Promise<{ events: EventViewModel[]; isLoggedIn: boo
   const real = await prisma.event.findMany({
     where: {
       status: "PUBLISHED",
-      startsAt: { gte: new Date() },
+      // Регулярна група лишається видимою, поки триває: фільтр лише за
+      // startsAt ховав би саме те, до чого ще можна приєднатися.
+      ...upcomingEventFilter(),
       // Події для фахівців ховаємо від неавторизованих і клієнтів —
       // audience: "PROFESSIONALS" видно лише THERAPIST/ADMIN.
       ...(isProfessional ? {} : { audience: { not: "PROFESSIONALS" } }),
@@ -84,12 +87,7 @@ async function loadEvents(): Promise<{ events: EventViewModel[]; isLoggedIn: boo
     title: e.title,
     description: e.description,
     imageUrl: e.imageUrl,
-    dateLabel: e.startsAt.toLocaleString("uk-UA", {
-      day: "numeric",
-      month: "long",
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
+    dateLabel: scheduleLabel(e),
     format: REAL_FORMAT[e.format],
     seatsLeft: e.seatsTotal ? Math.max(0, e.seatsTotal - e._count.registrations) : null,
     seatsTotal: e.seatsTotal,
