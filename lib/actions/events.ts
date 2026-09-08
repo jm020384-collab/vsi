@@ -24,7 +24,9 @@ const eventSchema = z.object({
   contactEmail: z.string().email("Введіть коректний email").optional().nullable(),
   contactPhone: z
     .string()
-    .regex(/^\+?[0-9\s\-()]{7,20}$/, "Введіть коректний номер")
+    // Той самий шаблон, що в анкеті: реальні номери бувають із комами й
+    // кількома країнами одразу, а 20 символів на це не вистачало.
+    .regex(/^[+0-9\s\-(),;/]{7,120}$/, "Введіть коректний номер")
     .optional()
     .nullable(),
   price: z.coerce.number().int().min(0, "Вартість не може бути від'ємною").optional().nullable(),
@@ -96,21 +98,32 @@ export async function createEventAction(
   return { ok: true, slug };
 }
 
-export async function deleteEventAction(eventId: string) {
+export type EventDeleteResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Повертаємо результат, а не кидаємо виняток.
+ *
+ * Дію викликають напряму з клієнта через startTransition, а не через
+ * <form action>. У такому виклику throw із серверної дії доходить до
+ * браузера сирою 500-кою й піднімає межу помилки — тобто падає вся
+ * сторінка замість повідомлення поруч із кнопкою.
+ */
+export async function deleteEventAction(eventId: string): Promise<EventDeleteResult> {
   const session = await auth();
-  if (!session?.user) throw new Error("Потрібно увійти");
+  if (!session?.user) return { ok: false, error: "Потрібно увійти" };
 
   const event = await prisma.event.findUnique({
     where: { id: eventId },
     select: { host: { select: { userId: true } } },
   });
   if (!event?.host || event.host.userId !== session.user.id) {
-    throw new Error("Подію не знайдено");
+    return { ok: false, error: "Подію не знайдено" };
   }
 
   await prisma.event.delete({ where: { id: eventId } });
   revalidatePath("/dashboard/events");
   revalidatePath("/events");
+  return { ok: true };
 }
 
 export type EventInterestState =
@@ -168,7 +181,9 @@ const guestRegistrationSchema = z.object({
   email: z.string().email("Введіть коректний email"),
   phone: z
     .string()
-    .regex(/^\+?[0-9\s\-()]{7,20}$/, "Введіть коректний номер")
+    // Той самий шаблон, що в анкеті: реальні номери бувають із комами й
+    // кількома країнами одразу, а 20 символів на це не вистачало.
+    .regex(/^[+0-9\s\-(),;/]{7,120}$/, "Введіть коректний номер")
     .optional()
     .or(z.literal("")),
 });

@@ -6,7 +6,9 @@ export const contactRequestSchema = z.object({
   patientEmail: z.string().email("Введіть коректний email"),
   patientPhone: z
     .string()
-    .regex(/^\+?[0-9\s\-()]{7,20}$/, "Введіть коректний номер")
+    // Той самий шаблон, що в анкеті: реальні номери бувають із комами й
+    // кількома країнами одразу, а 20 символів на це не вистачало.
+    .regex(/^[+0-9\s\-(),;/]{7,120}$/, "Введіть коректний номер")
     .optional()
     .or(z.literal("")),
   preferredTime: z.string().max(200).optional(),

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, BadgeCheck, Clock, FileText, Inbox } from "lucide-react";
+import { ArrowRight, BadgeCheck, CalendarDays, Clock, FileText, Inbox } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { auth } from "@/auth";
@@ -79,6 +79,14 @@ export default async function DashboardPage() {
 
   const articlesCount = await prisma.article.count({ where: { authorId: session.user.id } });
 
+  // Рахуємо лише майбутні: минулі події на оглядовій плитці нічого не
+  // підказують, а число з ними виглядало б як робота, якої вже немає.
+  const upcomingEvents = therapist
+    ? await prisma.event.count({
+        where: { hostId: therapist.id, startsAt: { gte: new Date() } },
+      })
+    : 0;
+
   const pendingDocs = therapist
     ? therapist.documents.filter((d) => d.status === "PENDING").length
     : 0;
@@ -93,7 +101,7 @@ export default async function DashboardPage() {
         Ваш професійний простір у VSI
       </h1>
       <p className={cn("mt-3 max-w-lg text-[15px] leading-relaxed", ink.muted)}>
-        Профіль, публікації, звернення та професійний розвиток в одному середовищі.
+        Профіль, публікації, події, звернення та професійний розвиток в одному середовищі.
       </p>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -145,6 +153,26 @@ export default async function DashboardPage() {
           </div>
           <p className={cn("mt-1 text-[14px]", ink.soft)}>
             {articlesCount === 0 ? "текстів поки немає" : "опублікованих і чернеток"}
+          </p>
+        </Tile>
+
+        {/*
+          Публікації та події — дві речі, які фахівець тут створює сам,
+          тож вони стоять поруч. Плитку показуємо навіть із нулем: інакше
+          той, хто ще не створив жодної події, ніколи б про них і не
+          дізнався — саме так вона й загубилась раніше.
+        */}
+        <Tile
+          title="Події"
+          href="/dashboard/events"
+          cta={upcomingEvents === 0 ? "Створити подію" : "Мої події"}
+        >
+          <div className={cn("flex items-center gap-2 text-3xl font-normal", ink.strong)}>
+            <CalendarDays className="h-6 w-6 text-[#5C6672]" aria-hidden />
+            {upcomingEvents}
+          </div>
+          <p className={cn("mt-1 text-[14px]", ink.soft)}>
+            {upcomingEvents === 0 ? "лекції, семінари, супервізійні групи" : "попереду в розкладі"}
           </p>
         </Tile>
 

@@ -18,11 +18,8 @@ export function EventDeleteButton({ eventId }: { eventId: string }) {
       aria-label="Видалити подію"
       onClick={() =>
         startTransition(async () => {
-          try {
-            await deleteEventAction(eventId);
-          } catch (e) {
-            toast.error(e instanceof Error ? e.message : "Не вдалося видалити подію");
-          }
+          const res = await deleteEventAction(eventId);
+          if (!res.ok) toast.error(res.error);
         })
       }
       className={cn(

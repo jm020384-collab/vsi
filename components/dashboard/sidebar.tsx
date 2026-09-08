@@ -73,46 +73,58 @@ export function DashboardSidebar({
           </p>
         )}
 
-        <nav
-          className="mt-6 flex gap-1 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0"
-          aria-label="Навігація кабінету"
-        >
-          {NAV.map((item) => {
-            const active =
-              item.href === "/dashboard"
-                ? pathname === "/dashboard"
-                : pathname.startsWith(item.href);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "group relative flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2.5 text-[14px] transition-colors motion-reduce:transition-none lg:whitespace-normal",
-                  active
-                    ? "bg-[#1C3557]/[0.07] font-medium text-[#1C3557]"
-                    : cn(ink.muted, "hover:bg-[#142744]/[0.04] hover:text-[#142744]"),
-                  focusRing,
-                )}
-              >
-                <span
-                  aria-hidden
+        {/*
+          Нижче за lg меню стає горизонтальною стрічкою, і частина пунктів
+          лишається за краєм екрана. Без підказки їх просто не знаходять —
+          саме так губилися «Події». Градієнт праворуч показує, що стрічку
+          можна гортати; на десктопі меню вертикальне, тож він там зайвий.
+        */}
+        <div className="relative mt-6">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-10 bg-gradient-to-l from-[#F8F4EC] to-transparent lg:hidden"
+          />
+          <nav
+            className="flex gap-1 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0"
+            aria-label="Навігація кабінету"
+          >
+            {NAV.map((item) => {
+              const active =
+                item.href === "/dashboard"
+                  ? pathname === "/dashboard"
+                  : pathname.startsWith(item.href);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
                   className={cn(
-                    "absolute left-0 top-1/2 hidden h-4 w-[2px] -translate-y-1/2 rounded-full bg-[#B38B49] lg:block",
-                    active ? "opacity-100" : "opacity-0",
+                    "group relative flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2.5 text-[14px] transition-colors motion-reduce:transition-none lg:whitespace-normal",
+                    active
+                      ? "bg-[#1C3557]/[0.07] font-medium text-[#1C3557]"
+                      : cn(ink.muted, "hover:bg-[#142744]/[0.04] hover:text-[#142744]"),
+                    focusRing,
                   )}
-                />
-                <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                {item.label}
-                {item.soon && (
-                  <span className="ml-auto hidden shrink-0 text-[10px] uppercase tracking-[0.1em] text-[#8C93A0] lg:inline">
-                    скоро
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+                >
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "absolute left-0 top-1/2 hidden h-4 w-[2px] -translate-y-1/2 rounded-full bg-[#B38B49] lg:block",
+                      active ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                  <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                  {item.label}
+                  {item.soon && (
+                    <span className="ml-auto hidden shrink-0 text-[10px] uppercase tracking-[0.1em] text-[#8C93A0] lg:inline">
+                      скоро
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
         {isAdmin && (
           <div className="mt-6 border-t border-[#142744]/10 pt-6">
