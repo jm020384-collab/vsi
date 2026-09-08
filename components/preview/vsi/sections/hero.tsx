@@ -43,33 +43,48 @@ export function Hero() {
         Затемнення-скрим ліворуч гарантує контраст навіть тоді, коли
         кадрування зрізає світлу частину (вузькі екрани).
       */}
-      <div className="relative min-h-[440px] w-full sm:min-h-[520px] lg:min-h-[600px]">
-        <Image
-          src="/brand/motifs/hero.png"
-          alt="Арка, розділена навпіл: ліворуч денне небо із сонцем, праворуч нічне із місяцем; довкола гори, вода й золоті орбіти"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[72%_center] lg:object-center"
-        />
+      <div className="lg:relative lg:min-h-[600px]">
         {/*
-          Позиції всіх трьох точок задані явно: без них Tailwind ставив
-          кінцеву точку раніше за середню, і градієнт вироджувався в
-          суцільну заливку, яка перекривала зображення.
-        */}
-        <div
-          aria-hidden
-          className={cn(
-            "absolute inset-0 bg-gradient-to-r",
-            // На вузьких екранах кадр не встигає відійти від арки, тож
-            // вуаль там ніде не сходить нанівець — інакше текст лягав
-            // просто на візерунок і ставав нечитабельним.
-            "from-[#F8F4EC] from-0% via-[#F8F4EC]/90 via-55% to-[#F8F4EC]/55 to-100%",
-            "lg:via-[#F8F4EC]/60 lg:via-30% lg:to-transparent lg:to-60%",
-          )}
-        />
+          Вузькі екрани й широкі показують візуал по-різному.
 
-        <Wrap className="relative flex min-h-[440px] items-center py-10 sm:min-h-[520px] lg:min-h-[600px]">
+          На широкому ліворуч лишається порожнє небо, тож текст спокійно
+          лягає поверх зображення. На вузькому такого поля немає: щоб
+          текст читався, вуаль доводилось робити майже непрозорою — і
+          зображення під нею гинуло. Тому нижче за lg арка стає окремою
+          смугою над текстом: видно її на повний контраст, а текст лежить
+          на чистому тлі. Смуга ще й вища за пропорцію кадру, тож
+          object-cover зрізає боки — арка виходить крупнішою.
+        */}
+        <div className="relative h-[300px] w-full sm:h-[400px] lg:absolute lg:inset-0 lg:h-auto">
+          <Image
+            src="/brand/motifs/hero.png"
+            alt="Арка, розділена навпіл: ліворуч денне небо із сонцем, праворуч нічне із місяцем; довкола гори, вода й золоті орбіти"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[64%_center] lg:object-center"
+          />
+          {/*
+            Вуаль потрібна лише там, де текст лежить поверх зображення.
+            Позиції всіх трьох точок задані явно: без них Tailwind ставив
+            кінцеву точку раніше за середню, і градієнт вироджувався в
+            суцільну заливку, яка перекривала зображення.
+          */}
+          <div
+            aria-hidden
+            className={cn(
+              "absolute inset-0 hidden bg-gradient-to-r lg:block",
+              "from-[#F8F4EC] from-0% via-[#F8F4EC]/60 via-30% to-transparent to-60%",
+            )}
+          />
+          {/* М'який стик смуги з кремовим тлом під нею */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#F8F4EC] to-transparent lg:hidden"
+          />
+        </div>
+
+        <Wrap className="relative flex items-center py-8 sm:py-10 lg:min-h-[600px]">
           {/*
             Знак «VSI» — великим планом, як у макеті, але це декор:
             заголовком сторінки лишається сам напрям роботи, інакше
