@@ -2,7 +2,6 @@ import { unstable_cache } from "next/cache";
 
 import { prisma } from "@/lib/db";
 import {
-  THERAPISTS,
   type AgeGroup,
   type Format,
   type Therapist,
@@ -25,35 +24,26 @@ const WORK_FORMAT_MAP: Record<string, WorkFormat> = {
 const NEW_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 /**
- * Реальні APPROVED-профілі поверх демо — спільне джерело для каталогу
- * і для ряду фахівців на головній, щоб обидва місця показували те саме.
+ * Каталог фахівців — лише ті, хто зареєструвався сам.
  *
- * Демо-запис виключається, якщо для нього вказано realAccountEmail і для
- * цього email уже існує РЕАЛЬНИЙ профіль — незалежно від його поточного
- * статусу. Саме "незалежно": якщо реальний профіль деактивують
- * (SUSPENDED) чи відхилять, демо-заглушка не повинна повертатись замість
- * нього — людина свідомо стала невидимою, а не "ще не зареєстрованою".
+ * Спільне джерело для сторінки каталогу і для ряду на головній, щоб
+ * обидва місця показували те саме. Демо-персони прибрані: вигаданих
+ * фахівців на сайті психотерапії бути не повинно.
  */
 export async function loadTherapists(): Promise<Therapist[]> {
-  const [rows, allRealAccounts] = await Promise.all([
-    prisma.therapistProfile.findMany({
-      where: { status: "APPROVED", deletedAt: null },
-      include: {
-        user: { select: { email: true } },
-        specializations: { include: { specialization: true } },
-        languages: { include: { language: true } },
-      },
-      orderBy: { publishedAt: "desc" },
-    }),
-    prisma.therapistProfile.findMany({
-      where: { deletedAt: null },
-      select: { user: { select: { email: true } } },
-    }),
-  ]);
+  const rows = await prisma.therapistProfile.findMany({
+    where: { status: "APPROVED", deletedAt: null },
+    include: {
+      user: { select: { email: true } },
+      specializations: { include: { specialization: true } },
+      languages: { include: { language: true } },
+    },
+    orderBy: { publishedAt: "desc" },
+  });
 
   const cutoff = Date.now() - NEW_WINDOW_MS;
 
-  const real: Therapist[] = rows.map((r) => ({
+  return rows.map((r) => ({
     id: r.slug,
     name: r.fullName,
     status: r.professionalTitle ?? "Фахівець VSI",
@@ -76,11 +66,6 @@ export async function loadTherapists(): Promise<Therapist[]> {
       .filter((f): f is WorkFormat => Boolean(f)),
     isNew: r.publishedAt ? r.publishedAt.getTime() > cutoff : false,
   }));
-
-  const realEmails = new Set(allRealAccounts.map((r) => r.user.email));
-  const demo = THERAPISTS.filter((t) => !t.realAccountEmail || !realEmails.has(t.realAccountEmail));
-
-  return [...real, ...demo];
 }
 
 /** Тег для скидання кешу з дій модерації. */
