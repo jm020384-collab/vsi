@@ -339,9 +339,16 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
   };
 }
 
-export function generateStaticParams() {
-  return THERAPISTS.map((t) => ({ id: t.id }));
-}
+/**
+ * Сторінка рендериться на кожен запит.
+ *
+ * Вона читає сесію, щоб показати власнику профілю кнопки редагування, а
+ * це заборонено під час статичного рендеру. Раніше маршрут тримався
+ * статичним, бо generateStaticParams перелічував демо-персон; коли їх не
+ * стало, список спорожнів і сторінки фахівців почали віддавати 500.
+ * Перелічувати тут нічого: реальні профілі живуть у базі й змінюються.
+ */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
