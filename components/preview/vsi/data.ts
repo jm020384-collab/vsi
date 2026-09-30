@@ -61,6 +61,12 @@ export interface Therapist {
    * від першої особи.
    */
   isReal?: boolean;
+  /**
+   * Професійні інтереси з анкети. Для реальних профілів саме вони
+   * наповнюють розділ «Досліджую» і фільтр каталогу за інтересами —
+   * раніше той фільтр міг показати лише демо-персон.
+   */
+  researchInterests?: string[];
 }
 
 /**
@@ -705,7 +711,7 @@ export function specialistSpace(t: Therapist): SpecialistSpace {
               text: `${t.status}. Регулярна супервізія і власний аналіз — постійна частина професії.`,
             },
           ]),
-    research: curated.research ?? (isReal ? [] : t.topics.slice(0, 3)),
+    research: curated.research ?? (isReal ? (t.researchInterests ?? []) : t.topics.slice(0, 3)),
     diplomas: curated.diplomas ?? [],
   };
 }

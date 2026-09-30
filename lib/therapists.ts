@@ -60,6 +60,7 @@ export async function loadTherapists(): Promise<Therapist[]> {
     city: r.city,
     photo: r.photoUrl ?? undefined,
     isReal: true,
+    researchInterests: r.professionalInterests,
     ageGroups: r.ageGroups.map((g) => AGE_GROUP_MAP[g]).filter((g): g is AgeGroup => Boolean(g)),
     workFormats: r.workFormats
       .map((f) => WORK_FORMAT_MAP[f])
