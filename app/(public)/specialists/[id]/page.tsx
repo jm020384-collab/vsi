@@ -484,11 +484,11 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             </a>
           </div>
 
-          {vm.position[0] && (
-            <p className={`mt-5 max-w-2xl text-pretty text-[16px] leading-[1.75] ${ink.body}`}>
-              {vm.position[0]}
-            </p>
-          )}
+          {/*
+            Позиція тут навмисно не повторюється. У профілі вона береться
+            з одного поля анкети, тож у шапці й у розділі «Позиція» нижче
+            це був дослівно той самий текст двічі поспіль.
+          */}
 
           {vm.topics.length > 0 && (
             <div className="mt-5 flex flex-wrap gap-1.5">
