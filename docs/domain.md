@@ -1,6 +1,11 @@
 # Перенесення платформи на власний домен
 
-Домен: **vsi-therapy.com** (реєстратор — GoDaddy, хостинг — Vercel, проєкт `vsi`).
+Домен: **vsi-therapy.com**. Хостинг — Vercel, проєкт `vsi`.
+
+DNS домену обслуговують нейм-сервери **Namecheap** (`dns1.registrar-servers.com`,
+`dns2.registrar-servers.com`) — перевірено запитом до публічного DNS Google.
+Отже, записи редагуються там, у панелі **Advanced DNS**, а не в іншого
+реєстратора, навіть якщо домен купували в іншому місці.
 
 ## Що важливо знати про код
 
@@ -25,27 +30,43 @@
 Послідовність важлива: змінні оточення міняємо **після** того, як домен
 реально запрацював, інакше посилання в листах поведуть у нікуди.
 
-### 1. Додати домен у Vercel
+### 1. Додати домен у Vercel — зроблено
 
-Settings → Domains → Add Existing. Додати `vsi-therapy.com` і
-`www.vsi-therapy.com`; головним зробити короткий, `www` залишити на редірект.
+`vsi-therapy.com` і `www.vsi-therapy.com` вже додані до проєкту `vsi`:
 
-SSL Vercel випускає сам. У GoDaddy сертифікат купувати не треба.
+```
+vercel domains add vsi-therapy.com vsi
+vercel domains add www.vsi-therapy.com vsi
+```
 
-### 2. DNS у GoDaddy
+Поки DNS не налаштовано, Vercel показує «Invalid Configuration» — це
+нормально й нічого не ламає. Сертифікат SSL випуститься автоматично, щойно
+домен почне вказувати на Vercel. Купувати сертифікат у реєстратора не треба.
 
-Значення брати **з екрана Vercel**: CNAME для піддомену унікальний для
-кожного проєкту (вигляду `d1d4fc829fe7bc7c.vercel-dns-017.com`), загальні
-значення з інтернету дадуть «invalid configuration».
+### 2. DNS у Namecheap
 
-У GoDaddy → DNS замінити два наявні записи, що ведуть на паркувальну
-сторінку:
+Namecheap → Domain List → Manage → **Advanced DNS**.
 
-- `A` для `@` → значення з Vercel
-- `CNAME` для `www` → значення з Vercel
+Спершу **видалити** записи, що залишилися від паркування:
+
+- `CNAME` для `www` → `parkingpage.namecheap.com`
+- `URL Redirect` для `@`
+
+Потім додати два записи (значення видав Vercel для цього проєкту):
+
+| Тип | Host  | Value         |
+| --- | ----- | ------------- |
+| `A` | `@`   | `76.76.21.21` |
+| `A` | `www` | `76.76.21.21` |
 
 Нейм-сервери на Vercel **не переводити**: тоді довелося б вручну переносити
-решту записів, зокрема поштові.
+решту записів, зокрема поштові для Resend.
+
+Перевірити, що Vercel побачив зміни:
+
+```
+vercel domains inspect vsi-therapy.com
+```
 
 ### 3. Змінні оточення у Vercel
 
@@ -71,7 +92,7 @@ Resend. Листи з неї доходять **лише на власну ад�
 Resend**; реєстрація й скидання пароля для решти користувачів не працюють.
 
 Resend → Domains → Add Domain → `vsi-therapy.com`. Додати видані TXT і MX
-(DKIM, SPF) у GoDaddy — вони не конфліктують із записами Vercel. Далі:
+(DKIM, SPF) у Namecheap — вони не конфліктують із записами Vercel. Далі:
 
 ```
 EMAIL_FROM = VSI <noreply@vsi-therapy.com>
