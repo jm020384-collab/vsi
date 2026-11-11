@@ -27,7 +27,7 @@ import {
   type Therapist,
   type WorkFormat,
 } from "./data";
-import { focusRing, ink, touch } from "./theme";
+import { featherEdges, focusRing, ink, serif, touch } from "./theme";
 
 const AGE_GROUPS: AgeGroup[] = ["children", "teens", "adults"];
 
@@ -73,23 +73,6 @@ const PILLARS = [
     text: "Повага до меж, конфіденційності та відповідальне ставлення до терапевтичного процесу.",
   },
 ];
-
-const serif = { fontFamily: "var(--vsi-serif), Georgia, serif" } as const;
-
-/**
- * Краї ілюстрації розчиняються в тлі сторінки. Власне тло файлу
- * тепліше й темніше за кремовий фон (кути близько rgb(232,219,213)
- * проти rgb(248,244,236)), тож без розмивання кадр читався як
- * наклеєний прямокутник.
- */
-const FEATHER_EDGES = {
-  maskImage:
-    "linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 11%, #000 89%, transparent 100%)",
-  WebkitMaskImage:
-    "linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 11%, #000 89%, transparent 100%)",
-  maskComposite: "intersect",
-  WebkitMaskComposite: "source-in",
-} as const;
 
 export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
   // Довідники — виводяться з переданих даних, щоб не розходились
@@ -240,8 +223,8 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
             height={1024}
             priority
             sizes="(min-width: 1024px) 560px, 90vw"
-            className="h-auto w-full"
-            style={FEATHER_EDGES}
+            className="mx-auto h-auto w-full max-w-[520px] lg:max-w-none"
+            style={featherEdges}
           />
         </section>
 

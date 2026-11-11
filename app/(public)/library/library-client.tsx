@@ -11,7 +11,7 @@ import {
   type LibraryCategory,
   type Material,
 } from "@/components/preview/vsi/data";
-import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
+import { featherEdges, focusRing, ink, serif, touch } from "@/components/preview/vsi/theme";
 
 /**
  * Бібліотека — редакційна професійна добірка.
@@ -31,35 +31,50 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 sm:px-8 lg:px-10">
-      <div className="mx-auto max-w-2xl pt-10 text-center lg:pt-14">
+      {/*
+        Шапка за макетом: текст ліворуч, ілюстрація праворуч — так само,
+        як у «Фахівцях». Раніше тут був квадратний значок 112×112 над
+        заголовком по центру; повноцінна ілюстрація його замінює.
+      */}
+      <section className="grid gap-10 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,52%)] lg:items-center lg:gap-10 lg:pt-14">
+        <div>
+          <div className="flex items-center gap-4">
+            <span aria-hidden className="h-px w-8 bg-[#B38B49]/50" />
+            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
+              Бібліотека VSI
+            </p>
+            <span aria-hidden className="h-px w-16 bg-[#B38B49]/50" />
+          </div>
+
+          <h1
+            className={`mt-5 text-balance text-[2.6rem] font-normal leading-[1.08] sm:text-5xl ${ink.strong}`}
+            style={serif}
+          >
+            Тексти, лекції та дослідження
+          </h1>
+
+          <span aria-hidden className="mt-7 block h-px w-24 bg-[#B38B49]/60" />
+
+          <p className={`mt-7 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
+            Статті, лекції, аналітичні роздуми та матеріали з психоаналітичної традиції й суміжних
+            сфер — для професійного розвитку, натхнення і глибшого розуміння психічного життя.
+          </p>
+        </div>
+
         <Image
-          src="/brand/motifs/library.png"
-          alt=""
-          aria-hidden
-          width={112}
-          height={112}
+          src="/brand/motifs/library-hero.png"
+          alt="Світла арка з книжковими полицями й розгорнутою книгою, довкола — золоті орбіти та гілка"
+          width={1536}
+          height={1024}
           priority
-          className="mx-auto h-24 w-24 rounded-2xl border border-[#142744]/10 object-cover sm:h-28 sm:w-28"
+          sizes="(min-width: 1024px) 620px, 90vw"
+          className="mx-auto h-auto w-full max-w-[520px] lg:max-w-none"
+          style={featherEdges}
         />
-        <p className="mt-6 inline-flex items-center justify-center gap-3 text-[11px] font-medium uppercase tracking-[0.22em] text-[#5C6672]">
-          <span aria-hidden className="h-px w-6 bg-[#B38B49]" />
-          Бібліотека
-          <span aria-hidden className="h-px w-6 bg-[#B38B49]" />
-        </p>
-        <h1
-          className={`mt-5 text-balance text-4xl font-normal leading-[1.1] sm:text-5xl ${ink.strong}`}
-          style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
-        >
-          Тексти, лекції та дослідження
-        </h1>
-        <p className={`mx-auto mt-5 max-w-lg text-pretty text-[16px] leading-relaxed ${ink.muted}`}>
-          Фахівці VSI пишуть і читають лекції не для реклами, а тому що думання — частина професії.
-          Читайте, слухайте, рухайтесь за посиланнями далі.
-        </p>
-      </div>
+      </section>
 
       {/* ── Категорії ── */}
-      <div className="mt-8 flex flex-wrap gap-2" role="group" aria-label="Категорії бібліотеки">
+      <div className="mt-14 flex flex-wrap gap-2" role="group" aria-label="Категорії бібліотеки">
         <button
           type="button"
           onClick={() => setCategory(null)}

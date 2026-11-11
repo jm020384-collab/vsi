@@ -103,3 +103,25 @@ export const focusRingDark =
 
 /** Мінімальний touch target — 44px за WCAG 2.5.5. */
 export const touch = "min-h-[44px] min-w-[44px]";
+
+/** Брендовий сериф — заголовки сторінок і великі кнопки. */
+export const serif = { fontFamily: "var(--vsi-serif), Georgia, serif" } as const;
+
+/**
+ * Краї ілюстрації розчиняються в тлі сторінки. Власне тло файлів
+ * тепліше й темніше за кремовий фон (кути близько rgb(232,219,213)
+ * проти rgb(248,244,236)), тож без розмивання кадр читається як
+ * наклеєний прямокутник із видимою рамкою.
+ *
+ * Два лінійні градієнти з `mask-composite: intersect`, а не один
+ * радіальний: радіальний, розтягнутий більше за блок, лишає
+ * розмиття за межами кадру — тобто не робить нічого.
+ */
+export const featherEdges = {
+  maskImage:
+    "linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 11%, #000 89%, transparent 100%)",
+  WebkitMaskImage:
+    "linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 11%, #000 89%, transparent 100%)",
+  maskComposite: "intersect",
+  WebkitMaskComposite: "source-in",
+} as const;
