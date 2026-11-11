@@ -18,6 +18,31 @@ export function SiteFooter() {
               «vsi» — від українського «всі». Простір, у якому частини знаходять зв&apos;язок: із
               собою, з іншими, зі світом.
             </p>
+
+            {/*
+              Контакти — у бренд-блоці, а не окремою колонкою: сітка
+              підвалу 5+3+4 вже заповнена, а четверта колонка зламала б
+              її на планшеті.
+            */}
+            <div className="mt-7">
+              <div className="small-caps text-xs font-medium text-[#AAA8B5]">Контакти</div>
+              <a
+                href="https://www.facebook.com/profile.php?id=61593751903159"
+                target="_blank"
+                rel="me noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-2.5 text-sm text-[#D6D3DD] transition-colors hover:text-[#F8F4EC] motion-reduce:transition-none"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4 shrink-0"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h3l1-3h-4v-2a1 1 0 0 1 1-1Z" />
+                </svg>
+                Facebook
+              </a>
+            </div>
           </div>
 
           {/* Навігація */}
