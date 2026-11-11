@@ -13,6 +13,7 @@ import {
   MapPin,
   Pencil,
   ShieldCheck,
+  User,
   Users,
 } from "lucide-react";
 
@@ -69,6 +70,12 @@ interface SpaceViewModel {
   verified: boolean;
   /** Короткий опис підходу з анкети — не та сама «Позиція», що нижче. */
   lead?: string | null;
+  /** Напрями роботи з анкети — для довідки «Спеціалізація». */
+  approaches: string[];
+  /** З ким працює — для довідки «Цільові групи». */
+  ageGroups: string[];
+  /** Один рядок про освіту; повний перелік лишається в розділі нижче. */
+  educationSummary?: string | null;
   /** Робочі години з анкети, напр. «Пн–Пт, 10:00–19:00». */
   availability?: string | null;
   /** Участь у програмі соціальної підтримки — інформаційний статус. */
@@ -106,6 +113,18 @@ const EDUCATION_TYPE_LABEL: Record<string, string> = {
   CONFERENCE: "Конференція",
   ID: "Документ",
   OTHER: "Навчання",
+};
+
+const REAL_AGE_GROUP_LABEL: Record<string, string> = {
+  CHILDREN: "Діти",
+  TEENS: "Підлітки",
+  ADULTS: "Дорослі",
+};
+
+const DEMO_AGE_GROUP_LABEL: Record<string, string> = {
+  children: "Діти",
+  teens: "Підлітки",
+  adults: "Дорослі",
 };
 
 const REAL_FORMAT_LABEL: Record<"ONLINE" | "OFFLINE" | "BOTH", string> = {
@@ -245,6 +264,9 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
       photo: real.photoUrl,
       seed: seedFromString(real.id),
       verified: real.status === "APPROVED",
+      approaches: real.approaches,
+      ageGroups: real.ageGroups.map((g) => REAL_AGE_GROUP_LABEL[g] ?? g),
+      educationSummary: real.education[0]?.institution ?? null,
       lead: real.analyticalOrientation,
       availability: real.workingHours,
       socialSupport: real.participatesInSocialSupport,
@@ -326,6 +348,9 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
     seed: Number(t.id.slice(1)) || 0,
     arch: t.portraitStyle === "arch",
     verified: t.verified,
+    approaches: [t.approach],
+    ageGroups: (t.ageGroups ?? []).map((g) => DEMO_AGE_GROUP_LABEL[g] ?? g),
+    educationSummary: null,
     lead: t.approach,
     availability: null,
     socialSupport: t.socialSupport ?? false,
@@ -386,7 +411,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 const SECTIONS = [
-  { id: "position", label: "Позиція" },
+  { id: "position", label: "Про фахівця" },
   { id: "practice", label: "Практика" },
   { id: "texts", label: "Тексти" },
   { id: "events", label: "Події" },
@@ -405,6 +430,32 @@ function SectionTitleRow({ id, children }: { id: string; children: React.ReactNo
     >
       {children}
     </h2>
+  );
+}
+
+/** Рядок довідки праворуч від опису: іконка, підпис, значення. */
+function InfoRow({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: React.ElementType;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex gap-4">
+      <Icon className="mt-0.5 h-5 w-5 shrink-0 text-[#876428]" strokeWidth={1.3} aria-hidden />
+      <div>
+        <h3
+          className={`text-[17px] font-normal ${ink.strong}`}
+          style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
+        >
+          {title}
+        </h3>
+        <p className={`mt-1 text-[15px] leading-relaxed ${ink.muted}`}>{children}</p>
+      </div>
+    </div>
   );
 }
 
@@ -491,17 +542,34 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
           <circle cx="236" cy="232" r="6" fill="#B38B49" fillOpacity="0.75" />
         </svg>
 
-        <div className="relative grid gap-10 md:grid-cols-[250px_1fr] md:gap-14">
+        <div className="relative grid gap-10 md:grid-cols-[minmax(0,380px)_1fr] md:gap-14">
           <div>
             {/* Портрет аркою — той самий мотив, що в каталозі й на головній */}
+            {/*
+              Без арки: будь-яка її форма зрізає верх кадру, і обличчя
+              йде під обріз. Фрейм просто ширший за звичайний портретний,
+              щоб знімок дихав.
+            */}
             <AvatarPortrait
               name={vm.name}
               seed={vm.seed}
               photo={vm.photo ?? undefined}
-              arch
-              sizes="250px"
-              className="mx-auto aspect-[3/4] w-full max-w-[250px] md:mx-0"
+              sizes="(min-width: 768px) 380px, 90vw"
+              className="mx-auto aspect-[7/8] w-full max-w-[380px] rounded-[28px] md:mx-0"
             />
+
+            {vm.topics.length > 0 && (
+              <div className="mt-6 flex flex-wrap justify-center gap-2 md:justify-start">
+                {vm.topics.map((topic) => (
+                  <span
+                    key={topic}
+                    className="rounded-full border border-[#B38B49]/35 px-3.5 py-1.5 text-[13px] text-[#4A5568]"
+                  >
+                    {topic}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
@@ -523,7 +591,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                 </span>
               )}
               {vm.socialSupport && (
-                <span className="inline-flex items-center gap-2 rounded-full bg-[#B38B49]/[0.16] px-4 py-2 text-[13px] leading-snug text-[#7A5A22]">
+                <span className="inline-flex items-center gap-2.5 rounded-full border border-[#B38B49]/35 bg-[#E9DECE]/55 px-5 py-2.5 text-[13px] leading-snug text-[#6E5120]">
                   <Users className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
                   Учасник програми соціальної підтримки VSI
                 </span>
@@ -583,7 +651,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                   focusRing,
                 )}
               >
-                Звернутися
+                Записатися
                 <ArrowRight
                   className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
                   aria-hidden
@@ -597,31 +665,6 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             </div>
           </div>
         </div>
-
-        {/*
-          Теми — смугою під шапкою, а не в колонці портрета: реальні назви
-          на кшталт «Екзистенційні питання» не вміщаються у 250px і лягали
-          б по одній у рядок, розтягуючи колонку на десяток рядків.
-        */}
-        {vm.topics.length > 0 && (
-          <div className="mt-10 flex flex-wrap gap-2">
-            {vm.topics.map((topic) => (
-              <span
-                key={topic}
-                className="rounded-full border border-[#B38B49]/35 px-3.5 py-1.5 text-[13px] text-[#4A5568]"
-              >
-                {topic}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {vm.socialSupport && (
-          <p className="mt-10 flex items-start gap-3 rounded-2xl bg-[#B38B49]/[0.09] px-6 py-5 text-[15px] italic leading-relaxed text-[#7A5A22]">
-            <Leaf className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.4} aria-hidden />У межах
-            програми соціальної підтримки VSI фахівець може працювати зі зниженою вартістю.
-          </p>
-        )}
       </div>
 
       {/* ── Внутрішня навігація простору ── */}
@@ -656,24 +699,75 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
         спершу знайомство, потім контакт.
       */}
       <div className="mt-10 max-w-2xl space-y-14">
-        {/* Позиція — головний розділ */}
+        {/*
+          «Про фахівця» — головний розділ. Праворуч коротка довідка:
+          один рядок про освіту, напрями й вікові групи. Повні переліки
+          лишаються в розділах нижче, тут лише те, що читають першим.
+        */}
         <section aria-labelledby="position">
-          <SectionTitleRow id="position">Позиція</SectionTitleRow>
-          {vm.position.length > 0 ? (
-            <div className="mt-4 space-y-4">
-              {vm.position.map((p, i) => (
-                <p key={i} className={`text-pretty text-[16px] leading-[1.8] ${ink.body}`}>
-                  {p}
-                </p>
-              ))}
+          <SectionTitleRow id="position">Про фахівця</SectionTitleRow>
+
+          <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)] lg:gap-16">
+            <div>
+              {vm.position.length > 0 ? (
+                <div className="space-y-4">
+                  {vm.position.map((p, i) => (
+                    <p key={i} className={`text-pretty text-[16px] leading-[1.8] ${ink.body}`}>
+                      {p}
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                <PendingSection>
+                  {vm.isOwner
+                    ? "Ви ще не заповнили цей розділ — розкажіть, як розумієте терапію, в анкеті."
+                    : "Фахівець ще формулює цей розділ — як він сам розуміє терапію і психологічну роботу."}
+                </PendingSection>
+              )}
+
+              {vm.educationGroups.length > 0 && (
+                <a
+                  href="#path"
+                  className={cn(
+                    "group/more mt-6 inline-flex items-center gap-2 text-[15px] text-[#1C3557]",
+                    "hover:text-[#142744]",
+                    focusRing,
+                  )}
+                >
+                  Детальніше про підхід
+                  <ArrowRight
+                    className="h-3.5 w-3.5 transition-transform duration-200 group-hover/more:translate-x-1 motion-reduce:transition-none"
+                    aria-hidden
+                  />
+                </a>
+              )}
             </div>
-          ) : (
-            <PendingSection>
-              {vm.isOwner
-                ? "Ви ще не заповнили цей розділ — розкажіть, як розумієте терапію, в анкеті."
-                : "Фахівець ще формулює цей розділ — як він сам розуміє терапію і психологічну роботу."}
-            </PendingSection>
-          )}
+
+            <div className="space-y-7">
+              {vm.educationSummary && (
+                <InfoRow icon={GraduationCap} title="Освіта">
+                  {vm.educationSummary}
+                </InfoRow>
+              )}
+              {vm.approaches.length > 0 && (
+                <InfoRow icon={User} title="Спеціалізація">
+                  {vm.approaches.join(", ")}
+                </InfoRow>
+              )}
+              {vm.ageGroups.length > 0 && (
+                <InfoRow icon={Users} title="Цільові групи">
+                  {vm.ageGroups.join(", ")}
+                </InfoRow>
+              )}
+
+              {vm.socialSupport && (
+                <p className="flex items-start gap-3 rounded-2xl border border-[#B38B49]/30 bg-[#E9DECE]/35 px-5 py-4 text-[14px] italic leading-relaxed text-[#6E5120]">
+                  <Leaf className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.4} aria-hidden />У межах
+                  програми соціальної підтримки VSI фахівець може працювати зі зниженою вартістю.
+                </p>
+              )}
+            </div>
+          </div>
         </section>
 
         <section aria-labelledby="practice">
