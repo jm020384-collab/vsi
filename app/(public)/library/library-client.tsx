@@ -36,7 +36,7 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
         як у «Фахівцях». Раніше тут був квадратний значок 112×112 над
         заголовком по центру; повноцінна ілюстрація його замінює.
       */}
-      <section className="grid gap-10 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,52%)] lg:items-center lg:gap-10 lg:pt-14">
+      <section className="grid gap-10 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-10 lg:pt-14">
         <div>
           <div className="flex items-center gap-4">
             <span aria-hidden className="h-px w-8 bg-[#B38B49]/50" />
@@ -47,7 +47,7 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
           </div>
 
           <h1
-            className={`mt-5 text-balance text-[2.6rem] font-normal leading-[1.08] sm:text-5xl ${ink.strong}`}
+            className={`mt-5 max-w-[470px] text-balance text-[2.6rem] font-normal leading-[1.08] sm:text-5xl ${ink.strong}`}
             style={serif}
           >
             Тексти, лекції та дослідження
@@ -67,7 +67,7 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
           width={1254}
           height={1254}
           priority
-          sizes="(min-width: 1024px) 620px, 90vw"
+          sizes="(min-width: 1024px) 560px, 90vw"
           className="mx-auto aspect-[3/2] w-full max-w-[520px] object-cover object-[50%_28%] lg:max-w-none"
           style={featherEdges}
         />
