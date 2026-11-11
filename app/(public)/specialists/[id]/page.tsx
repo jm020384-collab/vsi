@@ -544,7 +544,6 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
 
         <div className="relative grid gap-10 md:grid-cols-[minmax(0,380px)_1fr] md:gap-14">
           <div>
-            {/* Портрет аркою — той самий мотив, що в каталозі й на головній */}
             {/*
               Без арки: будь-яка її форма зрізає верх кадру, і обличчя
               йде під обріз. Фрейм просто ширший за звичайний портретний,
@@ -557,19 +556,6 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               sizes="(min-width: 768px) 380px, 90vw"
               className="mx-auto aspect-[7/8] w-full max-w-[380px] rounded-[28px] md:mx-0"
             />
-
-            {vm.topics.length > 0 && (
-              <div className="mt-6 flex flex-wrap justify-center gap-2 md:justify-start">
-                {vm.topics.map((topic) => (
-                  <span
-                    key={topic}
-                    className="rounded-full border border-[#B38B49]/35 px-3.5 py-1.5 text-[13px] text-[#4A5568]"
-                  >
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
           <div>
@@ -665,6 +651,24 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        {/*
+          Теми — на всю ширину під шапкою, а не в колонці фото:
+          там вони ламалися на шість рядків, поки праворуч
+          лишалося порожнє поле.
+        */}
+        {vm.topics.length > 0 && (
+          <ul className="mt-10 flex flex-wrap gap-2.5">
+            {vm.topics.map((topic) => (
+              <li
+                key={topic}
+                className="rounded-full border border-[#B38B49]/35 px-4 py-2 text-[14px] text-[#4A5568]"
+              >
+                {topic}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* ── Внутрішня навігація простору ── */}
