@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { ArrowRight, Clock, Info, Leaf, User, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { ARCH_CLIP_PATH } from "@/components/preview/vsi/decor";
 import { focusRing, ink } from "@/components/preview/vsi/theme";
 
 export const metadata: Metadata = {
@@ -35,76 +34,47 @@ export default function SocialSupportPage() {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 pb-24 sm:px-8 lg:px-10">
       {/* ── Знайомство з програмою ── */}
-      <section className="grid items-center gap-10 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-16 lg:pt-16">
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
-            Програма VSI
-          </p>
-          <h1
-            className={cn(
-              "mt-5 text-balance text-4xl font-normal leading-[1.08] sm:text-5xl lg:text-[3.4rem]",
-              ink.strong,
-            )}
-            style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
-          >
-            Соціальна психологічна підтримка
-          </h1>
-          <p className={cn("mt-6 max-w-lg text-pretty text-[17px] leading-[1.7]", ink.body)}>
-            Програма для людей, які потребують професійної психологічної допомоги, але наразі мають
-            обмежені фінансові можливості.
-          </p>
-          <span aria-hidden className="mt-8 block h-px w-28 bg-[#B38B49]/60" />
-        </div>
-
-        {/*
-          Арка — той самий мотив, що в портретах фахівців: форма задана
-          спільною ARCH_CLIP_PATH, щоб обриси ніде не розходились.
-        */}
-        <div className="relative mx-auto w-full max-w-[400px]">
-          <svg
-            aria-hidden
-            viewBox="0 0 400 420"
-            className="pointer-events-none absolute -left-12 -top-8 h-[calc(100%+4rem)] w-[calc(100%+6rem)] overflow-visible"
-            fill="none"
-          >
-            <path
-              d="M 18 404 A 186 206 0 0 1 390 404"
-              stroke="#B38B49"
-              strokeOpacity="0.45"
-              strokeWidth="1"
-            />
-            <circle cx="18" cy="404" r="5.5" fill="#B38B49" />
-          </svg>
-
-          <div className="relative aspect-[4/5] w-full">
-            {/*
-              Форму задаємо через SVG, а не CSS clip-path: координати арки
-              описані в частках бокса (clipPathUnits="objectBoundingBox"),
-              і CSS прочитав би їх як пікселі.
-            */}
-            <svg width="0" height="0" aria-hidden className="absolute">
-              <defs>
-                <clipPath id="vsi-social-arch" clipPathUnits="objectBoundingBox">
-                  <path d={ARCH_CLIP_PATH} />
-                </clipPath>
-              </defs>
-            </svg>
-            <div
-              className="absolute inset-0 overflow-hidden"
-              style={{ clipPath: "url(#vsi-social-arch)" }}
-            >
-              <Image
-                src="/brand/motifs/hero.png"
-                alt="Гори в ранковому серпанку — спокійний краєвид, мотив програми"
-                fill
-                priority
-                sizes="(min-width: 1024px) 400px, 90vw"
-                className="object-cover object-[62%_center]"
-              />
-            </div>
-          </div>
-        </div>
+      <section className="pt-10 lg:pt-16">
+        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
+          Програма VSI
+        </p>
+        <h1
+          className={cn(
+            "mt-5 max-w-3xl text-balance text-4xl font-normal leading-[1.08] sm:text-5xl lg:text-[3.4rem]",
+            ink.strong,
+          )}
+          style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
+        >
+          Соціальна психологічна підтримка
+        </h1>
+        <p className={cn("mt-6 max-w-xl text-pretty text-[17px] leading-[1.7]", ink.body)}>
+          Програма для людей, які потребують професійної психологічної допомоги, але наразі мають
+          обмежені фінансові можливості.
+        </p>
+        <span aria-hidden className="mt-8 block h-px w-28 bg-[#B38B49]/60" />
       </section>
+
+      {/*
+        Ілюстрація йде широкою смугою, а не врізаною в арку збоку: обидві
+        постаті стоять по центру кадру, і вузька арка зрізала б саме їх.
+        Своя арка, орбіта й золоті лінії в малюнку вже є — друга поверх
+        неї лише подвоїла б той самий знак.
+
+        На вузькому екрані показуємо кадр цілком, на широкому підрізаємо
+        небо згори: смуга стає спокійнішою, а постаті — крупнішими.
+      */}
+      <figure className="relative mt-12 overflow-hidden rounded-[28px] border border-[#B38B49]/25 lg:mt-14">
+        <div className="relative aspect-[16/9] w-full sm:aspect-[16/7]">
+          <Image
+            src="/brand/motifs/social-support.png"
+            alt="Одна людина сидить, інша простягає їй руку; довкола — арка, гори й вода в теплому вранішньому світлі"
+            fill
+            priority
+            sizes="(min-width: 1180px) 1100px, 100vw"
+            className="object-cover object-[center_58%]"
+          />
+        </div>
+      </figure>
 
       {/* ── Три опори програми ── */}
       <ul className="mt-16 grid gap-10 sm:grid-cols-3 sm:gap-8 lg:mt-20 lg:gap-12">
