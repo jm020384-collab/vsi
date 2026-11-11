@@ -1,7 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowUpRight, BadgeCheck, Clock3, GraduationCap, Pencil } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  Clock,
+  Clock3,
+  Globe,
+  GraduationCap,
+  Leaf,
+  MapPin,
+  Pencil,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
@@ -54,6 +67,10 @@ interface SpaceViewModel {
   /** "arch" — портрет вирізаний за формою арки. */
   arch?: boolean;
   verified: boolean;
+  /** Короткий опис підходу з анкети — не та сама «Позиція», що нижче. */
+  lead?: string | null;
+  /** Робочі години з анкети, напр. «Пн–Пт, 10:00–19:00». */
+  availability?: string | null;
   /** Участь у програмі соціальної підтримки — інформаційний статус. */
   socialSupport: boolean;
   topics: string[];
@@ -228,6 +245,8 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
       photo: real.photoUrl,
       seed: seedFromString(real.id),
       verified: real.status === "APPROVED",
+      lead: real.analyticalOrientation,
+      availability: real.workingHours,
       socialSupport: real.participatesInSocialSupport,
       topics: real.specializations.map((s) => s.specialization.nameUk),
       position: real.bio.trim() ? [real.bio.trim()] : [],
@@ -307,6 +326,8 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
     seed: Number(t.id.slice(1)) || 0,
     arch: t.portraitStyle === "arch",
     verified: t.verified,
+    lead: t.approach,
+    availability: null,
     socialSupport: t.socialSupport ?? false,
     topics: t.topics,
     position: space.position,
@@ -447,72 +468,160 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
         </p>
       )}
 
-      {/* ── Шапка: стриманий портрет + представлення ── */}
-      <div className="mt-6 grid gap-8 md:grid-cols-[220px_1fr] md:gap-12">
-        <AvatarPortrait
-          name={vm.name}
-          seed={vm.seed}
-          photo={vm.photo ?? undefined}
-          arch={vm.arch}
-          sizes="220px"
-          className="mx-auto aspect-[3/4] w-full max-w-[220px] overflow-hidden rounded-2xl md:mx-0"
-        />
+      {/*
+        Шапка профілю: портрет аркою ліворуч, представлення праворуч.
 
-        <div>
-          <h1
-            className={`text-balance text-4xl font-normal leading-[1.1] sm:text-5xl ${ink.strong}`}
-            style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
-          >
-            {vm.name}
-          </h1>
-          <p className={`mt-2 text-[17px] ${ink.muted}`}>{vm.status}</p>
+        Позиція сюди навмисно не потрапляє — вона береться з того самого
+        поля анкети, що й розділ «Позиція» нижче, і в шапці була б тим
+        самим текстом двічі поспіль. Коротким вступом слугує опис підходу.
+      */}
+      <div className="relative mt-6">
+        <svg
+          aria-hidden
+          viewBox="0 0 240 240"
+          className="pointer-events-none absolute -right-6 -top-10 hidden h-60 w-60 lg:block"
+          fill="none"
+        >
+          <path
+            d="M 236 232 A 116 116 0 0 0 120 116"
+            stroke="#B38B49"
+            strokeOpacity="0.35"
+            strokeWidth="1"
+          />
+          <circle cx="236" cy="232" r="6" fill="#B38B49" fillOpacity="0.75" />
+        </svg>
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
-            {vm.verified && (
-              <p className="inline-flex items-center gap-1.5 text-sm text-[#1C3557]">
-                <BadgeCheck className="h-4 w-4" aria-hidden />
-                Верифіковано VSI
-              </p>
-            )}
-
-            {vm.socialSupport && (
-              <p className="inline-flex items-center text-sm text-[#876428]">
-                Учасник програми соціальної підтримки VSI
-              </p>
-            )}
-
-            {/* Маленьке посилання — не головний елемент, лише швидкий доступ до контакту */}
-            <a
-              href="#contact"
-              className={cn(
-                "inline-flex items-center gap-1.5 text-sm underline-offset-4 hover:underline",
-                vm.acceptingNew ? "text-[#245A41]" : "text-[#5C6672]",
-                focusRing,
-              )}
-            >
-              {vm.acceptingNew ? "Приймає нових клієнтів" : "У листі очікування"} · Зв&apos;язатися
-            </a>
+        <div className="relative grid gap-10 md:grid-cols-[250px_1fr] md:gap-14">
+          <div>
+            {/* Портрет аркою — той самий мотив, що в каталозі й на головній */}
+            <AvatarPortrait
+              name={vm.name}
+              seed={vm.seed}
+              photo={vm.photo ?? undefined}
+              arch
+              sizes="250px"
+              className="mx-auto aspect-[3/4] w-full max-w-[250px] md:mx-0"
+            />
           </div>
 
-          {/*
-            Позиція тут навмисно не повторюється. У профілі вона береться
-            з одного поля анкети, тож у шапці й у розділі «Позиція» нижче
-            це був дослівно той самий текст двічі поспіль.
-          */}
+          <div>
+            <h1
+              className={`text-balance text-4xl font-normal leading-[1.08] sm:text-5xl ${ink.strong}`}
+              style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
+            >
+              {vm.name}
+            </h1>
+            <p className="mt-3 text-[12px] font-medium uppercase leading-relaxed tracking-[0.16em] text-[#5C6672]">
+              {vm.status}
+            </p>
 
-          {vm.topics.length > 0 && (
-            <div className="mt-5 flex flex-wrap gap-1.5">
-              {vm.topics.map((topic) => (
-                <span
-                  key={topic}
-                  className="rounded-full border border-[#142744]/10 bg-[#F8F4EC] px-2.5 py-1 text-xs text-[#4A5568]"
-                >
-                  {topic}
+            <div className="mt-5 flex flex-wrap gap-3">
+              {vm.verified && (
+                <span className="inline-flex items-center gap-2 rounded-full border border-[#142744]/20 px-4 py-2 text-[14px] text-[#142744]">
+                  <ShieldCheck className="h-4 w-4 text-[#1C3557]" strokeWidth={1.5} aria-hidden />
+                  Перевірений профіль
                 </span>
-              ))}
+              )}
+              {vm.socialSupport && (
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#B38B49]/[0.16] px-4 py-2 text-[13px] leading-snug text-[#7A5A22]">
+                  <Users className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+                  Учасник програми соціальної підтримки VSI
+                </span>
+              )}
             </div>
-          )}
+
+            {vm.lead && (
+              <p
+                className={`mt-6 max-w-xl text-pretty text-[19px] leading-[1.6] ${ink.body}`}
+                style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
+              >
+                {vm.lead}
+              </p>
+            )}
+
+            <span aria-hidden className="mt-7 block h-px w-full max-w-xl bg-[#142744]/10" />
+
+            <dl className={`mt-5 flex flex-wrap gap-x-7 gap-y-3 text-[15px] ${ink.body}`}>
+              <div className="flex items-center gap-2">
+                <dt className="sr-only">Формат</dt>
+                <MapPin className="h-4 w-4 shrink-0 text-[#876428]" strokeWidth={1.5} aria-hidden />
+                <dd>
+                  {vm.formatLabel}
+                  {vm.city ? ` · ${vm.city}` : ""}
+                </dd>
+              </div>
+              {vm.languages.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <dt className="sr-only">Мови</dt>
+                  <Globe
+                    className="h-4 w-4 shrink-0 text-[#876428]"
+                    strokeWidth={1.5}
+                    aria-hidden
+                  />
+                  <dd>{vm.languages.join(", ")}</dd>
+                </div>
+              )}
+              {vm.availability && (
+                <div className="flex items-center gap-2">
+                  <dt className="sr-only">Доступність</dt>
+                  <Clock
+                    className="h-4 w-4 shrink-0 text-[#876428]"
+                    strokeWidth={1.5}
+                    aria-hidden
+                  />
+                  <dd>Доступність: {vm.availability}</dd>
+                </div>
+              )}
+            </dl>
+
+            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <a
+                href="#contact"
+                className={cn(
+                  "group inline-flex min-h-[54px] items-center gap-3 rounded-full bg-[#142744] px-8 text-[16px] font-medium text-[#F8F4EC]",
+                  "transition-colors hover:bg-[#1C3557] motion-reduce:transition-none",
+                  focusRing,
+                )}
+              >
+                Звернутися
+                <ArrowRight
+                  className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
+                  aria-hidden
+                />
+              </a>
+              <p
+                className={cn("text-[14px]", vm.acceptingNew ? "text-[#245A41]" : "text-[#5C6672]")}
+              >
+                {vm.acceptingNew ? "Приймає нових клієнтів" : "У листі очікування"}
+              </p>
+            </div>
+          </div>
         </div>
+
+        {/*
+          Теми — смугою під шапкою, а не в колонці портрета: реальні назви
+          на кшталт «Екзистенційні питання» не вміщаються у 250px і лягали
+          б по одній у рядок, розтягуючи колонку на десяток рядків.
+        */}
+        {vm.topics.length > 0 && (
+          <div className="mt-10 flex flex-wrap gap-2">
+            {vm.topics.map((topic) => (
+              <span
+                key={topic}
+                className="rounded-full border border-[#B38B49]/35 px-3.5 py-1.5 text-[13px] text-[#4A5568]"
+              >
+                {topic}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {vm.socialSupport && (
+          <p className="mt-10 flex items-start gap-3 rounded-2xl bg-[#B38B49]/[0.09] px-6 py-5 text-[15px] italic leading-relaxed text-[#7A5A22]">
+            <Leaf className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.4} aria-hidden />У межах
+            програми соціальної підтримки VSI фахівець може працювати зі зниженою вартістю.
+          </p>
+        )}
       </div>
 
       {/* ── Внутрішня навігація простору ── */}
