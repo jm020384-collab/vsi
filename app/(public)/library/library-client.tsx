@@ -11,7 +11,7 @@ import {
   type LibraryCategory,
   type Material,
 } from "@/components/preview/vsi/data";
-import { featherEdges, focusRing, ink, serif, touch } from "@/components/preview/vsi/theme";
+import { focusRing, ink, serif, touch } from "@/components/preview/vsi/theme";
 
 /**
  * Бібліотека — редакційна професійна добірка.
@@ -21,6 +21,20 @@ import { featherEdges, focusRing, ink, serif, touch } from "@/components/preview
  * `materials` приходить із сервера: демо-контент + реальні
  * опубліковані статті фахівців, змерджені в один список.
  */
+/**
+ * Кадр тут обрізаний, тож до верхнього й нижнього країв підходить
+ * сама композиція, а не тло файлу: вертикальне розмивання тримаємо
+ * ледь помітним, щоб не зїдати верхівку арки й розгорнуту книгу.
+ */
+const FEATHER_CROPPED = {
+  maskImage:
+    "linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 4%, #000 96%, transparent 100%)",
+  WebkitMaskImage:
+    "linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 4%, #000 96%, transparent 100%)",
+  maskComposite: "intersect",
+  WebkitMaskComposite: "source-in",
+} as const;
+
 export function LibraryClient({ materials }: { materials: Material[] }) {
   const [category, setCategory] = useState<LibraryCategory | null>(null);
 
@@ -68,8 +82,8 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
           height={1254}
           priority
           sizes="(min-width: 1024px) 560px, 90vw"
-          className="mx-auto aspect-[3/2] w-full max-w-[520px] object-cover object-[50%_28%] lg:max-w-none"
-          style={featherEdges}
+          className="mx-auto aspect-[3/2] w-full max-w-[520px] object-cover object-[50%_18%] lg:max-w-none"
+          style={FEATHER_CROPPED}
         />
       </section>
 
