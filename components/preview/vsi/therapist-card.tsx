@@ -94,6 +94,19 @@ export function TherapistCard({
               Профіль перевірено
             </span>
           )}
+
+          {/*
+            Позначка учасника програми — лише факт участі. Умови, ставку
+            й доступність бачить тільки адміністратор.
+          */}
+          {t.socialSupport && (
+            <span
+              title="Фахівець бере участь у програмі соціальної психологічної підтримки VSI."
+              className="bg-[#FFFDF8]/92 absolute right-3 top-3 inline-flex items-center rounded-full border border-[#B38B49]/45 px-2.5 py-1 text-xs font-medium text-[#876428] shadow-sm backdrop-blur-sm"
+            >
+              Соціальна підтримка
+            </span>
+          )}
         </div>
 
         <div className="flex flex-1 flex-col p-6">
@@ -164,6 +177,19 @@ export function TherapistCard({
           <span className="bg-[#FFFDF8]/92 absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-[#1C3557] shadow-sm backdrop-blur-sm">
             <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
             Профіль перевірено
+          </span>
+        )}
+
+        {/*
+          Позначка учасника програми — лише факт участі. Умови, ставку
+          й доступність бачить тільки адміністратор.
+        */}
+        {t.socialSupport && (
+          <span
+            title="Фахівець бере участь у програмі соціальної психологічної підтримки VSI."
+            className="bg-[#FFFDF8]/92 absolute right-3 top-3 inline-flex items-center rounded-full border border-[#B38B49]/45 px-2.5 py-1 text-xs font-medium text-[#876428] shadow-sm backdrop-blur-sm"
+          >
+            Соціальна підтримка
           </span>
         )}
       </div>

@@ -15,6 +15,7 @@ import {
   Phone,
   Settings,
   ShieldCheck,
+  Handshake,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -47,6 +48,7 @@ const ADMIN_NAV: NavItem[] = [
   { href: "/admin/articles", label: "Статті на перевірці", icon: FileText },
   { href: "/admin/reviews", label: "Відгуки на модерації", icon: Inbox },
   { href: "/admin/requests", label: "Звернення", icon: Phone },
+  { href: "/admin/social-support", label: "Соціальна підтримка", icon: Handshake },
 ];
 
 export function DashboardSidebar({

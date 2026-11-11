@@ -160,6 +160,34 @@ enum EventRegistrationStatus {
 //  Auth.js (NextAuth v5) — стандартні моделі адаптера Prisma
 // ============================================================================
 
+/// Статус заявки на соціальну підтримку.
+enum SocialSupportStatus {
+  NEW // нова
+  REVIEWING // на розгляді
+  SPECIALIST_FOUND // фахівця знайдено
+  CONTACTED // звʼязалися
+  CLOSED // закрито
+}
+
+/// Дні тижня — спільні для доступності фахівця і заявника.
+enum Weekday {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+/// Частина доби. Конкретних годин не питаємо: вони все одно залежать
+/// від часового поясу обох сторін.
+enum DayPart {
+  MORNING
+  DAYTIME
+  EVENING
+}
+
 model User {
   id                String    @id @default(cuid())
   email             String    @unique
@@ -235,29 +263,29 @@ model PasswordResetToken {
 // ============================================================================
 
 model TherapistProfile {
-  id              String          @id @default(cuid())
-  userId          String          @unique
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  slug            String          @unique
-  fullName        String
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug              String          @unique
+  fullName          String
   professionalTitle String? // Професійна кваліфікація, напр. «Психологиня, психотерапевтка, арт-терапевтка» — під фото
-  photoUrl        String?
-  bio             String          @db.Text // markdown
-  city            String
-  latitude        Float?
-  longitude       Float?
-  yearsExperience Int             @default(0)
-  priceFrom       Int // у копійках/центах
-  priceTo         Int?
-  currency        String          @default("UAH")
-  sessionFormat   SessionFormat   @default(BOTH)
-  workingHours    String?
-  contactEmail    String?
-  contactPhone    String?
+  photoUrl          String?
+  bio               String          @db.Text // markdown
+  city              String
+  latitude          Float?
+  longitude         Float?
+  yearsExperience   Int             @default(0)
+  priceFrom         Int // у копійках/центах
+  priceTo           Int?
+  currency          String          @default("UAH")
+  sessionFormat     SessionFormat   @default(BOTH)
+  workingHours      String?
+  contactEmail      String?
+  contactPhone      String?
   // Месенджери — окремі номери/нік, бо часто відрізняються від основного телефону
-  whatsapp        String?
-  telegram        String?
-  status          TherapistStatus @default(DRAFT)
+  whatsapp          String?
+  telegram          String?
+  status            TherapistStatus @default(DRAFT)
 
   // Професійна позиція — «Мій простір»
   // approaches — фіксований список підходів (див. THERAPY_APPROACHES);
@@ -277,12 +305,23 @@ model TherapistProfile {
   reviewNote String? @db.Text // коментар адміністратора при відхиленні
 
   // Контакт і доступність
-  acceptingNewClients   Boolean  @default(true)
-  acceptsRequestsViaVsi Boolean  @default(true)
-  offersSupervision     Boolean  @default(false)
-  offersGroupWork       Boolean  @default(false)
-  website               String?
-  socialLinks           String[] // вільні URL (LinkedIn, Instagram тощо)
+  acceptingNewClients   Boolean @default(true)
+  acceptsRequestsViaVsi Boolean @default(true)
+  offersSupervision     Boolean @default(false)
+  offersGroupWork       Boolean @default(false)
+
+  /// Участь у програмі соціальної психологічної підтримки — добровільна,
+  /// фахівець вмикає її сам у кабінеті. Поля нижче потрібні адміністратору
+  /// для підбору і публічно не показуються.
+  participatesInSocialSupport Boolean   @default(false)
+  socialSupportDays           Weekday[]
+  socialSupportDayParts       DayPart[]
+  /// Мінімальна ставка в межах програми, у мінімальних одиницях (копійки,
+  /// центи) — як і priceFrom, щоб не плодити два способи зберігати гроші.
+  socialSupportMinRate        Int?
+  socialSupportCurrency       String?   @db.VarChar(3)
+  website                     String?
+  socialLinks                 String[] // вільні URL (LinkedIn, Instagram тощо)
 
   // tsvector для FTS — оновлюється тригером (див. міграцію)
   searchVector Unsupported("tsvector")?
@@ -329,7 +368,8 @@ model Language {
   code   String @id // "uk", "en", "pl", "ru"
   nameUk String
 
-  therapists TherapistLanguage[]
+  therapists     TherapistLanguage[]
+  socialRequests SocialSupportRequest[]
 }
 
 model TherapistLanguage {
@@ -408,12 +448,12 @@ model VerificationDocument {
   yearTo         Int?
   inProgress     Boolean @default(false) // навчання ще триває
 
-  docType     DocumentType     @default(DIPLOMA)
-  status      DocumentStatus   @default(PENDING)
-  reviewedBy  String?
-  reviewedAt  DateTime?
-  reviewNote  String?
-  createdAt   DateTime         @default(now())
+  docType    DocumentType   @default(DIPLOMA)
+  status     DocumentStatus @default(PENDING)
+  reviewedBy String?
+  reviewedAt DateTime?
+  reviewNote String?
+  createdAt  DateTime       @default(now())
 
   @@index([therapistId])
   @@index([entryId])
@@ -485,12 +525,12 @@ model Event {
   /// Ритм зустрічей. Регулярна група лишається одним записом, а не
   /// розсипається на окремі події: люди записуються в групу, а не на
   /// одну зустріч, тож і місця, і список учасників у неї спільні.
-  recurrence EventRecurrence @default(ONCE)
+  recurrence       EventRecurrence @default(ONCE)
   /// Коли група триває обмежений час — дата останньої зустрічі.
   /// Порожньо в регулярної означає «без визначеного кінця».
   recurrenceEndsAt DateTime?
-  status      EventStatus       @default(DRAFT)
-  audience    EventAudience     @default(PUBLIC)
+  status           EventStatus     @default(DRAFT)
+  audience         EventAudience   @default(PUBLIC)
 
   /// Запис можна закрити, не знімаючи подію з сайту: уся інформація
   /// лишається видимою, але нових учасників подія більше не приймає.
@@ -602,5 +642,44 @@ model AuditLog {
 
   @@index([entity, entityId])
   @@index([actorId])
+  @@index([createdAt])
+}
+
+/// Заявка на соціальну психологічну підтримку.
+///
+/// Окрема від ContactRequest: та адресована конкретному фахівцю, а ця —
+/// програмі загалом, і адресата для неї добирає адміністратор вручну.
+model SocialSupportRequest {
+  id      String @id @default(cuid())
+  name    String
+  email   String
+  contact String // телефон або месенджер
+  country String // країна чи часовий пояс — вільний рядок
+  age     Int
+  gender  String
+  request String @db.Text
+
+  /// Бюджет на одну консультацію, у мінімальних одиницях.
+  budgetMinor    Int
+  budgetCurrency String @db.VarChar(3)
+
+  languageCode String?
+  language     Language?     @relation(fields: [languageCode], references: [code], onDelete: SetNull)
+  format       SessionFormat @default(BOTH)
+
+  days             Weekday[]
+  dayParts         DayPart[]
+  availabilityNote String?
+
+  status       SocialSupportStatus @default(NEW)
+  adminNote    String?             @db.Text
+  ipHash       String? // hash IP, не сам IP — для anti-spam
+  consentGiven Boolean             @default(false)
+  consentAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
   @@index([createdAt])
 }

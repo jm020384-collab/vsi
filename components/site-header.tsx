@@ -19,6 +19,7 @@ const NAV = [
   { href: "/therapists", label: "Фахівці" },
   { href: "/library", label: "Тексти" },
   { href: "/events", label: "Події" },
+  { href: "/social-support", label: "Соціальна підтримка" },
 ];
 
 /**

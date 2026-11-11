@@ -54,6 +54,8 @@ interface SpaceViewModel {
   /** "arch" — портрет вирізаний за формою арки. */
   arch?: boolean;
   verified: boolean;
+  /** Участь у програмі соціальної підтримки — інформаційний статус. */
+  socialSupport: boolean;
   topics: string[];
   position: string[];
   practice: string[];
@@ -226,6 +228,7 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
       photo: real.photoUrl,
       seed: seedFromString(real.id),
       verified: real.status === "APPROVED",
+      socialSupport: real.participatesInSocialSupport,
       topics: real.specializations.map((s) => s.specialization.nameUk),
       position: real.bio.trim() ? [real.bio.trim()] : [],
       practice: [
@@ -304,6 +307,7 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
     seed: Number(t.id.slice(1)) || 0,
     arch: t.portraitStyle === "arch",
     verified: t.verified,
+    socialSupport: t.socialSupport ?? false,
     topics: t.topics,
     position: space.position,
     practice: space.practice,
@@ -468,6 +472,12 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               <p className="inline-flex items-center gap-1.5 text-sm text-[#1C3557]">
                 <BadgeCheck className="h-4 w-4" aria-hidden />
                 Верифіковано VSI
+              </p>
+            )}
+
+            {vm.socialSupport && (
+              <p className="inline-flex items-center text-sm text-[#876428]">
+                Учасник програми соціальної підтримки VSI
               </p>
             )}
 

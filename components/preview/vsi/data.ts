@@ -67,6 +67,8 @@ export interface Therapist {
    * раніше той фільтр міг показати лише демо-персон.
    */
   researchInterests?: string[];
+  /** Бере участь у програмі соціальної підтримки — лише факт, без умов. */
+  socialSupport?: boolean;
 }
 
 /**
