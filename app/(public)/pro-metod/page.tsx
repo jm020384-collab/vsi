@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { focusRing, ink } from "@/components/preview/vsi/theme";
+import { featherEdges, focusRing, ink, serif } from "@/components/preview/vsi/theme";
 
 export const metadata: Metadata = {
   title: "Про напрямок",
@@ -31,8 +31,6 @@ export const metadata: Metadata = {
 
 /** Смуга контенту. Темний блок навмисно живе поза нею — він на всю ширину. */
 const SHELL = "mx-auto w-full max-w-[1180px] px-5 sm:px-8 lg:px-10";
-
-const serif = { fontFamily: "var(--vsi-serif), Georgia, serif" } as const;
 
 const STAGES = [
   { icon: Zap, label: "Симптом", text: "Те, що турбує або повторюється." },
@@ -153,13 +151,14 @@ export default function ProMethodPage() {
     <div className="pb-24">
       {/* ── Знайомство з напрямком ── */}
       {/*
-        Текстова колонка ширша за ілюстрацію: у рівних половинах
-        дві кнопки не вміщалися в рядок і ставали стовпчиком.
+        Сітка така сама, як у «Фахівцях», «Текстах» і «Соціальній
+        підтримці»: ілюстрація займає 47% полотна, тож на всіх
+        чотирьох сторінках шапка має один розмір.
       */}
       <section
         className={cn(
           SHELL,
-          "grid gap-12 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:items-center lg:pt-16",
+          "grid gap-8 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-6 lg:pt-16",
         )}
       >
         <div>
@@ -184,11 +183,11 @@ export default function ProMethodPage() {
             доступу до якісної психологічної і психотерапевтичної допомоги.
           </p>
 
-          <div className="mt-9 flex flex-wrap gap-4">
+          <div className="mt-9 flex flex-wrap gap-3">
             <Link
               href="/therapists"
               className={cn(
-                "group inline-flex min-h-[56px] items-center gap-3 rounded-full bg-[#142744] px-8 text-[15px] font-medium text-[#F8F4EC]",
+                "group inline-flex min-h-[56px] items-center gap-3 rounded-full bg-[#142744] px-6 text-[15px] font-medium text-[#F8F4EC]",
                 "transition-colors hover:bg-[#1C3557] motion-reduce:transition-none",
                 focusRing,
               )}
@@ -202,7 +201,7 @@ export default function ProMethodPage() {
             <Link
               href="/register?role=THERAPIST"
               className={cn(
-                "group inline-flex min-h-[56px] items-center gap-3 rounded-full border border-[#142744]/25 px-8 text-[15px] font-medium text-[#142744]",
+                "group inline-flex min-h-[56px] items-center gap-3 rounded-full border border-[#142744]/25 px-6 text-[15px] font-medium text-[#142744]",
                 "transition-colors hover:border-[#142744]/50 hover:bg-[#142744]/[0.04] motion-reduce:transition-none",
                 focusRing,
               )}
@@ -222,12 +221,13 @@ export default function ProMethodPage() {
         */}
         <Image
           src="/brand/motifs/pro-metod-hero.png"
-          alt="Арка, у прорізі якої гори, сонце й вода у вранішньому світлі"
-          width={1122}
-          height={1402}
+          alt="Арка, у прорізі якої гори, схід сонця й золота стежка; довкола — орбіта і гілка"
+          width={1536}
+          height={1024}
           priority
-          sizes="(min-width: 1024px) 400px, 80vw"
-          className="mx-auto h-auto w-full max-w-[400px]"
+          sizes="(min-width: 1024px) 560px, 90vw"
+          className="mx-auto h-auto w-full max-w-[520px] lg:max-w-none"
+          style={featherEdges}
         />
       </section>
 
