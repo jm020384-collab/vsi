@@ -3,7 +3,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, MapPin, Search, SlidersHorizontal, X } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronDown,
+  Filter,
+  GraduationCap,
+  Layers,
+  MapPin,
+  RefreshCw,
+  Search,
+  ShieldCheck,
+  Sparkle,
+  X,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { TherapistCard, TherapistCardSkeleton } from "./therapist-card";
@@ -37,6 +49,47 @@ const VIEW_TABS: { value: ViewMode; label: string }[] = [
   { value: "new", label: "Нові у VSI" },
   { value: "research", label: "Дослідницькі інтереси" },
 ];
+
+/** Чотири опори, на яких тримається добір фахівців у VSI. */
+const PILLARS = [
+  {
+    icon: GraduationCap,
+    title: "Освіта і професійна підготовка",
+    text: "Базова освіта, навчання у психотерапевтичному методі та подальший професійний розвиток.",
+  },
+  {
+    icon: Layers,
+    title: "Терапевтичний метод",
+    text: "Кожен фахівець працює в межах свого підходу та чітко позначає формат роботи.",
+  },
+  {
+    icon: RefreshCw,
+    title: "Професійний розвиток",
+    text: "Навчання, практика, супервізія, інтервізія та безперервне поглиблення професійної позиції.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Етика і відповідальність",
+    text: "Повага до меж, конфіденційності та відповідальне ставлення до терапевтичного процесу.",
+  },
+];
+
+const serif = { fontFamily: "var(--vsi-serif), Georgia, serif" } as const;
+
+/**
+ * Краї ілюстрації розчиняються в тлі сторінки. Власне тло файлу
+ * тепліше й темніше за кремовий фон (кути близько rgb(232,219,213)
+ * проти rgb(248,244,236)), тож без розмивання кадр читався як
+ * наклеєний прямокутник.
+ */
+const FEATHER_EDGES = {
+  maskImage:
+    "linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 11%, #000 89%, transparent 100%)",
+  WebkitMaskImage:
+    "linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 11%, #000 89%, transparent 100%)",
+  maskComposite: "intersect",
+  WebkitMaskComposite: "source-in",
+} as const;
 
 export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
   // Довідники — виводяться з переданих даних, щоб не розходились
@@ -133,66 +186,130 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
     <div className="mx-auto w-full max-w-[1180px] px-5 sm:px-8 lg:px-10">
       {/* ── Шапка сторінки: редакційна, без слідів маркетплейсу ── */}
       <div className="relative pt-10 lg:pt-14">
-        {/* Тонке орбітальне мереживо — той самий мотив, що й у знаку бренду */}
-        <svg
-          aria-hidden
-          viewBox="0 0 200 200"
-          className="pointer-events-none absolute -right-10 -top-8 hidden h-48 w-48 opacity-[0.35] md:block"
-          fill="none"
-        >
-          <ellipse
-            cx="100"
-            cy="100"
-            rx="88"
-            ry="34"
-            transform="rotate(-20 100 100)"
-            stroke="#B38B49"
-            strokeOpacity="0.6"
-            strokeWidth="1"
-          />
-          <circle
-            cx="100"
-            cy="100"
-            r="56"
-            stroke="#142744"
-            strokeOpacity="0.12"
-            strokeWidth="1"
-            strokeDasharray="1 6"
-          />
-          <circle cx="168" cy="72" r="4" fill="#B38B49" fillOpacity="0.7" />
-        </svg>
+        {/*
+          Орбітального мережива тут більше немає: орбіти вже намальовані
+          всередині самої ілюстрації, накладений SVG дублював би мотив.
+        */}
+        <section className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-10">
+          <div>
+            <div className="flex items-center gap-4">
+              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
+                Фахівці VSI
+              </p>
+              <span aria-hidden className="h-px w-16 bg-[#B38B49]/50" />
+            </div>
 
-        <div className="relative max-w-2xl">
-          <h1
-            className={`text-balance text-4xl font-normal leading-[1.1] sm:text-5xl ${ink.strong}`}
-            style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
+            <h1
+              className={`mt-5 text-balance text-[2.6rem] font-normal leading-[1.08] sm:text-5xl ${ink.strong}`}
+              style={serif}
+            >
+              Познайомитися з фахівцями
+            </h1>
+
+            <p className={`mt-7 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
+              У VSI представлені психологи та психотерапевти з професійною освітою, підготовкою у
+              психотерапевтичних методах і практичним досвідом.
+            </p>
+            <p className={`mt-4 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
+              Ми формуємо спільноту навколо професійної етики, постійного навчання, супервізії та
+              відповідального ставлення до психотерапевтичної роботи.
+            </p>
+
+            {/* Веде до самого каталогу нижче, а не на іншу сторінку */}
+            <a
+              href="#catalog"
+              className={cn(
+                "group mt-9 inline-flex min-h-[58px] items-center gap-4 rounded-full bg-[#142744] px-9 text-[16px] text-[#F8F4EC]",
+                "transition-colors hover:bg-[#1C3557] motion-reduce:transition-none",
+                focusRing,
+              )}
+              style={serif}
+            >
+              Переглянути фахівців
+              <ArrowRight
+                className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
+                aria-hidden
+              />
+            </a>
+          </div>
+
+          <Image
+            src="/brand/motifs/therapists-hero.png"
+            alt="Світла арка в кількох планах, довкола неї — золоті орбіти й гілка"
+            width={1536}
+            height={1024}
+            priority
+            sizes="(min-width: 1024px) 560px, 90vw"
+            className="h-auto w-full"
+            style={FEATHER_EDGES}
+          />
+        </section>
+
+        {/*
+          Розділювач — ліва межа сусідньої колонки, а не окрема лінія:
+          при переносі на вузькому екрані окрема лінія висіла б у порожнечі.
+        */}
+        <ul className="mt-16 grid gap-y-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-0">
+          {PILLARS.map(({ icon: Icon, title, text }, i) => (
+            <li
+              key={title}
+              className={cn(
+                "lg:px-7",
+                i % 2 === 1 && "sm:border-l sm:border-[#B38B49]/25 sm:pl-7",
+                i > 0 && "lg:border-l lg:border-[#B38B49]/25",
+                i === 0 && "lg:pl-0",
+              )}
+            >
+              <span
+                aria-hidden
+                className="grid h-12 w-12 place-items-center rounded-full border border-[#B38B49]/40"
+              >
+                <Icon className="h-5 w-5 text-[#B38B49]" strokeWidth={1.2} />
+              </span>
+              <h2
+                className={`mt-5 text-[19px] font-normal leading-snug ${ink.strong}`}
+                style={serif}
+              >
+                {title}
+              </h2>
+              <p className={`mt-3 text-pretty text-[14px] leading-relaxed ${ink.muted}`}>{text}</p>
+            </li>
+          ))}
+        </ul>
+
+        {/* ── Перехід до каталогу ── */}
+        <div className="mt-16 flex items-center gap-6">
+          <span aria-hidden className="h-px flex-1 bg-[#B38B49]/35" />
+          <p
+            className={`text-pretty text-center text-[16px] italic leading-snug ${ink.body}`}
+            style={serif}
           >
-            Познайомитися з фахівцями
-          </h1>
-          <p className={`mt-4 text-pretty text-[17px] leading-relaxed ${ink.muted}`}>
-            Кожен фахівець VSI має власний професійний простір. Тут можна познайомитися з його
-            підходом до терапії, практикою, професійним шляхом, текстами та темами, які його
-            цікавлять.
+            Оберіть фахівця за підходом, темами роботи та форматом зустрічей.
           </p>
+          <span aria-hidden className="h-px flex-1 bg-[#B38B49]/35" />
         </div>
 
-        {/* ── Другорядний пошук — не домінує, розкривається на запит ── */}
-        <div className="mt-8 border-t border-[#142744]/10 pt-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <p className={`text-[15px] ${ink.muted}`}>Шукаєте фахівця для конкретної ситуації?</p>
+        <div className="mt-7 flex justify-center">
+          <Sparkle className="h-5 w-5 text-[#B38B49]" strokeWidth={1.2} aria-hidden />
+        </div>
+
+        {/* ── Фільтри: кнопка по центру, панель розкривається на запит ── */}
+        <div className="mt-7">
+          <div className="flex justify-center">
             <button
               type="button"
               onClick={() => setSearchOpen((v) => !v)}
               aria-expanded={searchOpen}
               aria-controls="refine-search-panel"
               className={cn(
-                "inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-[#142744]/20 px-4 text-sm font-medium text-[#142744]",
-                "transition-colors hover:border-[#142744]/40 hover:bg-[#142744]/[0.04] motion-reduce:transition-none",
+                "inline-flex min-h-[58px] items-center gap-3 rounded-full border border-[#B38B49]/55 px-10 text-[16px] text-[#142744] sm:px-14",
+                "transition-colors hover:border-[#B38B49] hover:bg-[#B38B49]/[0.07] motion-reduce:transition-none",
                 focusRing,
               )}
+              style={serif}
             >
-              <SlidersHorizontal className="h-4 w-4" aria-hidden />
-              Уточнити пошук
+              <Filter className="h-4 w-4 text-[#B38B49]" strokeWidth={1.4} aria-hidden />
+              Фільтри для пошуку
               <ChevronDown
                 className={cn(
                   "h-4 w-4 transition-transform motion-reduce:transition-none",
@@ -398,7 +515,10 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
         </div>
 
         {/* ── Способи познайомитися — не сортування, а різні входи ── */}
-        <div className="mt-8 flex flex-wrap items-center gap-x-1 gap-y-2 border-b border-[#142744]/10 pb-px">
+        <div
+          id="catalog"
+          className="mt-8 flex scroll-mt-28 flex-wrap items-center gap-x-1 gap-y-2 border-b border-[#142744]/10 pb-px"
+        >
           {VIEW_TABS.map((tab) => (
             <button
               key={tab.value}
