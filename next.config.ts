@@ -26,6 +26,15 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // www → основний домен. Обидві адреси вказані в проєкті Vercel і
+      // без цього віддають дві однакові копії сайту, що для пошуковиків
+      // є дублем контенту.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.vsi-therapy.com" }],
+        destination: "https://vsi-therapy.com/:path*",
+        permanent: true,
+      },
       // /therapists/[slug] — застарілий маршрут з часів до дизайну vsi,
       // замінений на /specialists/[slug]. Редирект, а не 404, щоб не
       // ламати вже проіндексовані/розшарені посилання.
