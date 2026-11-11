@@ -64,11 +64,11 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
         <Image
           src="/brand/motifs/library-hero.png"
           alt="Світла арка з книжковими полицями й розгорнутою книгою, довкола — золоті орбіти та гілка"
-          width={1536}
-          height={1024}
+          width={1254}
+          height={1254}
           priority
           sizes="(min-width: 1024px) 620px, 90vw"
-          className="mx-auto h-auto w-full max-w-[520px] lg:max-w-none"
+          className="mx-auto aspect-[3/2] w-full max-w-[520px] object-cover object-[50%_28%] lg:max-w-none"
           style={featherEdges}
         />
       </section>
