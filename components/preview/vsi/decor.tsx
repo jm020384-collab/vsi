@@ -410,7 +410,8 @@ export function ArchComposition({ className }: { className?: string }) {
  * заповнює аркову силует повністю (без порожніх полів усередині
  * арки), кути прямокутника прибрані. Перекриває `fit`.
  */
-const ARCH_CLIP_PATH = "M 0.06 1 L 0.06 0.58 A 0.44 0.58 0 0 1 0.94 0.58 L 0.94 1 Z";
+/** Форма арки VSI у частках бокса — спільна для портретів і зображень. */
+export const ARCH_CLIP_PATH = "M 0.06 1 L 0.06 0.58 A 0.44 0.58 0 0 1 0.94 0.58 L 0.94 1 Z";
 
 export function AvatarPortrait({
   name,
