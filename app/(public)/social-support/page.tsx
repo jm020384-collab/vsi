@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { ArrowRight, Clock, FileText, Info, Leaf, Sparkle, User, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { focusRing, ink } from "@/components/preview/vsi/theme";
+import { featherEdges, focusRing, ink } from "@/components/preview/vsi/theme";
 
 export const metadata: Metadata = {
   title: "Соціальна підтримка",
@@ -45,7 +45,7 @@ export default function SocialSupportPage() {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 pb-24 sm:px-8 lg:px-10">
       {/* ── Знайомство з програмою ── */}
-      <section className="grid items-center gap-8 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-12 lg:pt-14">
+      <section className="grid items-center gap-8 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:gap-12 lg:pt-14">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
             Програма VSI
@@ -67,19 +67,20 @@ export default function SocialSupportPage() {
         </div>
 
         {/*
-          Ілюстрація без рамки: її власне тло — той самий кремовий, що й у
-          сторінки, тож вона зливається з полотном. Рамка лише намалювала б
-          зайвий прямокутник навколо того, що й так ціле.
+          Ілюстрація без рамки, з розмитими краями: тло файлу трохи тепліше
+          за кремовий фон сторінки, тож різаний край читався б як наклеєний
+          прямокутник. Рамка намалювала б те саме, тільки явніше.
         */}
-        <div className="relative mx-auto w-full max-w-[440px]">
+        <div className="relative mx-auto w-full max-w-[520px] lg:max-w-none">
           <Image
-            src="/brand/motifs/social-support.png"
-            alt="Одна людина сидить, інша простягає їй руку; довкола — арка, гори й вода в теплому вранішньому світлі"
-            width={1672}
-            height={941}
+            src="/brand/motifs/social-support-hero.png"
+            alt="Двоє людей одне навпроти одного в арці, над ними сходить сонце; довкола — золоті орбіти й гілка"
+            width={1536}
+            height={1024}
             priority
-            sizes="(min-width: 1024px) 440px, 90vw"
+            sizes="(min-width: 1024px) 560px, 90vw"
             className="h-auto w-full"
+            style={featherEdges}
           />
         </div>
       </section>
