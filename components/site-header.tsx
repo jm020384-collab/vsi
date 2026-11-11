@@ -6,7 +6,6 @@ import { useState } from "react";
 import { Menu, X, User } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoVsi } from "@/components/brand/vsi/logo-vsi";
 import { cn } from "@/lib/utils";
@@ -22,40 +21,78 @@ const NAV = [
   { href: "/social-support", label: "Соціальна підтримка" },
 ];
 
+/** Засічковий шрифт знака — тим самим набрані і пункти меню. */
+const serif = { fontFamily: "var(--vsi-serif), Georgia, serif" } as const;
+
+/** Тонкий вертикальний розділювач між групами шапки. */
+function Divider() {
+  return <span aria-hidden className="hidden h-7 w-px bg-[#F8F4EC]/15 lg:block" />;
+}
+
+const PILL =
+  "inline-flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-[14px] transition-colors motion-reduce:transition-none xl:px-5 xl:text-[15px]";
+
+const FOCUS =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B38B49] focus-visible:ring-offset-2 focus-visible:ring-offset-[#122441]";
+
 /**
- * Однорядний хедер: знак, навігація і дії акаунта в одному полі.
+ * Шапка сайту: знак, навігація і дії акаунта в одному полі.
+ *
+ * Тло — не плаский синій, а глибина: темніше по краях і тепліше в
+ * центрі. Активний пункт позначений золотою пігулкою, а не підкресленням
+ * знизу: у рядку з пʼяти пунктів пігулку видно відразу.
  */
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const user = session?.user;
+  const isPro = user?.role === "THERAPIST" || user?.role === "ADMIN";
 
   return (
-    <header className="sticky top-0 z-40 bg-[#142744]">
-      <div className="container flex items-center justify-between gap-4 py-3">
-        <div className="flex items-center gap-8">
+    <header className="sticky top-0 z-40 bg-[#122441]">
+      {/* Мʼяке світло до центру — щоб смуга не читалася як плаский прямокутник */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(120% 180% at 38% 120%, rgba(45,78,124,0.55) 0%, rgba(18,36,65,0) 62%)",
+        }}
+      />
+
+      <div className="container relative flex items-center justify-between gap-4 py-3">
+        <div className="flex items-center gap-4 xl:gap-6">
           <Link
             href="/"
-            className="group flex items-center"
+            className={cn("group flex items-center rounded-xl", FOCUS)}
             aria-label={`${BRAND.name} — на головну`}
           >
             <LogoVsi className="font-serif text-[2.2rem] text-[#F8F4EC]" />
           </Link>
 
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Основна навігація">
+          <Divider />
+
+          <nav
+            className="hidden items-center gap-0.5 lg:flex xl:gap-1.5"
+            aria-label="Основна навігація"
+          >
             {NAV.map((item) => {
               const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  style={serif}
                   className={cn(
-                    "relative px-4 py-2.5 text-sm transition-colors",
-                    "after:absolute after:inset-x-4 after:bottom-1 after:h-px after:origin-left after:bg-[#B38B49] after:transition-transform",
+                    // Пʼять пунктів засічковим шрифтом не вміщаються в рядок на
+                    // 1024px — там вони дрібніші й щільніші, повний розмір з xl.
+                    "whitespace-nowrap rounded-full px-3 py-2 text-[15px] xl:px-4 xl:text-[17px]",
+                    "transition-colors motion-reduce:transition-none",
                     active
-                      ? "font-medium text-[#F8F4EC] after:scale-x-100"
-                      : "text-[#F8F4EC]/70 after:scale-x-0 hover:text-[#F8F4EC] hover:after:scale-x-100",
+                      ? "border border-[#B38B49]/55 bg-[#B38B49]/[0.14] text-[#E7C77B]"
+                      : "border border-transparent text-[#F8F4EC]/80 hover:text-[#F8F4EC]",
+                    FOCUS,
                   )}
                 >
                   {item.label}
@@ -65,106 +102,151 @@ export function SiteHeader() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 xl:gap-3">
           <ThemeToggle />
+
           {status === "authenticated" && user ? (
-            <div className="hidden items-center gap-2 lg:flex">
-              {user.role === "THERAPIST" || user.role === "ADMIN" ? (
-                <Link
-                  href="/dashboard"
-                  className="border-[#F8F4EC]/28 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm text-[#F8F4EC] hover:border-[#F8F4EC]/55 hover:bg-[#F8F4EC]/[0.08]"
-                >
-                  <User className="h-4 w-4" />
-                  Кабінет фахівця
-                </Link>
-              ) : (
-                <Link
-                  href="/"
-                  className="border-[#F8F4EC]/28 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm text-[#F8F4EC] hover:border-[#F8F4EC]/55 hover:bg-[#F8F4EC]/[0.08]"
-                >
-                  <User className="h-4 w-4" />
-                  {user.name ?? user.email}
-                </Link>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-[#F8F4EC]/70 hover:bg-[#F8F4EC]/[0.08] hover:text-[#F8F4EC]"
+            <div className="hidden items-center gap-4 lg:flex">
+              <Link
+                href={isPro ? "/dashboard" : "/"}
+                style={serif}
+                className={cn(
+                  PILL,
+                  "border border-[#B38B49]/55 text-[#F8F4EC]",
+                  "hover:border-[#B38B49] hover:bg-[#B38B49]/[0.12]",
+                  FOCUS,
+                )}
+              >
+                <User className="h-4 w-4 text-[#E7C77B]" strokeWidth={1.6} aria-hidden />
+                {isPro ? "Кабінет фахівця" : (user.name ?? user.email)}
+              </Link>
+
+              <Divider />
+
+              <button
+                type="button"
+                style={serif}
                 onClick={() => signOut({ callbackUrl: "/" })}
+                className={cn(
+                  "whitespace-nowrap rounded-full px-2 py-2 text-[15px] text-[#F8F4EC]/80 transition-colors hover:text-[#F8F4EC] xl:text-[17px]",
+                  "motion-reduce:transition-none",
+                  FOCUS,
+                )}
               >
                 Вийти
-              </Button>
+              </button>
             </div>
           ) : (
-            <div className="hidden items-center gap-3 lg:flex">
+            <div className="hidden items-center gap-4 lg:flex">
               <Link
                 href="/login"
-                className="px-1 text-sm text-[#F8F4EC]/75 transition-colors hover:text-[#F8F4EC]"
+                style={serif}
+                className={cn(
+                  "whitespace-nowrap rounded-full px-2 py-2 text-[15px] text-[#F8F4EC]/80 transition-colors hover:text-[#F8F4EC] xl:text-[17px]",
+                  "motion-reduce:transition-none",
+                  FOCUS,
+                )}
               >
                 Увійти
               </Link>
-              {/* Головна дія шапки — реєстрація фахівця, як у макеті */}
-              <Button asChild size="sm" className="bg-[#F8F4EC] text-[#142744] hover:bg-[#FFFDF8]">
-                <Link href="/register">Створити профіль</Link>
-              </Button>
+
+              <Divider />
+
+              {/* Головна дія шапки — реєстрація фахівця */}
+              <Link
+                href="/register"
+                style={serif}
+                className={cn(
+                  PILL,
+                  "border border-[#B38B49]/55 text-[#F8F4EC]",
+                  "hover:border-[#B38B49] hover:bg-[#B38B49]/[0.12]",
+                  FOCUS,
+                )}
+              >
+                <User className="h-4 w-4 text-[#E7C77B]" strokeWidth={1.6} aria-hidden />
+                Створити профіль
+              </Link>
             </div>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-[#F8F4EC] hover:bg-[#F8F4EC]/[0.08] hover:text-[#F8F4EC] lg:hidden"
+
+          <button
+            type="button"
             aria-label="Меню"
+            aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
+            className={cn(
+              "grid h-11 w-11 place-items-center rounded-full text-[#F8F4EC] lg:hidden",
+              "hover:bg-[#F8F4EC]/[0.08]",
+              FOCUS,
+            )}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* ── Мобільне меню ── */}
-      <div className={cn("lg:hidden", open ? "border-[#F8F4EC]/12 block border-t" : "hidden")}>
-        <nav className="container flex flex-col py-2">
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className="rounded-md px-3 py-3 text-sm font-medium text-[#F8F4EC]/90 hover:bg-[#F8F4EC]/[0.08]"
-            >
-              {item.label}
-            </Link>
-          ))}
-          <div className="border-[#F8F4EC]/12 mt-2 flex flex-col gap-2 border-t pt-2">
+      <div
+        className={cn("relative lg:hidden", open ? "border-[#F8F4EC]/12 block border-t" : "hidden")}
+      >
+        <nav className="container flex flex-col py-3">
+          {NAV.map((item) => {
+            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                style={serif}
+                className={cn(
+                  "rounded-full px-4 py-3 text-[17px] transition-colors motion-reduce:transition-none",
+                  active ? "bg-[#B38B49]/[0.14] text-[#E7C77B]" : "text-[#F8F4EC]/85",
+                  FOCUS,
+                )}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+
+          <div className="border-[#F8F4EC]/12 mt-3 flex flex-col gap-2 border-t pt-3">
             {status === "authenticated" && user ? (
               <>
                 <Link
                   onClick={() => setOpen(false)}
-                  href={user.role === "THERAPIST" || user.role === "ADMIN" ? "/dashboard" : "/"}
-                  className="border-[#F8F4EC]/28 rounded-md border px-3 py-2 text-center text-sm text-[#F8F4EC]"
+                  href={isPro ? "/dashboard" : "/"}
+                  style={serif}
+                  className={cn(
+                    "rounded-full border border-[#B38B49]/55 px-4 py-3 text-center text-[16px] text-[#F8F4EC]",
+                    FOCUS,
+                  )}
                 >
-                  {user.role === "THERAPIST" || user.role === "ADMIN"
-                    ? "Кабінет фахівця"
-                    : "Кабінет"}
+                  {isPro ? "Кабінет фахівця" : "Кабінет"}
                 </Link>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-[#F8F4EC]/70 hover:bg-[#F8F4EC]/[0.08] hover:text-[#F8F4EC]"
+                <button
+                  type="button"
+                  style={serif}
                   onClick={() => signOut({ callbackUrl: "/" })}
+                  className={cn(
+                    "rounded-full px-4 py-3 text-[16px] text-[#F8F4EC]/80 hover:text-[#F8F4EC]",
+                    FOCUS,
+                  )}
                 >
                   Вийти
-                </Button>
+                </button>
               </>
             ) : (
-              <Button
-                asChild
-                variant="ghost"
-                size="sm"
-                className="border-[#F8F4EC]/28 border text-[#F8F4EC] hover:bg-[#F8F4EC]/[0.08] hover:text-[#F8F4EC]"
+              <Link
+                href="/login"
                 onClick={() => setOpen(false)}
+                style={serif}
+                className={cn(
+                  "rounded-full border border-[#B38B49]/55 px-4 py-3 text-center text-[16px] text-[#F8F4EC]",
+                  FOCUS,
+                )}
               >
-                <Link href="/login">Увійти</Link>
-              </Button>
+                Увійти
+              </Link>
             )}
           </div>
         </nav>
