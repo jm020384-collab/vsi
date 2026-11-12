@@ -125,3 +125,17 @@ export const featherEdges = {
   maskComposite: "intersect",
   WebkitMaskComposite: "source-in",
 } as const;
+
+/**
+ * Мʼякший варіант для кадрів, які ми обрізаємо під 3:2. Там до країв
+ * підходить сама композиція, а не тло файлу, тож широкий градієнт
+ * зʼїдав би малюнок — орбіти, верхівку арки, гілку.
+ */
+export const featherEdgesSoft = {
+  maskImage:
+    "linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 4%, #000 96%, transparent 100%)",
+  WebkitMaskImage:
+    "linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%), linear-gradient(to bottom, transparent 0%, #000 4%, #000 96%, transparent 100%)",
+  maskComposite: "intersect",
+  WebkitMaskComposite: "source-in",
+} as const;

@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { ArrowRight, Clock, FileText, Info, Leaf, Sparkle, User, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { featherEdges, focusRing, ink } from "@/components/preview/vsi/theme";
+import { featherEdgesSoft, focusRing, ink } from "@/components/preview/vsi/theme";
 
 export const metadata: Metadata = {
   title: "Соціальна підтримка",
@@ -75,12 +75,12 @@ export default function SocialSupportPage() {
           <Image
             src="/brand/motifs/social-support-hero.png"
             alt="Двоє людей одне навпроти одного в арці, над ними сходить сонце; довкола — золоті орбіти й гілка"
-            width={1536}
-            height={1024}
+            width={1111}
+            height={765}
             priority
             sizes="(min-width: 1024px) 560px, 90vw"
-            className="h-auto w-full"
-            style={featherEdges}
+            className="aspect-[3/2] w-full object-cover"
+            style={featherEdgesSoft}
           />
         </div>
       </section>
