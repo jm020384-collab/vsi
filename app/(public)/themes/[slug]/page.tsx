@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { AnalyticPanel } from "@/components/preview/vsi/analytic-panel";
+import { analyticNote } from "@/components/preview/vsi/analytic-notes";
 import { TherapistCard } from "@/components/preview/vsi/therapist-card";
 import { findTheme, themeContent, FORMAT_LABEL, THEMES } from "@/components/preview/vsi/data";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
@@ -50,6 +52,7 @@ export default async function ThemePage({ params }: PageProps) {
   if (!found) notFound();
 
   const { entry, parent, subthemes } = found;
+  const note = analyticNote(entry.slug);
   const { therapists, articles, lectures, events } = themeContent(entry);
 
   const counts = [
@@ -149,6 +152,17 @@ export default async function ThemePage({ params }: PageProps) {
           </div>
         )}
       </div>
+
+      {/*
+        ── Юнгіанська нотатка ──
+
+        Стоїть перед усіма переліками навмисно. Сторінка теми була
+        вітриною чужого — статті, фахівці, групи; власного змісту в
+        неї не було. Нотатка дає темі голос ще до того, як почнеться
+        перелік, і лишає сторінці сенс навіть тоді, коли матеріалів
+        за темою ще немає. Є лише у шести великих тем, не в підтем.
+      */}
+      {note && <AnalyticPanel note={note} />}
 
       {/* ── Статті та лекції — свідомо ПЕРЕД фахівцями ── */}
       {(articles.length > 0 || lectures.length > 0) && (
