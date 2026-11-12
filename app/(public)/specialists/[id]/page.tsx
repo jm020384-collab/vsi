@@ -697,83 +697,89 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
       </nav>
 
       {/*
-        Один вертикальний потік, без бічної sticky-панелі: спочатку
-        знайомство (позиція, практика, тексти, дослідження, шлях),
+        «Про фахівця» — головний розділ і єдиний, що виходить за межі
+        вузької читацької колонки: у спільних 672px на текст лишалася
+        третина ширини, і він ламався по чотири слова в рядок. Тепер
+        довідка (освіта, напрями, вікові групи) відходить до правого
+        краю полотна, під ту саму межу, що й шапка профілю, а опис
+        читається тією ж мірою рядка, що й розділи нижче.
+
+        Повні переліки лишаються в розділах нижче — тут лише те, що
+        читають першим.
+      */}
+      <section aria-labelledby="position" className="mt-10">
+        <SectionTitleRow id="position">Про фахівця</SectionTitleRow>
+
+        <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)] lg:gap-16">
+          <div className="max-w-2xl">
+            {vm.position.length > 0 ? (
+              <div className="space-y-4">
+                {vm.position.map((p, i) => (
+                  <p key={i} className={`text-pretty text-[16px] leading-[1.8] ${ink.body}`}>
+                    {p}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <PendingSection>
+                {vm.isOwner
+                  ? "Ви ще не заповнили цей розділ — розкажіть, як розумієте терапію, в анкеті."
+                  : "Фахівець ще формулює цей розділ — як він сам розуміє терапію і психологічну роботу."}
+              </PendingSection>
+            )}
+
+            {vm.educationGroups.length > 0 && (
+              <a
+                href="#path"
+                className={cn(
+                  "group/more mt-6 inline-flex items-center gap-2 text-[15px] text-[#1C3557]",
+                  "hover:text-[#142744]",
+                  focusRing,
+                )}
+              >
+                Детальніше про підхід
+                <ArrowRight
+                  className="h-3.5 w-3.5 transition-transform duration-200 group-hover/more:translate-x-1 motion-reduce:transition-none"
+                  aria-hidden
+                />
+              </a>
+            )}
+          </div>
+
+          <div className="space-y-7">
+            {vm.educationSummary && (
+              <InfoRow icon={GraduationCap} title="Освіта">
+                {vm.educationSummary}
+              </InfoRow>
+            )}
+            {vm.approaches.length > 0 && (
+              <InfoRow icon={User} title="Спеціалізація">
+                {vm.approaches.join(", ")}
+              </InfoRow>
+            )}
+            {vm.ageGroups.length > 0 && (
+              <InfoRow icon={Users} title="Цільові групи">
+                {vm.ageGroups.join(", ")}
+              </InfoRow>
+            )}
+
+            {vm.socialSupport && (
+              <p className="flex items-start gap-3 rounded-2xl border border-[#B38B49]/30 bg-[#E9DECE]/35 px-5 py-4 text-[14px] italic leading-relaxed text-[#6E5120]">
+                <Leaf className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.4} aria-hidden />У межах
+                програми соціальної підтримки VSI фахівець може працювати зі зниженою вартістю.
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/*
+        Далі — один вертикальний потік, без бічної sticky-панелі:
+        знайомство (практика, тексти, дослідження, шлях),
         умови роботи й контакт — навмисно останніми. Логіка сторінки:
         спершу знайомство, потім контакт.
       */}
-      <div className="mt-10 max-w-2xl space-y-14">
-        {/*
-          «Про фахівця» — головний розділ. Праворуч коротка довідка:
-          один рядок про освіту, напрями й вікові групи. Повні переліки
-          лишаються в розділах нижче, тут лише те, що читають першим.
-        */}
-        <section aria-labelledby="position">
-          <SectionTitleRow id="position">Про фахівця</SectionTitleRow>
-
-          <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)] lg:gap-16">
-            <div>
-              {vm.position.length > 0 ? (
-                <div className="space-y-4">
-                  {vm.position.map((p, i) => (
-                    <p key={i} className={`text-pretty text-[16px] leading-[1.8] ${ink.body}`}>
-                      {p}
-                    </p>
-                  ))}
-                </div>
-              ) : (
-                <PendingSection>
-                  {vm.isOwner
-                    ? "Ви ще не заповнили цей розділ — розкажіть, як розумієте терапію, в анкеті."
-                    : "Фахівець ще формулює цей розділ — як він сам розуміє терапію і психологічну роботу."}
-                </PendingSection>
-              )}
-
-              {vm.educationGroups.length > 0 && (
-                <a
-                  href="#path"
-                  className={cn(
-                    "group/more mt-6 inline-flex items-center gap-2 text-[15px] text-[#1C3557]",
-                    "hover:text-[#142744]",
-                    focusRing,
-                  )}
-                >
-                  Детальніше про підхід
-                  <ArrowRight
-                    className="h-3.5 w-3.5 transition-transform duration-200 group-hover/more:translate-x-1 motion-reduce:transition-none"
-                    aria-hidden
-                  />
-                </a>
-              )}
-            </div>
-
-            <div className="space-y-7">
-              {vm.educationSummary && (
-                <InfoRow icon={GraduationCap} title="Освіта">
-                  {vm.educationSummary}
-                </InfoRow>
-              )}
-              {vm.approaches.length > 0 && (
-                <InfoRow icon={User} title="Спеціалізація">
-                  {vm.approaches.join(", ")}
-                </InfoRow>
-              )}
-              {vm.ageGroups.length > 0 && (
-                <InfoRow icon={Users} title="Цільові групи">
-                  {vm.ageGroups.join(", ")}
-                </InfoRow>
-              )}
-
-              {vm.socialSupport && (
-                <p className="flex items-start gap-3 rounded-2xl border border-[#B38B49]/30 bg-[#E9DECE]/35 px-5 py-4 text-[14px] italic leading-relaxed text-[#6E5120]">
-                  <Leaf className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.4} aria-hidden />У межах
-                  програми соціальної підтримки VSI фахівець може працювати зі зниженою вартістю.
-                </p>
-              )}
-            </div>
-          </div>
-        </section>
-
+      <div className="mt-14 max-w-2xl space-y-14">
         <section aria-labelledby="practice">
           <SectionTitleRow id="practice">Практика</SectionTitleRow>
           {vm.practice.length > 0 ? (
