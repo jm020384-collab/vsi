@@ -683,3 +683,21 @@ model SocialSupportRequest {
   @@index([status, createdAt])
   @@index([createdAt])
 }
+
+// ============================================================================
+//  Статистика відвідувань (адмін-панель)
+// ============================================================================
+
+/// Один перегляд сторінки. Без cookies: відвідувача розрізняємо за хешем
+/// IP і браузера із секретною сіллю — сам IP не зберігається.
+model PageView {
+  id          String   @id @default(cuid())
+  path        String
+  visitorHash String
+  referrer    String? // лише хост зовнішнього джерела, без адреси сторінки
+  device      String // "mobile" | "desktop"
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path, createdAt])
+}

@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { PageTracker } from "@/components/analytics/page-tracker";
 import { auth } from "@/auth";
 import { BRAND, SITE_NAME, SITE_DESCRIPTION } from "@/lib/brand";
 
@@ -105,6 +106,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <main className="flex-1">{children}</main>
             <SiteFooter />
             <Toaster richColors closeButton position="top-center" />
+            <PageTracker />
           </SessionProvider>
         </ThemeProvider>
       </body>
