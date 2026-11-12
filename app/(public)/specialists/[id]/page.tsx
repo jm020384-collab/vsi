@@ -727,23 +727,6 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                   : "Фахівець ще формулює цей розділ — як він сам розуміє терапію і психологічну роботу."}
               </PendingSection>
             )}
-
-            {vm.educationGroups.length > 0 && (
-              <a
-                href="#path"
-                className={cn(
-                  "group/more mt-6 inline-flex items-center gap-2 text-[15px] text-[#1C3557]",
-                  "hover:text-[#142744]",
-                  focusRing,
-                )}
-              >
-                Детальніше про підхід
-                <ArrowRight
-                  className="h-3.5 w-3.5 transition-transform duration-200 group-hover/more:translate-x-1 motion-reduce:transition-none"
-                  aria-hidden
-                />
-              </a>
-            )}
           </div>
 
           <div className="space-y-7">
