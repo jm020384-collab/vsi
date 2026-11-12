@@ -3,6 +3,7 @@ import {
   BadgeCheck,
   CalendarCheck,
   Clock,
+  GraduationCap,
   Languages,
   MapPin,
   Monitor,
@@ -20,6 +21,15 @@ function yearsLabel(n: number) {
   if (mod10 === 1 && mod100 !== 11) return `${n} рік`;
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${n} роки`;
   return `${n} років`;
+}
+
+/** Відмінювання: 1 програма / 2 програми / 5 програм. */
+function programsLabel(n: number) {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return `${n} програма`;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${n} програми`;
+  return `${n} програм`;
 }
 
 /** Маркер довіри — свідома заміна зірковому рейтингу. */
@@ -124,6 +134,26 @@ export function TherapistCard({
             >
               «{quote}»
             </blockquote>
+          )}
+
+          {/*
+            Освіта — у каталозі це головне, що відрізняє фахівця від
+            фахівця, і доти її тут не було видно взагалі. Показуємо
+            заклад, а не назву файлу: скани дипломів приватні. Решта
+            програм згорнута в лічильник — повний перелік у профілі.
+          */}
+          {t.education && (
+            <p className={cn("mt-4 flex items-start gap-2 text-[13px]", ink.muted)}>
+              <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-[#5C6672]" aria-hidden />
+              <span>
+                {t.education.institution}
+                {t.education.extra > 0 && (
+                  <span className={cn("block", ink.soft)}>
+                    та ще {programsLabel(t.education.extra)} навчання
+                  </span>
+                )}
+              </span>
+            </p>
           )}
 
           {t.topics.length > 0 && (
@@ -237,6 +267,25 @@ export function TherapistCard({
               <dt className="sr-only">Місто</dt>
               <MapPin className="h-4 w-4 shrink-0 text-[#5C6672]" aria-hidden />
               <dd>{t.city}</dd>
+            </div>
+          )}
+          {/*
+            Освіта — заклад, а не назва файлу: скани дипломів приватні.
+            Решта програм згорнута в лічильник, повний перелік —
+            у розділі «Освіта та професійна підготовка» в профілі.
+          */}
+          {t.education && (
+            <div className="flex items-start gap-2">
+              <dt className="sr-only">Освіта</dt>
+              <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-[#5C6672]" aria-hidden />
+              <dd>
+                {t.education.institution}
+                {t.education.extra > 0 && (
+                  <span className={cn("block text-[13px]", ink.soft)}>
+                    та ще {programsLabel(t.education.extra)} навчання
+                  </span>
+                )}
+              </dd>
             </div>
           )}
         </dl>

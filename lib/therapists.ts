@@ -23,6 +23,26 @@ const WORK_FORMAT_MAP: Record<string, WorkFormat> = {
 
 const NEW_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
+type EducationRow = { kind: string; institution: string | null; title: string | null };
+
+/**
+ * Рядок освіти для картки каталогу.
+ *
+ * Базовим вважаємо перший запис виду EDUCATION — вища освіта. Якщо
+ * її немає (буває у фахівців із профільною перепідготовкою), беремо
+ * перший запис із заповненим закладом. Решта згортається в лічильник:
+ * повний перелік лишається в профілі, картка його не вмістить.
+ *
+ * Назви файлів і самі скани сюди не потрапляють навмисно — вони
+ * приватні, публічною є лише інформація, яку фахівець ввів в анкеті.
+ */
+function educationLine(rows: EducationRow[]) {
+  const base =
+    rows.find((e) => e.kind === "EDUCATION" && e.institution) ?? rows.find((e) => e.institution);
+  if (!base?.institution) return undefined;
+  return { institution: base.institution, extra: rows.length - 1 };
+}
+
 /**
  * Каталог фахівців — лише ті, хто зареєструвався сам.
  *
@@ -37,6 +57,10 @@ export async function loadTherapists(): Promise<Therapist[]> {
       user: { select: { email: true } },
       specializations: { include: { specialization: true } },
       languages: { include: { language: true } },
+      education: {
+        orderBy: [{ startYear: "desc" }, { createdAt: "asc" }],
+        select: { kind: true, institution: true, title: true },
+      },
     },
     orderBy: { publishedAt: "desc" },
   });
@@ -67,6 +91,7 @@ export async function loadTherapists(): Promise<Therapist[]> {
       .map((f) => WORK_FORMAT_MAP[f])
       .filter((f): f is WorkFormat => Boolean(f)),
     isNew: r.publishedAt ? r.publishedAt.getTime() > cutoff : false,
+    education: educationLine(r.education),
   }));
 }
 
