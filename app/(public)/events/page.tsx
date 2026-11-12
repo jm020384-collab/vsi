@@ -1,14 +1,23 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, MapPin, Monitor, Users, Wallet } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  Layers,
+  MapPin,
+  Monitor,
+  Sprout,
+  Users,
+  Wallet,
+} from "lucide-react";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import { EVENTS, FORMAT_LABEL } from "@/components/preview/vsi/data";
 import { EventInterestButtons } from "@/components/preview/vsi/event-interest-buttons";
-import { ink } from "@/components/preview/vsi/theme";
+import { featherEdgesSoft, focusRing, ink, serif } from "@/components/preview/vsi/theme";
 import { registrationClosedReason } from "@/lib/event-registration";
 import { scheduleLabel, upcomingEventFilter } from "@/lib/event-recurrence";
 
@@ -16,6 +25,13 @@ export const metadata: Metadata = {
   title: "Події",
   description: "Групи, семінари та інтенсиви VSI: робота, яка можлива тільки разом.",
 };
+
+/** Три опори під абзацом у шапці — коротко про те, чим є група. */
+const HERO_NOTES = [
+  { icon: Users, lines: ["Зустрічі із", "однодумцями"] },
+  { icon: Sprout, lines: ["Нові", "погляди"] },
+  { icon: Layers, lines: ["Практичний", "досвід"] },
+];
 
 const EVENT_TYPE_LABEL: Record<string, string> = {
   LECTURE: "Лекція",
@@ -131,34 +147,77 @@ export default async function EventsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 sm:px-8 lg:px-10">
-      <div className="mx-auto max-w-2xl pt-10 text-center lg:pt-14">
-        <Image
-          src="/brand/motifs/community.png"
-          alt=""
-          aria-hidden
-          width={112}
-          height={112}
-          priority
-          className="mx-auto h-24 w-24 rounded-2xl border border-[#142744]/10 object-cover sm:h-28 sm:w-28"
-        />
-        <p className="mt-6 inline-flex items-center justify-center gap-3 text-[11px] font-medium uppercase tracking-[0.22em] text-[#5C6672]">
-          <span aria-hidden className="h-px w-6 bg-[#B38B49]" />
-          Події
-          <span aria-hidden className="h-px w-6 bg-[#B38B49]" />
-        </p>
-        <h1
-          className={`mt-5 text-balance text-4xl font-normal leading-[1.1] sm:text-5xl ${ink.strong}`}
-          style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
-        >
-          Групи, семінари, інтенсиви
-        </h1>
-        <p className={`mx-auto mt-5 max-w-lg text-pretty text-[16px] leading-relaxed ${ink.muted}`}>
-          Групове поле показує те, що в індивідуальній роботі лишається непоміченим: як ви входите в
-          контакт, коли поруч кілька людей.
-        </p>
-      </div>
+      {/*
+        Шапка за макетом: текст ліворуч, ілюстрація праворуч — у тій самій
+        сітці, що «Про простір», «Фахівці», «Тексти» й «Підтримка», тож
+        картинка скрізь одного розміру. Надзаголовка тут немає навмисно:
+        на макеті одразу йде заголовок.
+      */}
+      <section className="grid gap-8 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-6 lg:pt-14">
+        <div>
+          <h1
+            className={`text-balance text-[2.6rem] font-normal leading-[1.08] sm:text-5xl ${ink.strong}`}
+            style={serif}
+          >
+            Групи, семінари, інтенсиви
+          </h1>
 
-      <ul className="mt-10 grid gap-5 md:grid-cols-2">
+          <p className={`mt-6 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
+            Групові та освітні формати, що поглиблюють розуміння себе, стосунків і внутрішніх
+            процесів у спільному, безпечному просторі.
+          </p>
+
+          {/*
+            Розділювачі — ліва межа сусідньої колонки, а не окремі лінії:
+            інакше при переносі вони висіли б у порожнечі.
+          */}
+          <ul className="mt-10 grid max-w-[420px] grid-cols-3">
+            {HERO_NOTES.map(({ icon: Icon, lines }, i) => (
+              <li
+                key={lines.join(" ")}
+                className={cn("px-3 text-center", i > 0 && "border-l border-[#B38B49]/30")}
+              >
+                <Icon className="mx-auto h-6 w-6 text-[#B38B49]" strokeWidth={1.2} aria-hidden />
+                <p className={`mt-3 text-[13px] leading-snug ${ink.muted}`}>
+                  {lines[0]}
+                  <br />
+                  {lines[1]}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          {/* Веде до списку подій нижче, а не на іншу сторінку */}
+          <a
+            href="#events-list"
+            className={cn(
+              "group mt-10 inline-flex min-h-[56px] items-center gap-4 rounded-full bg-[#142744] px-9 text-[16px] text-[#F8F4EC]",
+              "transition-colors hover:bg-[#1C3557] motion-reduce:transition-none",
+              focusRing,
+            )}
+            style={serif}
+          >
+            Переглянути події
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
+              aria-hidden
+            />
+          </a>
+        </div>
+
+        <Image
+          src="/brand/motifs/events-hero.png"
+          alt="Арка, у прорізі якої гори, схід сонця й стежка; поряд — золота гілка та орбіти"
+          width={1131}
+          height={754}
+          priority
+          sizes="(min-width: 1024px) 560px, 90vw"
+          className="mx-auto h-auto w-full max-w-[520px] lg:max-w-none"
+          style={featherEdgesSoft}
+        />
+      </section>
+
+      <ul id="events-list" className="mt-14 grid scroll-mt-28 gap-5 md:grid-cols-2">
         {events.map((e) => {
           const full = e.seatsLeft === 0;
           const pct =
