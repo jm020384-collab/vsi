@@ -28,14 +28,17 @@ const serwist = new Serwist({
         url.pathname.startsWith("/admin"),
       handler: new NetworkOnly(),
     },
-    // Профілі терапевтів та статті — SWR
-    {
-      matcher: ({ url }) =>
-        /^\/therapists(\/[^/]+)?$/.test(url.pathname) || /^\/blog(\/[^/]+)?$/.test(url.pathname),
-      handler: new StaleWhileRevalidate({
-        cacheName: "content-cache",
-      }),
-    },
+    /*
+      Окремого правила для /therapists і /blog тут більше немає — і це
+      навмисно. Раніше ці сторінки віддавалися зі збереженої копії без
+      строку давності, причому не лише HTML, а й дані для переходів
+      усередині сайту. Після кожного оновлення сайту копія посилалася
+      на файли попередньої збірки, яких на сервері вже немає, і людина
+      бачила «Щось пішло не так». Next сам уміє помітити нову збірку й
+      перезавантажити сторінку, але лише коли відповідь прийшла з
+      мережі. Тепер ці сторінки йдуть загальними правилами нижче:
+      спершу мережа, збережена копія — тільки коли мережі немає.
+    */
     // Іконки та статичні файли
     {
       matcher: ({ url }) =>
@@ -96,14 +99,16 @@ serwist.addEventListeners();
  */
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    self.caches
-      .keys()
-      .then((names) =>
-        Promise.all(
-          names
-            .filter((name) => name.includes("image") || name === "assets-cache")
-            .map((name) => self.caches.delete(name)),
-        ),
+    self.caches.keys().then((names) =>
+      Promise.all(
+        names
+          // content-cache — залишок скасованого правила для /therapists:
+          // у відвідувачів там досі лежать сторінки старих збірок.
+          .filter(
+            (name) => name.includes("image") || name === "assets-cache" || name === "content-cache",
+          )
+          .map((name) => self.caches.delete(name)),
       ),
+    ),
   );
 });
