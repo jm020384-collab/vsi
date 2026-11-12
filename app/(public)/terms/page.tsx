@@ -16,7 +16,8 @@ export default function TermsPage() {
       <h2 className="mt-6 text-xl font-semibold">2. Реєстрація фахівця</h2>
       <p className="mt-2 text-muted-foreground">
         Фахівець підтверджує кваліфікацію документами. До завершення перевірки профіль не є
-        публічним.
+        публічним. Скани документів, які фахівець прикріплює до записів про освіту, показуються в
+        його публічному профілі.
       </p>
 
       <h2 className="mt-6 text-xl font-semibold">3. Запити на консультацію</h2>

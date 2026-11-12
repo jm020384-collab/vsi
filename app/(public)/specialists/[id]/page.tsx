@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -7,6 +8,7 @@ import {
   ArrowUpRight,
   Clock,
   Clock3,
+  FileText,
   Globe,
   GraduationCap,
   Leaf,
@@ -32,11 +34,18 @@ interface PageProps {
 /** Картка «Професійний шлях» — покриває і кураторські дипломи демо-персон
  *  (інституція/роки/спеціальності), і реальні завантажені документи
  *  (назва файлу/тип/статус перевірки) одним виглядом. */
+/** Прикріплений до запису файл: фото показуємо мініатюрою, решту — посиланням. */
+interface DiplomaFile {
+  url: string;
+  kind: "image" | "file";
+}
+
 interface DiplomaCard {
   title: string;
   meta?: string;
   tags?: string[];
   reviewStatus?: "pending" | "reviewed";
+  files?: DiplomaFile[];
 }
 
 /** Публічні групи розділу «Освіта та професійна підготовка». */
@@ -163,7 +172,33 @@ interface EducationRow {
   role: string | null;
   presentationTitle: string | null;
   duration: string | null;
-  documents: { status: string }[];
+  documents: UploadedDocument[];
+}
+
+interface UploadedDocument {
+  status: string;
+  fileUrl: string | null;
+  fileName: string | null;
+}
+
+/**
+ * Файли, які видно у публічному профілі.
+ *
+ * Правило платформи: прикріпивши скан до запису про навчання, фахівець
+ * його оприлюднює — про це сказано у формі завантаження. Не показуємо
+ * лише те, що адміністратор повернув на уточнення: такий документ
+ * ще не можна вважати підтвердженням чогось.
+ */
+function publicFiles(docs: UploadedDocument[]): DiplomaFile[] | undefined {
+  const files = docs
+    .filter((d) => d.fileUrl && d.status !== "NEEDS_UPDATE")
+    .map(
+      (d): DiplomaFile => ({
+        url: d.fileUrl as string,
+        kind: /\.(jpe?g|png|webp|gif|avif)$/i.test(d.fileName ?? "") ? "image" : "file",
+      }),
+    );
+  return files.length > 0 ? files : undefined;
 }
 
 function educationPeriod(e: EducationRow) {
@@ -179,9 +214,10 @@ function educationPeriod(e: EducationRow) {
 
 /**
  * Три публічні групи: освіта, професійна підготовка, додаткове навчання.
- * Технічні поля (тип запису, файли) сюди не потрапляють — тільки те, що
- * має сенс для читача. «Перевірено VSI» ставимо лише коли адміністратор
- * справді підтвердив документ: решта — інформація зі слів фахівця.
+ * Технічні поля (тип запису, назви файлів) сюди не потрапляють — тільки
+ * те, що має сенс для читача, і самі скани, якщо фахівець їх прикріпив.
+ * «Перевірено VSI» ставимо лише коли адміністратор справді підтвердив
+ * документ: решта — інформація зі слів фахівця.
  */
 function buildEducationGroups(rows: EducationRow[]): EducationGroup[] {
   const groups: { title: string; kinds: string[] }[] = [
@@ -208,10 +244,73 @@ function buildEducationGroups(rows: EducationRow[]): EducationGroup[] {
               .join(" · "),
             tags: e.presentationTitle ? [e.presentationTitle] : undefined,
             reviewStatus: e.documents.some((d) => d.status === "VERIFIED") ? "reviewed" : undefined,
+            files: publicFiles(e.documents),
           };
         }),
     }))
     .filter((g) => g.items.length > 0);
+}
+
+/**
+ * Файли, завантажені окремо від записів освіти (так було у першій
+ * версії анкети). Щоб вони не зникали з профілю, збираємо їх в окрему
+ * групу наприкінці — але тільки поруч із записами: якщо записів немає
+ * зовсім, сторінка й так показує документи запасним списком.
+ */
+function withLooseDocuments(groups: EducationGroup[], loose: UploadedDocument[]) {
+  const files = publicFiles(loose);
+  if (groups.length === 0 || !files) return groups;
+  return [
+    ...groups,
+    {
+      title: "Документи",
+      items: files.map((f): DiplomaCard => ({ title: "Документ про освіту", files: [f] })),
+    },
+  ];
+}
+
+/**
+ * Мініатюри прикріплених документів. Натискання відкриває оригінал у
+ * новій вкладці: диплом читають збільшеним, а не в картці. Мініатюру
+ * готує оптимізатор зображень — оригінали бувають по 5–6 МБ.
+ */
+function DiplomaFiles({ files, label }: { files: DiplomaFile[]; label: string }) {
+  return (
+    <ul className="mt-3 flex flex-wrap gap-2">
+      {files.map((f) => (
+        <li key={f.url}>
+          <a
+            href={f.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "group block overflow-hidden rounded-lg border border-[#142744]/15 bg-[#F8F4EC] transition-colors hover:border-[#B38B49] motion-reduce:transition-none",
+              focusRing,
+            )}
+          >
+            {f.kind === "image" ? (
+              <Image
+                src={f.url}
+                alt={`Документ: ${label}. Відкрити у повному розмірі`}
+                width={288}
+                height={216}
+                sizes="144px"
+                className="h-[108px] w-[144px] object-cover object-top"
+              />
+            ) : (
+              <span
+                className={`flex h-[108px] w-[144px] flex-col items-center justify-center gap-2 text-[12px] ${ink.muted}`}
+              >
+                <FileText className="h-6 w-6 text-[#876428]" aria-hidden />
+                Відкрити документ
+                <span className="sr-only">: {label}</span>
+              </span>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function seedFromString(s: string) {
@@ -232,7 +331,12 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
       documents: { orderBy: { createdAt: "desc" } },
       education: {
         orderBy: [{ startYear: "desc" }, { createdAt: "asc" }],
-        include: { documents: { select: { status: true } } },
+        include: {
+          documents: {
+            orderBy: { createdAt: "asc" },
+            select: { status: true, fileUrl: true, fileName: true },
+          },
+        },
       },
       user: true,
     },
@@ -276,8 +380,8 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
         `Формат роботи: ${REAL_FORMAT_LABEL[real.sessionFormat].toLowerCase()}, ${real.city}.` +
           (real.workingHours ? ` Графік: ${real.workingHours}.` : ""),
       ],
-      // Публічно показуємо ТЕКСТ освіти (заклад, спеціальність, роки),
-      // а не назви файлів: скани лишаються приватними.
+      // Публічно показуємо текст освіти (заклад, спеціальність, роки)
+      // і прикріплені скани; назви файлів у заголовки не виносимо.
       diplomas: real.documents.map((d): DiplomaCard => {
         const period = d.inProgress
           ? d.yearFrom
@@ -296,9 +400,13 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
           meta: [typeLabel, period].filter(Boolean).join(" · "),
           tags: d.specialization ? [d.specialization] : undefined,
           reviewStatus: d.status === "VERIFIED" ? "reviewed" : "pending",
+          files: publicFiles([d]),
         };
       }),
-      educationGroups: buildEducationGroups(real.education),
+      educationGroups: withLooseDocuments(
+        buildEducationGroups(real.education),
+        real.documents.filter((d) => !d.entryId),
+      ),
       path: [],
       research: [],
       texts: articles.map((a) => ({
@@ -956,6 +1064,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                               Документ перевірено VSI
                             </div>
                           )}
+                          {d.files && <DiplomaFiles files={d.files} label={d.title} />}
                         </div>
                       </div>
                     ))}
@@ -994,6 +1103,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                         ))}
                       </div>
                     )}
+                    {d.files && <DiplomaFiles files={d.files} label={d.title} />}
                   </div>
                 </div>
               ))}

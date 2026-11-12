@@ -144,7 +144,7 @@ export default async function AdminTherapistsPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           {documents.length === 0
             ? "Фахівці ще не завантажували файлів."
-            : `Очікують перевірки: ${waitingTotal} із ${documents.length}. Файли бачите лише ви — у профілі з'являється тільки позначка.`}
+            : `Очікують перевірки: ${waitingTotal} із ${documents.length}. Скани видно у профілі одразу; підтвердження додає позначку, «потрібне уточнення» прибирає файл із профілю.`}
         </p>
 
         {documentGroups.map(([therapistId, group]) => (
