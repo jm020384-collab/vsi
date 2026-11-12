@@ -3,39 +3,53 @@ import Image from "next/image";
 import { Eyebrow, Lead, SectionTitle, Wrap } from "../ui";
 import { GlassPanel } from "../decor";
 
-/* Фірмові іконки-тайли з public/brand/motifs — золоте мереживо на папері */
+/**
+ * Іконки намальовані на власному темно-синьому тлі (кути близько
+ * #071f41), тож секція тримає саме цей глибокий синій, а не світліший
+ * #1C3557: інакше під кожною іконкою читався б темний квадрат.
+ */
 const PILLARS = [
   {
-    icon: "/brand/motifs/ethics.png",
+    icon: "/brand/motifs/ethics-privacy.webp",
     title: "Конфіденційність за замовчуванням",
     body: "Зміст сесій не розголошується. Винятки — лише ті, що прямо передбачені законом і про які вас попереджають на першій зустрічі.",
   },
   {
-    icon: "/brand/motifs/documents.png",
+    icon: "/brand/motifs/ethics-credentials.webp",
     title: "Підтверджена кваліфікація",
     body: "Дипломи, години особистого аналізу, супервізійний стаж і членство у спільнотах перевіряються до публікації профілю.",
   },
   {
-    icon: "/brand/motifs/profile.png",
+    icon: "/brand/motifs/ethics-supervision.webp",
     title: "Обов'язкова супервізія",
-    body: "Кожен фахівець платформи регулярно виносить свою роботу на супервізію. Це умова присутності на vsi, а не побажання.",
+    body: "Кожен фахівець платформи регулярно виносить свою роботу на супервізію. Це умова присутності на vsi.",
   },
   {
-    icon: "/brand/motifs/community.png",
+    icon: "/brand/motifs/ethics-feedback.webp",
     title: "Канал зворотного зв'язку",
-    body: "Якщо межі порушено, ви можете звернутися до етичної комісії. Кожне звернення розглядається, відповідь надходить письмово.",
+    body: "Якщо межі порушено, ви можете звернутися до етичної комісії. Кожне звернення розглядається, відповідь надається письмово.",
   },
 ];
 
+/**
+ * Квадрат файлу розчиняється в тлі секції. Малюнок займає середину,
+ * тож тримаємо його щільним до 82% радіуса і гасимо лише самий край —
+ * інакше золота гілка ліворуч почала б бліднути.
+ */
+const FADE_TO_BACKDROP = {
+  maskImage: "radial-gradient(closest-side circle at 50% 50%, #000 82%, transparent 100%)",
+  WebkitMaskImage: "radial-gradient(closest-side circle at 50% 50%, #000 82%, transparent 100%)",
+} as const;
+
 export function Ethics() {
   return (
-    <section id="ethics" className="relative overflow-hidden bg-[#1C3557]">
+    <section id="ethics" className="relative overflow-hidden bg-[#142744]">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(60% 60% at 85% 15%, rgba(233,222,206,0.12) 0%, transparent 62%)",
+            "radial-gradient(60% 60% at 85% 15%, rgba(233,222,206,0.10) 0%, transparent 62%)",
         }}
       />
 
@@ -63,24 +77,27 @@ export function Ethics() {
             </GlassPanel>
           </div>
 
-          <ul className="border-[#F8F4EC]/12 bg-[#F8F4EC]/12 grid gap-px overflow-hidden rounded-2xl border sm:grid-cols-2">
+          {/*
+            Одна рамка навколо всіх чотирьох пунктів, без внутрішніх ліній:
+            раніше клітинки розділяло мереживо в один піксель, на макеті
+            його немає. Рамка без заливки — щоб іконки лягали просто на
+            тло секції й не утворювали видимих плиток.
+          */}
+          <ul className="grid gap-x-10 gap-y-12 rounded-[28px] border border-[#F8F4EC]/15 p-8 sm:grid-cols-2 lg:p-10">
             {PILLARS.map(({ icon, title, body }) => (
-              <li key={title} className="group bg-[#1C3557] p-7">
-                {/* Паперовий тайл на синьому — мотив плиток бренд-борду */}
-                <span
-                  className="inline-block overflow-hidden rounded-xl border border-[#F8F4EC]/15 transition-colors duration-300 group-hover:border-[#B38B49]/60 motion-reduce:transition-none"
+              <li key={title}>
+                <Image
+                  src={icon}
+                  alt=""
                   aria-hidden
-                >
-                  <Image
-                    src={icon}
-                    alt=""
-                    width={64}
-                    height={64}
-                    className="h-16 w-16 object-cover"
-                  />
-                </span>
+                  width={1254}
+                  height={1254}
+                  sizes="160px"
+                  className="-mb-2 -ml-2 -mt-3 h-[128px] w-[128px]"
+                  style={FADE_TO_BACKDROP}
+                />
                 <h3
-                  className="mt-5 text-xl font-normal leading-snug text-[#F8F4EC]"
+                  className="mt-3 text-xl font-normal leading-snug text-[#F8F4EC]"
                   style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
                 >
                   {title}
