@@ -6,6 +6,12 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import { TherapistReviewCard } from "@/components/admin/therapist-review-card";
 import { TherapistStatusRow } from "@/components/admin/therapist-status-row";
+import { DocumentReviewRow } from "@/components/admin/document-review-row";
+
+function yearsLabel(from: number | null, to: number | null) {
+  if (from && to) return from === to ? `${from}` : `${from}–${to}`;
+  return from ? `з ${from}` : to ? `${to}` : null;
+}
 
 export const metadata: Metadata = { title: "Фахівці · Адмін-панель" };
 
@@ -13,7 +19,7 @@ export default async function AdminTherapistsPage() {
   const session = await auth();
   if (!session?.user || session.user.role !== "ADMIN") redirect("/");
 
-  const [pending, active, suspended] = await Promise.all([
+  const [pending, active, suspended, documents] = await Promise.all([
     prisma.therapistProfile.findMany({
       where: { status: "PENDING", deletedAt: null },
       include: {
@@ -34,7 +40,41 @@ export default async function AdminTherapistsPage() {
       select: { id: true, fullName: true, city: true, user: { select: { email: true } } },
       orderBy: { fullName: "asc" },
     }),
+    // Лише записи з файлом: текстовий опис навчання перевіряти нічим.
+    prisma.verificationDocument.findMany({
+      where: {
+        OR: [{ fileUrl: { not: null } }, { fileKey: { not: null } }],
+        therapist: { deletedAt: null, status: { in: ["PENDING", "APPROVED"] } },
+      },
+      select: {
+        id: true,
+        fileUrl: true,
+        fileName: true,
+        status: true,
+        createdAt: true,
+        institution: true,
+        yearFrom: true,
+        yearTo: true,
+        entry: { select: { title: true, institution: true, startYear: true, endYear: true } },
+        therapist: { select: { id: true, fullName: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
+
+  // Групуємо за фахівцем; ті, у кого є неперевірене, — нагорі.
+  const byTherapist = new Map<string, { fullName: string; docs: typeof documents }>();
+  for (const d of documents) {
+    const group = byTherapist.get(d.therapist.id) ?? { fullName: d.therapist.fullName, docs: [] };
+    group.docs.push(d);
+    byTherapist.set(d.therapist.id, group);
+  }
+  const waiting = (g: { docs: typeof documents }) =>
+    g.docs.filter((d) => d.status === "PENDING").length;
+  const documentGroups = [...byTherapist.entries()].sort(
+    ([, a], [, b]) => waiting(b) - waiting(a) || a.fullName.localeCompare(b.fullName, "uk"),
+  );
+  const waitingTotal = documents.filter((d) => d.status === "PENDING").length;
 
   return (
     <div className="container max-w-4xl py-10">
@@ -92,6 +132,57 @@ export default async function AdminTherapistsPage() {
             />
           ))}
         </div>
+      </section>
+
+      {/*
+        Перевірка дипломів окремо від схвалення анкети: файли додають і
+        вже схвалені фахівці, а позначка «Документ перевірено VSI» у
+        публічному профілі з'являється лише після рішення тут.
+      */}
+      <section className="mt-14">
+        <h2 className="text-xl font-semibold">Документи про освіту</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {documents.length === 0
+            ? "Фахівці ще не завантажували файлів."
+            : `Очікують перевірки: ${waitingTotal} із ${documents.length}. Файли бачите лише ви — у профілі з'являється тільки позначка.`}
+        </p>
+
+        {documentGroups.map(([therapistId, group]) => (
+          <Card key={therapistId} className="mt-6">
+            <CardContent className="pt-6">
+              <h3 className="text-sm font-semibold">{group.fullName}</h3>
+              <ul className="mt-1">
+                {group.docs.map((d) => (
+                  <DocumentReviewRow
+                    key={d.id}
+                    doc={{
+                      id: d.id,
+                      label:
+                        d.entry?.title ??
+                        d.entry?.institution ??
+                        d.institution ??
+                        d.fileName ??
+                        "Документ",
+                      attached: !!d.entry,
+                      detail: d.entry
+                        ? [
+                            d.entry.title ? d.entry.institution : null,
+                            yearsLabel(d.entry.startYear, d.entry.endYear),
+                          ]
+                            .filter(Boolean)
+                            .join(" · ") || null
+                        : yearsLabel(d.yearFrom, d.yearTo),
+                      fileUrl: d.fileUrl,
+                      fileName: d.fileName,
+                      status: d.status,
+                      uploadedAt: d.createdAt.toISOString(),
+                    }}
+                  />
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        ))}
       </section>
 
       <section className="mt-14">
