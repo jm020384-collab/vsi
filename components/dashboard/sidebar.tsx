@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BarChart3,
   LayoutGrid,
   User,
   FileText,
@@ -44,6 +45,7 @@ const NAV: NavItem[] = [
 
 const ADMIN_NAV: NavItem[] = [
   { href: "/admin", label: "Огляд адміністрування", icon: ShieldCheck },
+  { href: "/admin/stats", label: "Статистика відвідувань", icon: BarChart3 },
   { href: "/admin/therapists", label: "Фахівці й каталог", icon: Users },
   { href: "/admin/articles", label: "Статті на перевірці", icon: FileText },
   { href: "/admin/reviews", label: "Відгуки на модерації", icon: Inbox },
