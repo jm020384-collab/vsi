@@ -21,6 +21,7 @@ import {
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { pickBaseEducation } from "@/lib/education-base";
 import { cn } from "@/lib/utils";
 import { AvatarPortrait } from "@/components/preview/vsi/decor";
 import { ContactRequestForm } from "@/components/preview/vsi/contact-request-form";
@@ -370,7 +371,7 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
       verified: real.status === "APPROVED",
       approaches: real.approaches,
       ageGroups: real.ageGroups.map((g) => REAL_AGE_GROUP_LABEL[g] ?? g),
-      educationSummary: real.education[0]?.institution ?? null,
+      educationSummary: pickBaseEducation(real.education)?.institution ?? null,
       lead: real.analyticalOrientation,
       availability: real.workingHours,
       socialSupport: real.participatesInSocialSupport,

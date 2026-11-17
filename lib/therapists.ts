@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 
 import { prisma } from "@/lib/db";
+import { pickBaseEducation, type EducationCandidate } from "@/lib/education-base";
 import {
   type AgeGroup,
   type Format,
@@ -23,22 +24,18 @@ const WORK_FORMAT_MAP: Record<string, WorkFormat> = {
 
 const NEW_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
-type EducationRow = { kind: string; institution: string | null; title: string | null };
-
 /**
  * Рядок освіти для картки каталогу.
  *
- * Базовим вважаємо перший запис виду EDUCATION — вища освіта. Якщо
- * її немає (буває у фахівців із профільною перепідготовкою), беремо
- * перший запис із заповненим закладом. Решта згортається в лічильник:
- * повний перелік лишається в профілі, картка його не вмістить.
+ * Базовим вважаємо університет, де фахівець здобув вищу освіту за
+ * психологією (правило — у pickBaseEducation). Решта згортається в
+ * лічильник: повний перелік лишається в профілі, картка його не вмістить.
  *
  * Скани сюди не потрапляють навмисно: вони показуються в профілі,
  * а картці каталогу потрібен лише рядок тексту.
  */
-function educationLine(rows: EducationRow[]) {
-  const base =
-    rows.find((e) => e.kind === "EDUCATION" && e.institution) ?? rows.find((e) => e.institution);
+function educationLine(rows: EducationCandidate[]) {
+  const base = pickBaseEducation(rows);
   if (!base?.institution) return undefined;
   return { institution: base.institution, extra: rows.length - 1 };
 }
@@ -59,7 +56,13 @@ export async function loadTherapists(): Promise<Therapist[]> {
       languages: { include: { language: true } },
       education: {
         orderBy: [{ startYear: "desc" }, { createdAt: "asc" }],
-        select: { kind: true, institution: true, title: true },
+        select: {
+          kind: true,
+          institution: true,
+          degree: true,
+          specialization: true,
+          faculty: true,
+        },
       },
     },
     orderBy: { publishedAt: "desc" },
