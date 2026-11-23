@@ -135,9 +135,9 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
         (view === "research" && specialistSpace(t).research.length > 0);
       return okQ && okAge && okWork && okMeeting && okLang && okCity && okAvail && okView;
     });
-    // Порядок навмисно редакційний: без «за релевантністю» чи «за ціною» —
-    // просто природний, кураторський порядок появи у списку фахівців
-    // (реальні профілі йдуть першими — див. page.tsx).
+    // Порядок навмисно випадковий: без «за релевантністю» чи «за ціною».
+    // Його тасує сервер на кожне відкриття сторінки (див. page.tsx), а
+    // тут він лише зберігається, щоб картки не стрибали при фільтрації.
   }, [therapists, q, view, ageGroup, workFormat, meeting, lang, city, onlyAvailable]);
 
   const resetRefined = () => {

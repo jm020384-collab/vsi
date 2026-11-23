@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { shuffle } from "@/lib/shuffle";
 import { Wrap } from "../ui";
 import { AvatarPortrait } from "../decor";
 import type { Therapist } from "../data";
@@ -103,8 +104,7 @@ function TopicGlyph({ topic }: { topic: string }) {
  *
  * На картці немає ні цін, ні рейтингів, ні кнопки «забронювати»: на
  * головній ідеться про знайомство, а не про вибір за прайсом.
- */
-/**
+ *
  * Порядок фахівців тасується на кожен запит.
  *
  * На головній вміщаються лише троє, а фахівців більше — при фіксованому
@@ -112,17 +112,6 @@ function TopicGlyph({ topic }: { topic: string }) {
  * на кожен запит (кореневий layout читає сесію), тож тасування нічого не
  * ламає в кешуванні: кешується список із бази, а не вибір із нього.
  */
-function shuffle(list: Therapist[]): Therapist[] {
-  const pool = [...list];
-  for (let i = pool.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const held = pool[i]!;
-    pool[i] = pool[j]!;
-    pool[j] = held;
-  }
-  return pool;
-}
-
 export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
   const items = shuffle(therapists).slice(0, COUNT);
   if (items.length === 0) return null;
