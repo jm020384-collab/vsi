@@ -12,6 +12,7 @@ import { Closing } from "@/components/preview/vsi/sections/closing";
 import { PaperTexture } from "@/components/preview/vsi/decor";
 import { loadTherapistsCached } from "@/lib/therapists";
 import { loadPublishedMaterials } from "@/lib/materials";
+import { shuffle } from "@/lib/shuffle";
 
 /**
  * Головна сторінка «vsi» — за макетом користувача.
@@ -23,10 +24,11 @@ import { loadPublishedMaterials } from "@/lib/materials";
  * потоком. Завершує сторінку слоган бренду.
  */
 export default async function HomePage() {
-  const [therapists, materials] = await Promise.all([
-    loadTherapistsCached(),
-    loadPublishedMaterials(3),
-  ]);
+  const [therapists, texts] = await Promise.all([loadTherapistsCached(), loadPublishedMaterials()]);
+  // Тексти, як і фахівці, на кожне відкриття йдуть у випадковому порядку:
+  // рядок показує лише три, і за фіксованого порядку решта не потрапила б
+  // на головну ніколи.
+  const materials = shuffle(texts);
 
   return (
     <div className="relative">

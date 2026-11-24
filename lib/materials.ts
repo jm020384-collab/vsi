@@ -13,7 +13,7 @@ const CATEGORY_SET = new Set<string>(LIBRARY_CATEGORIES);
  * Автор підписується іменем із профілю фахівця, а не іменем акаунта:
  * акаунт може називатися як завгодно (латиницею, одним ім'ям).
  */
-export async function loadPublishedMaterials(limit?: number): Promise<Material[]> {
+export async function loadPublishedMaterials(): Promise<Material[]> {
   const articles = await prisma.article.findMany({
     where: { status: "PUBLISHED", deletedAt: null },
     include: {
@@ -21,7 +21,6 @@ export async function loadPublishedMaterials(limit?: number): Promise<Material[]
       tags: { include: { tag: true } },
     },
     orderBy: { publishedAt: "desc" },
-    ...(limit ? { take: limit } : {}),
   });
 
   return articles.map((a) => ({

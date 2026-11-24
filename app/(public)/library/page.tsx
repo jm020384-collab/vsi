@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { loadPublishedMaterials } from "@/lib/materials";
+import { shuffle } from "@/lib/shuffle";
 import { LibraryClient } from "./library-client";
 
 export const metadata: Metadata = {
@@ -10,5 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function LibraryPage() {
-  return <LibraryClient materials={await loadPublishedMaterials()} />;
+  // Порядок випадковий на кожне відкриття: інакше завжди першими лишалися б
+  // найновіші тексти. Фільтр за темою порядок не міняє, лише відсіює.
+  return <LibraryClient materials={shuffle(await loadPublishedMaterials())} />;
 }
