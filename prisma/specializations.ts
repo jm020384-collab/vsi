@@ -117,11 +117,6 @@ export const SPECIALIZATIONS: SpecializationSeed[] = [
     description: "Робота з архетипічними образами, міфами, казками та символічним матеріалом",
   },
   {
-    slug: "active-imagination",
-    nameUk: "Активна уява",
-    description: "Діалог із внутрішніми образами, робота з фантазіями",
-  },
-  {
     slug: "spirituality",
     nameUk: "Духовні та релігійні питання",
     description: "Переживання сакрального, духовні кризи, пошук віри",
@@ -160,23 +155,13 @@ export const SPECIALIZATIONS: SpecializationSeed[] = [
   // ── Стосунки та родина ──────────────────────────────────────────────────
   {
     slug: "couple-crisis",
-    nameUk: "Криза в парі",
-    description: "Конфлікти, віддалення, пошук шляху до близькості",
+    nameUk: "Близькі особисті стосунки",
+    description: "Партнерство, близькість і довіра, ревнощі, зрада, конфлікти й віддалення",
   },
   {
     slug: "divorce",
     nameUk: "Розлучення та розрив стосунків",
     description: "Переживання розриву, життя після нього",
-  },
-  {
-    slug: "infidelity",
-    nameUk: "Зрада, недовіра та ревнощі",
-    description: "Наслідки зради, відновлення довіри, ревнощі",
-  },
-  {
-    slug: "family-conflicts",
-    nameUk: "Сімейні конфлікти",
-    description: "Напруга й непорозуміння в родині, між поколіннями",
   },
   {
     slug: "adult-parents",
@@ -231,19 +216,9 @@ export const SPECIALIZATIONS: SpecializationSeed[] = [
 
   // ── Емоції та стани ─────────────────────────────────────────────────────
   {
-    slug: "panic",
-    nameUk: "Панічні атаки",
-    description: "Напади паніки, страх втрати контролю",
-  },
-  {
     slug: "social-anxiety",
     nameUk: "Соціальна тривога",
     description: "Страх оцінки, напруга й сором у спілкуванні",
-  },
-  {
-    slug: "fears",
-    nameUk: "Страхи та фобії",
-    description: "Конкретні страхи, що обмежують життя",
   },
   {
     slug: "anger",
@@ -261,21 +236,6 @@ export const SPECIALIZATIONS: SpecializationSeed[] = [
     description: "Внутрішній критик, страх помилок, вимогливість до себе",
   },
   {
-    slug: "emotion-regulation",
-    nameUk: "Емоційна регуляція",
-    description: "Перепади настрою, важкість упоратися з сильними емоціями",
-  },
-  {
-    slug: "high-sensitivity",
-    nameUk: "Висока чутливість",
-    description: "Надчутливість до подразників і чужих настроїв, емпатійна перевтома",
-  },
-  {
-    slug: "sleep",
-    nameUk: "Безсоння та порушення сну",
-    description: "Тривоги вночі, нічні жахи, складнощі зі сном",
-  },
-  {
     slug: "body-image",
     nameUk: "Образ тіла та тілесність",
     description: "Сприйняття тіла, прийняття змін, тілесні відчуття",
@@ -289,11 +249,6 @@ export const SPECIALIZATIONS: SpecializationSeed[] = [
     slug: "dissociation",
     nameUk: "Дисоціація",
     description: "Відчуття відчуженості від себе та реальності",
-  },
-  {
-    slug: "narcissism",
-    nameUk: "Нарцисичні труднощі",
-    description: "Вразливість самооцінки, грандіозність і порожнеча",
   },
 
   // ── Травма, війна, втрата ───────────────────────────────────────────────
@@ -329,29 +284,4 @@ export const SPECIALIZATIONS: SpecializationSeed[] = [
   },
 
   // ── Робота та життєві вибори ────────────────────────────────────────────
-  {
-    slug: "work-stress",
-    nameUk: "Стрес і конфлікти на роботі",
-    description: "Напруга в колективі, конфлікти з керівництвом, перевантаження",
-  },
-  {
-    slug: "procrastination",
-    nameUk: "Прокрастинація та мотивація",
-    description: "Відкладання справ, втрата інтересу, внутрішній опір",
-  },
-  {
-    slug: "decisions",
-    nameUk: "Прийняття рішень і життєвий вибір",
-    description: "Розвилки, вибір шляху, страх помилитися",
-  },
-  {
-    slug: "money-success",
-    nameUk: "Гроші та успіх",
-    description: "Ставлення до грошей, страх успіху чи невдачі",
-  },
-  {
-    slug: "digital-addiction",
-    nameUk: "Цифрові та ігрові залежності",
-    description: "Телефон, ігри, соцмережі, азартні ігри",
-  },
 ];
