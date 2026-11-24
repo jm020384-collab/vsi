@@ -15,7 +15,8 @@ import {
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { cn } from "@/lib/utils";
-import { EVENTS, FORMAT_LABEL } from "@/components/preview/vsi/data";
+import { FORMAT_LABEL } from "@/components/preview/vsi/data";
+import { EVENT_FORMAT, EVENT_TYPE_LABEL } from "@/lib/events";
 import { EventInterestButtons } from "@/components/preview/vsi/event-interest-buttons";
 import { featherEdgesSoft, focusRing, ink, serif } from "@/components/preview/vsi/theme";
 import { registrationClosedReason } from "@/lib/event-registration";
@@ -33,27 +34,9 @@ const HERO_NOTES = [
   { icon: Layers, lines: ["Практичний", "досвід"] },
 ];
 
-const EVENT_TYPE_LABEL: Record<string, string> = {
-  LECTURE: "Лекція",
-  SEMINAR: "Семінар",
-  CONFERENCE: "Конференція",
-  SUPERVISION_GROUP: "Супервізійна група",
-  INTERVISION_GROUP: "Інтервізійна група",
-  READING_GROUP: "Читацька група",
-  TRAINING_PROGRAM: "Навчальна програма",
-  WORKSHOP: "Воркшоп",
-};
-
-const REAL_FORMAT: Record<"ONLINE" | "OFFLINE" | "BOTH", "online" | "offline" | "both"> = {
-  ONLINE: "online",
-  OFFLINE: "offline",
-  BOTH: "both",
-};
-
 interface EventViewModel {
   id: string;
   slug: string | null;
-  isReal: boolean;
   typeLabel: string;
   title: string;
   description: string;
@@ -98,13 +81,12 @@ async function loadEvents(): Promise<{ events: EventViewModel[]; isLoggedIn: boo
   const realVms: EventViewModel[] = real.map((e) => ({
     id: e.id,
     slug: e.slug,
-    isReal: true,
     typeLabel: EVENT_TYPE_LABEL[e.type] ?? e.type,
     title: e.title,
     description: e.description,
     imageUrl: e.imageUrl,
     dateLabel: scheduleLabel(e),
-    format: REAL_FORMAT[e.format],
+    format: EVENT_FORMAT[e.format],
     seatsLeft: e.seatsTotal ? Math.max(0, e.seatsTotal - e._count.registrations) : null,
     seatsTotal: e.seatsTotal,
     closedReason: registrationClosedReason(e, e._count.registrations),
@@ -117,29 +99,7 @@ async function loadEvents(): Promise<{ events: EventViewModel[]; isLoggedIn: boo
     price: e.price,
   }));
 
-  const demoVms: EventViewModel[] = EVENTS.map((e) => ({
-    id: e.id,
-    slug: null,
-    isReal: false,
-    typeLabel: e.type,
-    title: e.title,
-    description: e.description,
-    imageUrl: null,
-    dateLabel: e.date,
-    format: e.format,
-    seatsLeft: e.seatsLeft,
-    seatsTotal: e.seatsTotal,
-    closedReason: e.seatsLeft === 0 ? "full" : null,
-    leadLabel: e.lead,
-    leadSlug: null,
-    myStatus: null,
-    contactName: null,
-    contactEmail: null,
-    contactPhone: null,
-    price: null,
-  }));
-
-  return { events: [...realVms, ...demoVms], isLoggedIn: !!session?.user };
+  return { events: realVms, isLoggedIn: !!session?.user };
 }
 
 export default async function EventsPage() {
@@ -216,6 +176,15 @@ export default async function EventsPage() {
           style={featherEdgesSoft}
         />
       </section>
+
+      {events.length === 0 && (
+        <div className="mt-14 rounded-2xl border border-dashed border-[#142744]/20 bg-[#FFFDF8]/60 px-6 py-14 text-center">
+          <p className={cn("mx-auto max-w-md text-[15px] leading-relaxed", ink.muted)}>
+            Найближчих подій поки немає. Щойно фахівці оголосять нові групи й семінари, вони
+            з'являться тут.
+          </p>
+        </div>
+      )}
 
       <ul id="events-list" className="mt-14 grid scroll-mt-28 gap-5 md:grid-cols-2">
         {events.map((e) => {
@@ -342,14 +311,12 @@ export default async function EventsPage() {
                   </div>
                 )}
 
-                {e.isReal && (
-                  <EventInterestButtons
-                    eventId={e.id}
-                    initialStatus={e.myStatus}
-                    isLoggedIn={isLoggedIn}
-                    closedReason={e.closedReason}
-                  />
-                )}
+                <EventInterestButtons
+                  eventId={e.id}
+                  initialStatus={e.myStatus}
+                  isLoggedIn={isLoggedIn}
+                  closedReason={e.closedReason}
+                />
               </div>
             </li>
           );

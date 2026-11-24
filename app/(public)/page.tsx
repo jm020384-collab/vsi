@@ -12,6 +12,7 @@ import { Closing } from "@/components/preview/vsi/sections/closing";
 import { PaperTexture } from "@/components/preview/vsi/decor";
 import { loadTherapistsCached } from "@/lib/therapists";
 import { loadPublishedMaterials } from "@/lib/materials";
+import { loadUpcomingEvents } from "@/lib/events";
 import { shuffle } from "@/lib/shuffle";
 
 /**
@@ -24,7 +25,11 @@ import { shuffle } from "@/lib/shuffle";
  * потоком. Завершує сторінку слоган бренду.
  */
 export default async function HomePage() {
-  const [therapists, texts] = await Promise.all([loadTherapistsCached(), loadPublishedMaterials()]);
+  const [therapists, texts, events] = await Promise.all([
+    loadTherapistsCached(),
+    loadPublishedMaterials(),
+    loadUpcomingEvents(),
+  ]);
   // Тексти, як і фахівці, на кожне відкриття йдуть у випадковому порядку:
   // рядок показує лише три, і за фіксованого порядку решта не потрапила б
   // на головну ніколи.
@@ -43,7 +48,7 @@ export default async function HomePage() {
         <SpecialistsRow therapists={therapists} />
         <TextsRow materials={materials} />
         <ForProfessionals />
-        <EventsRow />
+        <EventsRow events={events} />
         <Approach />
         <HowToChoose />
         <QuoteBand />

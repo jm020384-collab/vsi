@@ -149,55 +149,33 @@ export interface GroupEvent {
   lead: string;
 }
 
-export const EVENTS: GroupEvent[] = [
-  {
-    id: "e1",
-    type: "Група",
-    title: "Аналітична група: робота зі сновидіннями",
-    description:
-      "Закрита група на 8 учасників. Щотижнева робота зі сновидним матеріалом у груповому полі.",
-    date: "Щосереди, 19:00",
-    format: "online",
-    seatsLeft: 2,
-    seatsTotal: 8,
-    lead: "Оксана Левченко",
-  },
-  {
-    id: "e2",
-    type: "Семінар",
-    title: "Вступ до аналітичної психології",
-    description:
-      "Чотири зустрічі для тих, хто розглядає терапію або навчання. Без попередньої підготовки.",
-    date: "12 вересня, 18:30",
-    format: "both",
-    seatsLeft: 14,
-    seatsTotal: 30,
-    lead: "Ігор Ткаченко",
-  },
-  {
-    id: "e3",
-    type: "Інтенсив",
-    title: "Супервізійна група для практиків",
-    description: "Для фахівців із власною практикою. Розбір випадків у форматі малої групи.",
-    date: "5–6 жовтня",
-    format: "offline",
-    seatsLeft: 0,
-    seatsTotal: 12,
-    lead: "Ігор Ткаченко",
-  },
-  {
-    id: "e4",
-    type: "Група",
-    title: "Простір проживання втрати",
-    description:
-      "Закрита група для тих, хто переживає втрату близької людини. Повільний темп, безпечні межі, супровід двох ведучих.",
-    date: "Щовівторка, 18:30",
-    format: "online",
-    seatsLeft: 3,
-    seatsTotal: 8,
-    lead: "Оксана Левченко",
-  },
-];
+/**
+ * Демо-події прибрано: на сайті лише події, які оголосили фахівці.
+ * Справжні беруться з бази — lib/events.ts. Порожній масив лишено тільки
+ * для прототипів у /preview, які його ще імпортують.
+ */
+export const EVENTS: GroupEvent[] = [];
+
+/** Публічна подія з бази — те, що показують головна, теми й сторінка подій. */
+export interface PublicEvent {
+  id: string;
+  slug: string;
+  typeLabel: string;
+  title: string;
+  description: string;
+  /** Повний підпис розкладу: «Щосереди о 18:30, з 20 вересня». */
+  dateLabel: string;
+  /** День і місяць — лише в одноразових подій. */
+  day?: string;
+  month?: string;
+  /** Короткий розклад для плитки дати, коли дня немає: «Щосереди». */
+  shortWhen: string;
+  format: Format;
+  seatsTotal: number | null;
+  seatsLeft: number | null;
+  closedReason: "closed" | "full" | null;
+  lead: string;
+}
 
 /* ── Тематичні входи ────────────────────────────────────────── */
 
@@ -622,9 +600,13 @@ export function findTheme(
 /**
  * Увесь контент платформи, що відповідає темі.
  *
- * Тексти передаються окремо: вони живуть у базі, а не в цьому файлі.
+ * Тексти й події передаються окремо: вони живуть у базі, а не в цьому файлі.
  */
-export function themeContent(entry: ThemeEntry, texts: Material[] = []) {
+export function themeContent(
+  entry: ThemeEntry,
+  texts: Material[] = [],
+  upcoming: PublicEvent[] = [],
+) {
   const stems = entry.match.map((s) => s.toLowerCase());
   const hits = (text: string) => {
     const l = text.toLowerCase();
@@ -633,7 +615,7 @@ export function themeContent(entry: ThemeEntry, texts: Material[] = []) {
 
   const therapists = THERAPISTS.filter((t) => hits([...t.topics, t.approach].join(" ")));
   const materials = texts.filter((m) => hits(`${m.title} ${m.excerpt}`));
-  const events = EVENTS.filter((e) => hits(`${e.title} ${e.description}`));
+  const events = upcoming.filter((e) => hits(`${e.title} ${e.description}`));
 
   const articles = materials.filter((m) =>
     ["Стаття", "Розбір", "Словник", "Дослідження"].includes(m.kind),

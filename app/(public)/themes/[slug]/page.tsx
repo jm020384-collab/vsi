@@ -17,6 +17,7 @@ import { analyticNote } from "@/components/preview/vsi/analytic-notes";
 import { TherapistCard } from "@/components/preview/vsi/therapist-card";
 import { findTheme, themeContent, FORMAT_LABEL, THEMES } from "@/components/preview/vsi/data";
 import { loadPublishedMaterials } from "@/lib/materials";
+import { loadUpcomingEvents } from "@/lib/events";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
 
 interface PageProps {
@@ -54,10 +55,8 @@ export default async function ThemePage({ params }: PageProps) {
 
   const { entry, parent, subthemes } = found;
   const note = analyticNote(entry.slug);
-  const { therapists, articles, lectures, events } = themeContent(
-    entry,
-    await loadPublishedMaterials(),
-  );
+  const [texts, upcoming] = await Promise.all([loadPublishedMaterials(), loadUpcomingEvents()]);
+  const { therapists, articles, lectures, events } = themeContent(entry, texts, upcoming);
 
   const counts = [
     therapists.length && `${therapists.length} фахівців`,
@@ -271,21 +270,27 @@ export default async function ThemePage({ params }: PageProps) {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="inline-flex items-center rounded-full bg-[#1C3557]/[0.08] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.1em] text-[#1C3557]">
-                      {e.type}
+                      {e.typeLabel}
                     </span>
-                    {full ? (
-                      <span className="text-xs font-medium text-[#8A4B33]">Місць немає</span>
-                    ) : (
-                      <span className="text-xs font-medium text-[#245A41]">
-                        Вільно {e.seatsLeft} з {e.seatsTotal}
-                      </span>
-                    )}
+                    {e.closedReason === "closed" ? (
+                      <span className="text-xs font-medium text-[#876428]">Запис закрито</span>
+                    ) : e.seatsTotal !== null && e.seatsLeft !== null ? (
+                      full ? (
+                        <span className="text-xs font-medium text-[#8A4B33]">Місць немає</span>
+                      ) : (
+                        <span className="text-xs font-medium text-[#245A41]">
+                          Вільно {e.seatsLeft} з {e.seatsTotal}
+                        </span>
+                      )
+                    ) : null}
                   </div>
                   <h3
                     className={cn("mt-3 text-xl font-normal leading-snug", ink.strong)}
                     style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
                   >
-                    {e.title}
+                    <Link href={`/events#${e.slug}`} className="hover:underline">
+                      {e.title}
+                    </Link>
                   </h3>
                   <p className={cn("mt-2 flex-1 text-[14px] leading-relaxed", ink.muted)}>
                     {e.description}
@@ -294,7 +299,7 @@ export default async function ThemePage({ params }: PageProps) {
                     <div className="flex items-center gap-1.5">
                       <dt className="sr-only">Дата</dt>
                       <CalendarDays className="h-4 w-4 text-[#5C6672]" aria-hidden />
-                      <dd>{e.date}</dd>
+                      <dd>{e.dateLabel}</dd>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <dt className="sr-only">Формат</dt>

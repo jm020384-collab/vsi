@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { loadPublishedMaterials } from "@/lib/materials";
+import { loadUpcomingEvents } from "@/lib/events";
 import { ThemeGlyph } from "@/components/preview/vsi/sections/themes";
 import { THEMES, findTheme, themeContent } from "@/components/preview/vsi/data";
 import { focusRing, ink } from "@/components/preview/vsi/theme";
@@ -32,7 +33,7 @@ const CROSSINGS: [string, string][] = [
  * живі посилання; внизу — «перетини», рух між кластерами.
  */
 export default async function ExplorePage() {
-  const texts = await loadPublishedMaterials();
+  const [texts, upcoming] = await Promise.all([loadPublishedMaterials(), loadUpcomingEvents()]);
   return (
     <div className="relative overflow-hidden">
       {/* Тонкі орбіти, що зв'язують кластери */}
@@ -96,7 +97,7 @@ export default async function ExplorePage() {
         {/* ── Кластери у зміщеній редакційній сітці ── */}
         <div className="mt-14 grid gap-x-10 gap-y-12 lg:grid-cols-12">
           {THEMES.map((theme, i) => {
-            const c = themeContent(theme, texts);
+            const c = themeContent(theme, texts, upcoming);
             const total =
               c.therapists.length + c.articles.length + c.lectures.length + c.events.length;
             // Зміщення колонок — мапа, а не таблиця; картки в одному ряду
