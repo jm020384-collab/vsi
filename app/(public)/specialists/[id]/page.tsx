@@ -526,8 +526,6 @@ const SECTIONS = [
   { id: "events", label: "Події" },
   { id: "research", label: "Досліджую" },
   { id: "path", label: "Освіта" },
-  { id: "conditions", label: "Умови роботи" },
-  { id: "contact", label: "Контакт" },
 ] as const;
 
 function SectionTitleRow({ id, children }: { id: string; children: React.ReactNode }) {
@@ -758,6 +756,112 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                 {vm.acceptingNew ? "Приймає нових клієнтів" : "У листі очікування"}
               </p>
             </div>
+
+            {/*
+              Умови роботи й форма запису — одразу під кнопкою «Записатися»:
+              це основне, що людині треба знати, щоб вирішити, чи писати.
+              Кнопка веде якорем #contact сюди ж, на форму нижче.
+            */}
+            <section aria-labelledby="conditions" className="mt-10 max-w-xl">
+              <SectionTitleRow id="conditions">Умови роботи</SectionTitleRow>
+              <dl className={`mt-4 space-y-3 text-[15px] ${ink.body}`}>
+                <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
+                  <dt className={ink.soft}>Формат</dt>
+                  <dd className="text-right">{vm.formatLabel}</dd>
+                </div>
+                {vm.city && (
+                  <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
+                    <dt className={ink.soft}>Місто</dt>
+                    <dd>{vm.city}</dd>
+                  </div>
+                )}
+                {vm.languages.length > 0 && (
+                  <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
+                    <dt className={ink.soft}>Мови</dt>
+                    <dd className="text-right">{vm.languages.join(", ")}</dd>
+                  </div>
+                )}
+                {vm.sessionMinutes && (
+                  <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
+                    <dt className={ink.soft}>Тривалість</dt>
+                    <dd>{vm.sessionMinutes} хв</dd>
+                  </div>
+                )}
+                <div className="flex justify-between gap-4">
+                  <dt className={ink.soft}>Вартість</dt>
+                  <dd>
+                    від {vm.priceFrom.toLocaleString("uk-UA")} {vm.currency}
+                  </dd>
+                </div>
+                {(vm.website || vm.socialLinks.length > 0) && (
+                  <div className="flex justify-between gap-4 border-t border-[#142744]/[0.07] pt-2.5">
+                    <dt className={ink.soft}>Онлайн</dt>
+                    <dd className="flex flex-col items-end gap-1 text-right">
+                      {vm.website && (
+                        <a
+                          href={vm.website}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="underline underline-offset-2"
+                        >
+                          {vm.website.replace(/^https?:\/\//, "")}
+                        </a>
+                      )}
+                      {vm.socialLinks.map((url) => (
+                        <a
+                          key={url}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="underline underline-offset-2"
+                        >
+                          {url.replace(/^https?:\/\//, "")}
+                        </a>
+                      ))}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </section>
+
+            <section aria-labelledby="contact" className="mt-12 max-w-xl scroll-mt-40">
+              <SectionTitleRow id="contact">Контакт</SectionTitleRow>
+
+              {vm.isOwner ? (
+                <p className={`mt-4 text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
+                  Це ваш власний простір — заявки від клієнтів зʼявляться в{" "}
+                  <Link href="/dashboard/requests" className={cn("underline", focusRing)}>
+                    кабінеті
+                  </Link>
+                  .
+                </p>
+              ) : vm.isReal && vm.acceptsRequestsViaVsi ? (
+                <>
+                  <p className={`mt-4 text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
+                    {vm.acceptingNew
+                      ? "Фахівець приймає нових клієнтів. Залиште заявку через VSI — це не бронювання, а запрошення до першого листування."
+                      : "Наразі фахівець веде лист очікування. Заявку можна залишити — ми повідомимо, щойно зʼявиться місце."}
+                  </p>
+                  <ContactRequestForm therapistSlug={id} />
+                  <p className={`mt-3 text-[12px] leading-relaxed ${ink.soft}`}>
+                    Відповідь зазвичай протягом двох робочих днів
+                  </p>
+                </>
+              ) : vm.isReal ? (
+                <p className={`mt-4 text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
+                  Цей фахівець наразі не приймає звернення через VSI.
+                  {vm.city && " Контакти можна знайти в описі вище."}
+                </p>
+              ) : (
+                <p className={`mt-4 text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
+                  {vm.acceptingNew
+                    ? "Фахівець приймає нових клієнтів."
+                    : "Наразі фахівець веде лист очікування."}{" "}
+                  Ця сторінка — демонстраційна; форма звернення зʼявиться, щойно фахівець
+                  зареєструється на VSI.
+                </p>
+              )}
+            </section>
           </div>
         </div>
 
@@ -1132,109 +1236,6 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                 ? "Додайте дипломи чи сертифікати в анкеті — вони зʼявляться тут."
                 : "Освіта й професійний шлях додаються."}
             </PendingSection>
-          )}
-        </section>
-
-        {/* Умови роботи — факти, не central CTA-панель */}
-        <section aria-labelledby="conditions">
-          <SectionTitleRow id="conditions">Умови роботи</SectionTitleRow>
-          <dl className={`mt-4 max-w-md space-y-3 text-[15px] ${ink.body}`}>
-            <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
-              <dt className={ink.soft}>Формат</dt>
-              <dd className="text-right">{vm.formatLabel}</dd>
-            </div>
-            {vm.city && (
-              <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
-                <dt className={ink.soft}>Місто</dt>
-                <dd>{vm.city}</dd>
-              </div>
-            )}
-            {vm.languages.length > 0 && (
-              <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
-                <dt className={ink.soft}>Мови</dt>
-                <dd className="text-right">{vm.languages.join(", ")}</dd>
-              </div>
-            )}
-            {vm.sessionMinutes && (
-              <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
-                <dt className={ink.soft}>Тривалість</dt>
-                <dd>{vm.sessionMinutes} хв</dd>
-              </div>
-            )}
-            <div className="flex justify-between gap-4">
-              <dt className={ink.soft}>Вартість</dt>
-              <dd>
-                від {vm.priceFrom.toLocaleString("uk-UA")} {vm.currency}
-              </dd>
-            </div>
-            {(vm.website || vm.socialLinks.length > 0) && (
-              <div className="flex justify-between gap-4 border-t border-[#142744]/[0.07] pt-2.5">
-                <dt className={ink.soft}>Онлайн</dt>
-                <dd className="flex flex-col items-end gap-1 text-right">
-                  {vm.website && (
-                    <a
-                      href={vm.website}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="underline underline-offset-2"
-                    >
-                      {vm.website.replace(/^https?:\/\//, "")}
-                    </a>
-                  )}
-                  {vm.socialLinks.map((url) => (
-                    <a
-                      key={url}
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="underline underline-offset-2"
-                    >
-                      {url.replace(/^https?:\/\//, "")}
-                    </a>
-                  ))}
-                </dd>
-              </div>
-            )}
-          </dl>
-        </section>
-
-        {/* Контакт — завершує знайомство, свідомо останній розділ */}
-        <section aria-labelledby="contact" className="scroll-mt-40">
-          <SectionTitleRow id="contact">Контакт</SectionTitleRow>
-
-          {vm.isOwner ? (
-            <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
-              Це ваш власний простір — заявки від клієнтів зʼявляться в{" "}
-              <Link href="/dashboard/requests" className={cn("underline", focusRing)}>
-                кабінеті
-              </Link>
-              .
-            </p>
-          ) : vm.isReal && vm.acceptsRequestsViaVsi ? (
-            <>
-              <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
-                {vm.acceptingNew
-                  ? "Фахівець приймає нових клієнтів. Залиште заявку через VSI — це не бронювання, а запрошення до першого листування."
-                  : "Наразі фахівець веде лист очікування. Заявку можна залишити — ми повідомимо, щойно зʼявиться місце."}
-              </p>
-              <ContactRequestForm therapistSlug={id} />
-              <p className={`mt-3 text-[12px] leading-relaxed ${ink.soft}`}>
-                Відповідь зазвичай протягом двох робочих днів
-              </p>
-            </>
-          ) : vm.isReal ? (
-            <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
-              Цей фахівець наразі не приймає звернення через VSI.
-              {vm.city && " Контакти можна знайти в описі вище."}
-            </p>
-          ) : (
-            <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
-              {vm.acceptingNew
-                ? "Фахівець приймає нових клієнтів."
-                : "Наразі фахівець веде лист очікування."}{" "}
-              Ця сторінка — демонстраційна; форма звернення зʼявиться, щойно фахівець зареєструється
-              на VSI.
-            </p>
           )}
         </section>
       </div>
