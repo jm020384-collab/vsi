@@ -526,6 +526,7 @@ const SECTIONS = [
   { id: "events", label: "Події" },
   { id: "research", label: "Досліджую" },
   { id: "path", label: "Освіта" },
+  { id: "contact", label: "Контакт" },
 ] as const;
 
 function SectionTitleRow({ id, children }: { id: string; children: React.ReactNode }) {
@@ -758,9 +759,9 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             </div>
 
             {/*
-              Умови роботи й форма запису — одразу під кнопкою «Записатися»:
-              це основне, що людині треба знати, щоб вирішити, чи писати.
-              Кнопка веде якорем #contact сюди ж, на форму нижче.
+              Умови роботи — одразу під кнопкою «Записатися»: це основне, що
+              людині треба знати, щоб вирішити, чи писати. Форма запису лишається
+              внизу сторінки, кнопка веде до неї якорем #contact.
             */}
             <section aria-labelledby="conditions" className="mt-10 max-w-xl">
               <SectionTitleRow id="conditions">Умови роботи</SectionTitleRow>
@@ -822,45 +823,6 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                   </div>
                 )}
               </dl>
-            </section>
-
-            <section aria-labelledby="contact" className="mt-12 max-w-xl scroll-mt-40">
-              <SectionTitleRow id="contact">Контакт</SectionTitleRow>
-
-              {vm.isOwner ? (
-                <p className={`mt-4 text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
-                  Це ваш власний простір — заявки від клієнтів зʼявляться в{" "}
-                  <Link href="/dashboard/requests" className={cn("underline", focusRing)}>
-                    кабінеті
-                  </Link>
-                  .
-                </p>
-              ) : vm.isReal && vm.acceptsRequestsViaVsi ? (
-                <>
-                  <p className={`mt-4 text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
-                    {vm.acceptingNew
-                      ? "Фахівець приймає нових клієнтів. Залиште заявку через VSI — це не бронювання, а запрошення до першого листування."
-                      : "Наразі фахівець веде лист очікування. Заявку можна залишити — ми повідомимо, щойно зʼявиться місце."}
-                  </p>
-                  <ContactRequestForm therapistSlug={id} />
-                  <p className={`mt-3 text-[12px] leading-relaxed ${ink.soft}`}>
-                    Відповідь зазвичай протягом двох робочих днів
-                  </p>
-                </>
-              ) : vm.isReal ? (
-                <p className={`mt-4 text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
-                  Цей фахівець наразі не приймає звернення через VSI.
-                  {vm.city && " Контакти можна знайти в описі вище."}
-                </p>
-              ) : (
-                <p className={`mt-4 text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
-                  {vm.acceptingNew
-                    ? "Фахівець приймає нових клієнтів."
-                    : "Наразі фахівець веде лист очікування."}{" "}
-                  Ця сторінка — демонстраційна; форма звернення зʼявиться, щойно фахівець
-                  зареєструється на VSI.
-                </p>
-              )}
             </section>
           </div>
         </div>
@@ -1236,6 +1198,46 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                 ? "Додайте дипломи чи сертифікати в анкеті — вони зʼявляться тут."
                 : "Освіта й професійний шлях додаються."}
             </PendingSection>
+          )}
+        </section>
+
+        {/* Контакт — завершує знайомство, свідомо останній розділ */}
+        <section aria-labelledby="contact" className="scroll-mt-40">
+          <SectionTitleRow id="contact">Контакт</SectionTitleRow>
+
+          {vm.isOwner ? (
+            <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
+              Це ваш власний простір — заявки від клієнтів зʼявляться в{" "}
+              <Link href="/dashboard/requests" className={cn("underline", focusRing)}>
+                кабінеті
+              </Link>
+              .
+            </p>
+          ) : vm.isReal && vm.acceptsRequestsViaVsi ? (
+            <>
+              <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
+                {vm.acceptingNew
+                  ? "Фахівець приймає нових клієнтів. Залиште заявку через VSI — це не бронювання, а запрошення до першого листування."
+                  : "Наразі фахівець веде лист очікування. Заявку можна залишити — ми повідомимо, щойно зʼявиться місце."}
+              </p>
+              <ContactRequestForm therapistSlug={id} />
+              <p className={`mt-3 text-[12px] leading-relaxed ${ink.soft}`}>
+                Відповідь зазвичай протягом двох робочих днів
+              </p>
+            </>
+          ) : vm.isReal ? (
+            <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
+              Цей фахівець наразі не приймає звернення через VSI.
+              {vm.city && " Контакти можна знайти в описі вище."}
+            </p>
+          ) : (
+            <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
+              {vm.acceptingNew
+                ? "Фахівець приймає нових клієнтів."
+                : "Наразі фахівець веде лист очікування."}{" "}
+              Ця сторінка — демонстраційна; форма звернення зʼявиться, щойно фахівець зареєструється
+              на VSI.
+            </p>
           )}
         </section>
       </div>
