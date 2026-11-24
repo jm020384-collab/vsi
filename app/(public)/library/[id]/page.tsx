@@ -7,13 +7,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import { AvatarPortrait } from "@/components/preview/vsi/decor";
-import {
-  MATERIALS,
-  THEMES,
-  THERAPISTS,
-  themeContent,
-  type ThemeEntry,
-} from "@/components/preview/vsi/data";
+import { THEMES, type ThemeEntry } from "@/components/preview/vsi/data";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
 
 interface PageProps {
@@ -124,52 +118,8 @@ async function loadMaterial(id: string): Promise<MaterialViewModel | null> {
     };
   }
 
-  const m = MATERIALS.find((x) => x.id === id);
-  if (!m) return null;
-
-  const author = THERAPISTS.find((t) => t.name === m.author);
-  const concepts = matchConcepts(`${m.title} ${m.excerpt}`, m.categories);
-  const relatedArticles = MATERIALS.filter(
-    (x) => x.id !== m.id && x.categories.some((c) => m.categories.includes(c)),
-  ).slice(0, 3);
-  const topicSpecialists = concepts[0]
-    ? themeContent(concepts[0])
-        .therapists.filter((t) => t.name !== m.author)
-        .slice(0, 3)
-    : [];
-
-  return {
-    kind: m.kind,
-    title: m.title,
-    categories: m.categories,
-    bodyParagraphs: m.body ?? null,
-    excerpt: m.excerpt,
-    sources: m.sources,
-    readingMinutes: m.readingMinutes,
-    authorName: m.author,
-    authorHref: author ? `/specialists/${author.id}` : undefined,
-    authorStatus: author?.status,
-    authorPhoto: author?.photo,
-    authorSeed: author ? Number(author.id.slice(1)) || 0 : 0,
-    concepts,
-    relatedArticles: relatedArticles.map((r) => ({
-      id: r.id,
-      href: `/library/${r.id}`,
-      title: r.title,
-    })),
-    topicSpecialists: topicSpecialists.map((t) => ({
-      id: t.id,
-      href: `/specialists/${t.id}`,
-      name: t.name,
-      approach: t.approach,
-      photo: t.photo,
-      seed: Number(t.id.slice(1)) || 0,
-    })),
-  };
-}
-
-export function generateStaticParams() {
-  return MATERIALS.map((m) => ({ id: m.id }));
+  // Демо-текстів більше немає: усе, чого нема в базі, — 404.
+  return null;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

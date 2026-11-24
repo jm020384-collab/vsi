@@ -16,6 +16,7 @@ import { AnalyticPanel } from "@/components/preview/vsi/analytic-panel";
 import { analyticNote } from "@/components/preview/vsi/analytic-notes";
 import { TherapistCard } from "@/components/preview/vsi/therapist-card";
 import { findTheme, themeContent, FORMAT_LABEL, THEMES } from "@/components/preview/vsi/data";
+import { loadPublishedMaterials } from "@/lib/materials";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
 
 interface PageProps {
@@ -53,7 +54,10 @@ export default async function ThemePage({ params }: PageProps) {
 
   const { entry, parent, subthemes } = found;
   const note = analyticNote(entry.slug);
-  const { therapists, articles, lectures, events } = themeContent(entry);
+  const { therapists, articles, lectures, events } = themeContent(
+    entry,
+    await loadPublishedMaterials(),
+  );
 
   const counts = [
     therapists.length && `${therapists.length} фахівців`,

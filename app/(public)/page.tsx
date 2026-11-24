@@ -11,6 +11,7 @@ import { Ethics } from "@/components/preview/vsi/sections/ethics";
 import { Closing } from "@/components/preview/vsi/sections/closing";
 import { PaperTexture } from "@/components/preview/vsi/decor";
 import { loadTherapistsCached } from "@/lib/therapists";
+import { loadPublishedMaterials } from "@/lib/materials";
 
 /**
  * Головна сторінка «vsi» — за макетом користувача.
@@ -22,7 +23,10 @@ import { loadTherapistsCached } from "@/lib/therapists";
  * потоком. Завершує сторінку слоган бренду.
  */
 export default async function HomePage() {
-  const therapists = await loadTherapistsCached();
+  const [therapists, materials] = await Promise.all([
+    loadTherapistsCached(),
+    loadPublishedMaterials(3),
+  ]);
 
   return (
     <div className="relative">
@@ -35,7 +39,7 @@ export default async function HomePage() {
         <Hero />
         <ThemeCircles />
         <SpecialistsRow therapists={therapists} />
-        <TextsRow />
+        <TextsRow materials={materials} />
         <ForProfessionals />
         <EventsRow />
         <Approach />

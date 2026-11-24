@@ -4,14 +4,14 @@ import { ArrowRight, BookOpen } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Wrap } from "../ui";
-import { MATERIALS } from "../data";
+import type { Material } from "../data";
 import { focusRing, ink } from "../theme";
 
 const COUNT = 3;
 
 /** Аналітична думка: обкладинка ліворуч, заголовок і автор праворуч. */
-export function TextsRow() {
-  const items = MATERIALS.slice(0, COUNT);
+export function TextsRow({ materials }: { materials: Material[] }) {
+  const items = materials.slice(0, COUNT);
   if (items.length === 0) return null;
 
   return (
