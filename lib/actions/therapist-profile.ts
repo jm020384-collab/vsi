@@ -126,6 +126,10 @@ export async function getProfileFormLookups() {
     prisma.language.findMany(),
   ]);
 
+  // Теми теж сортуємо тут: порівняння за кодами літер у БД ставить «І» перед «А»,
+  // і «Індивідуація…» опинялася б першою. Українське впорядкування дає алфавіт.
+  specializations.sort((a, b) => a.nameUk.localeCompare(b.nameUk, "uk"));
+
   // Сортуємо в коді, а не в БД: алфавітний порядок виносив «Інша мова»
   // на перше місце, хоча це технічний пункт-перемикач, а не мова.
   const rank = (code: string) => {
