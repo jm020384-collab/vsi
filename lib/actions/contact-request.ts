@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { Resend } from "resend";
+import { lastUtmFor, visitorHash } from "@/lib/analytics";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
@@ -104,8 +105,16 @@ export async function createContactRequestAction(
     };
   }
 
+  // Звідки людина прийшла. Це лише статистика: якщо щось тут зламається,
+  // заявка все одно має дійти.
+  const userAgent = (await headers()).get("user-agent") ?? "";
+  const utm = await lastUtmFor(visitorHash(ip, userAgent)).catch(() => null);
+
   await prisma.contactRequest.create({
     data: {
+      utmSource: utm?.source ?? null,
+      utmMedium: utm?.medium ?? null,
+      utmCampaign: utm?.campaign ?? null,
       therapistId: therapist.id,
       patientName: parsed.data.patientName,
       patientEmail: parsed.data.patientEmail,

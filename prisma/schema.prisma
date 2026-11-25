@@ -476,6 +476,10 @@ model ContactRequest {
   ipHash        String? // hash IP — не сам IP, для anti-spam
   consentGiven  Boolean          @default(false)
   consentAt     DateTime?
+  /// За якими мітками людина прийшла на сайт — щоб знати, яка реклама дала заявку.
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
   createdAt     DateTime         @default(now())
 
   @@index([therapistId, status])
@@ -696,6 +700,10 @@ model PageView {
   visitorHash String
   referrer    String? // лише хост зовнішнього джерела, без адреси сторінки
   device      String // "mobile" | "desktop"
+  /// Мітки з рекламного чи поширеного посилання (utm_*).
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
   createdAt   DateTime @default(now())
 
   @@index([createdAt])

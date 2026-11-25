@@ -331,6 +331,48 @@ export function SiteStatsView({
         </Card>
       </div>
 
+      <Card className="mt-6">
+        <CardContent className="pt-6">
+          <h2 className="text-base font-semibold">Реклама й посилання з мітками</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Лише переходи за посиланнями з мітками utm, за {days} днів.
+          </p>
+          {stats.campaigns.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Переходів із мітками за цей період ще не було.
+            </p>
+          ) : (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-left text-xs text-muted-foreground">
+                    <th className="py-2 font-normal">Джерело · тип · кампанія</th>
+                    <th className="py-2 text-right font-normal">Відвідувачі</th>
+                    <th className="py-2 pl-4 text-right font-normal">Відкрили каталог</th>
+                    <th className="py-2 pl-4 text-right font-normal">Заявки</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.campaigns.map((c) => {
+                    const name = [c.source, c.medium, c.campaign].filter(Boolean).join(" · ");
+                    return (
+                      <tr key={name} className="border-b last:border-0">
+                        <td className="py-2 pr-3">{name}</td>
+                        <td className="py-2 text-right tabular-nums">{num(c.visitors)}</td>
+                        <td className="py-2 pl-4 text-right tabular-nums">{num(c.catalog)}</td>
+                        <td className="py-2 pl-4 text-right font-semibold tabular-nums">
+                          {num(c.requests)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Таблиця — ті самі цифри, що на графіках, для читання й копіювання */}
       <details className="mt-6 rounded-lg border bg-card p-6">
         <summary className="cursor-pointer text-sm font-medium">Усі дні таблицею</summary>

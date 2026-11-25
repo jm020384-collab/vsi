@@ -20,9 +20,19 @@ export function PageTracker() {
     last.current = pathname;
     if (pathname.startsWith("/admin") || pathname.startsWith("/dashboard")) return;
 
+    // З адреси беремо тільки три мітки, а не весь рядок запиту: там може
+    // бути що завгодно, зокрема одноразові токени з листів.
+    const query = new URLSearchParams(window.location.search);
     const payload = JSON.stringify({
       path: pathname,
       referrer: referrerSent.current ? "" : document.referrer,
+      utm: referrerSent.current
+        ? undefined
+        : {
+            source: query.get("utm_source"),
+            medium: query.get("utm_medium"),
+            campaign: query.get("utm_campaign"),
+          },
     });
     referrerSent.current = true;
 

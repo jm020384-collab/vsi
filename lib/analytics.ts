@@ -46,6 +46,48 @@ export function referrerHost(raw: unknown, ownHost: string | null): string | nul
   }
 }
 
+export interface Utm {
+  source: string | null;
+  medium: string | null;
+  campaign: string | null;
+}
+
+/**
+ * Мітку приймаємо лише коротку й «чисту»: літери, цифри, _ . - і пробіл.
+ * Так у статистику не потрапить пошта чи телефон, випадково вписані в адресу.
+ */
+export function cleanUtm(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const v = value.trim().toLowerCase().slice(0, 60);
+  if (!/^[\p{L}\p{N}_. -]+$/u.test(v) || /\d{7,}/.test(v)) return null;
+  return v;
+}
+
+export function utmOf(raw: unknown): Utm {
+  const o = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const source = cleanUtm(o.source);
+  // Без джерела решта міток нічого не означає.
+  if (!source) return { source: null, medium: null, campaign: null };
+  return { source, medium: cleanUtm(o.medium), campaign: cleanUtm(o.campaign) };
+}
+
+/**
+ * За якими мітками цей відвідувач прийшов востаннє (до 30 днів тому).
+ *
+ * Потрібно, щоб приписати заявку рекламі без cookies: на самій заявці
+ * лишаються тільки три мітки, а не перелік відкритих сторінок.
+ */
+export async function lastUtmFor(hash: string): Promise<Utm> {
+  const since = new Date(Date.now() - 30 * 86_400_000);
+  const [row] = await prisma.$queryRaw<Utm[]>`
+    SELECT "utmSource" AS source, "utmMedium" AS medium, "utmCampaign" AS campaign
+    FROM "PageView"
+    WHERE "visitorHash" = ${hash} AND "utmSource" IS NOT NULL AND "createdAt" >= ${since}
+    ORDER BY "createdAt" DESC LIMIT 1
+  `;
+  return row ?? { source: null, medium: null, campaign: null };
+}
+
 export function deviceOf(userAgent: string): "mobile" | "desktop" {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(userAgent) ? "mobile" : "desktop";
 }
@@ -60,10 +102,12 @@ export async function recordPageView(view: {
   visitorHash: string;
   referrer: string | null;
   device: string;
+  utm: Utm;
 }) {
   await prisma.$executeRaw`
-    INSERT INTO "PageView" ("id", "path", "visitorHash", "referrer", "device")
-    VALUES (${crypto.randomUUID()}, ${view.path}, ${view.visitorHash}, ${view.referrer}, ${view.device})
+    INSERT INTO "PageView" ("id", "path", "visitorHash", "referrer", "device", "utmSource", "utmMedium", "utmCampaign")
+    VALUES (${crypto.randomUUID()}, ${view.path}, ${view.visitorHash}, ${view.referrer}, ${view.device},
+      ${view.utm.source}, ${view.utm.medium}, ${view.utm.campaign})
   `;
 }
 
@@ -111,6 +155,15 @@ export interface SiteStats {
   referrers: { host: string; visitors: number }[];
   withReferrer: number;
   devices: { device: string; visitors: number }[];
+  /** Рядок на кожну комбінацію міток: відвідувачі, каталог, заявки. */
+  campaigns: {
+    source: string;
+    medium: string | null;
+    campaign: string | null;
+    visitors: number;
+    catalog: number;
+    requests: number;
+  }[];
   /** Коли записано перший перегляд; null — даних ще немає. */
   since: Date | null;
 }
@@ -137,6 +190,32 @@ export async function loadSiteStats(days: number): Promise<SiteStats> {
   const prev = kyivDays(days, days);
   const floor = new Date(new Date(`${from}T00:00:00Z`).getTime() - 86_400_000);
   const inRange = Prisma.sql`"createdAt" >= ${floor} AND ${KYIV_DAY} BETWEEN ${from} AND ${to}`;
+
+  // Заявки й відвідувачів рахуємо окремо й зводимо за трьома мітками:
+  // заявка може бути з мітки, перегляди якої вже поза обраним періодом.
+  const campaignRows = await prisma.$queryRaw<SiteStats["campaigns"]>`
+    WITH v AS (
+      SELECT "utmSource" AS source, COALESCE("utmMedium", '') AS medium, COALESCE("utmCampaign", '') AS campaign,
+        count(DISTINCT "visitorHash")::int AS visitors,
+        (count(DISTINCT "visitorHash") FILTER (WHERE EXISTS (
+          SELECT 1 FROM "PageView" c
+          WHERE c."visitorHash" = p."visitorHash" AND c."path" = '/therapists')))::int AS catalog
+      FROM "PageView" p WHERE ${inRange} AND "utmSource" IS NOT NULL
+      GROUP BY 1, 2, 3
+    ), r AS (
+      SELECT "utmSource" AS source, COALESCE("utmMedium", '') AS medium, COALESCE("utmCampaign", '') AS campaign,
+        count(*)::int AS requests
+      FROM "ContactRequest" WHERE ${inRange} AND "utmSource" IS NOT NULL
+      GROUP BY 1, 2, 3
+    )
+    SELECT COALESCE(v.source, r.source) AS source, COALESCE(v.medium, r.medium) AS medium,
+      COALESCE(v.campaign, r.campaign) AS campaign, COALESCE(v.visitors, 0) AS visitors,
+      COALESCE(v.catalog, 0) AS catalog, COALESCE(r.requests, 0) AS requests
+    FROM v FULL OUTER JOIN r
+      ON v.source = r.source AND v.medium = r.medium
+      AND v.campaign = r.campaign
+    ORDER BY requests DESC, visitors DESC LIMIT 20
+  `;
 
   const [dailyRows, totals, previous, requests, topPages, profiles, referrers, devices, first] =
     await Promise.all([
@@ -197,6 +276,7 @@ export async function loadSiteStats(days: number): Promise<SiteStats> {
     referrers,
     withReferrer: first[0]?.with_referrer ?? 0,
     devices,
+    campaigns: campaignRows,
     since: first[0]?.since ?? null,
   };
 }

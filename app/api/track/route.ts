@@ -5,6 +5,7 @@ import {
   normalizePath,
   recordPageView,
   referrerHost,
+  utmOf,
   visitorHash,
 } from "@/lib/analytics";
 
@@ -31,7 +32,11 @@ export async function POST(req: Request) {
     const origin = req.headers.get("origin");
     if (origin && host && new URL(origin).host !== host) return NO_CONTENT();
 
-    const body = JSON.parse(await req.text()) as { path?: unknown; referrer?: unknown };
+    const body = JSON.parse(await req.text()) as {
+      path?: unknown;
+      referrer?: unknown;
+      utm?: unknown;
+    };
     const path = normalizePath(body.path);
     if (!path) return NO_CONTENT();
 
@@ -46,6 +51,7 @@ export async function POST(req: Request) {
       visitorHash: visitorHash(ip, userAgent),
       referrer: referrerHost(body.referrer, host),
       device: deviceOf(userAgent),
+      utm: utmOf(body.utm),
     });
   } catch (error) {
     console.error("[track]", error);
