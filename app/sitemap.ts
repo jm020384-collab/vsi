@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
+import { THEMES } from "@/components/preview/vsi/data";
 
 // Не пре-рендерити на етапі build (БД може бути недоступна);
 // генеруємо на льоту і кешуємо на годину.
@@ -24,7 +25,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${base}/pro-metod`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/therapists`, changeFrequency: "daily", priority: 0.9 },
-    { url: `${base}/blog`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${base}/library`, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${base}/events`, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${base}/social-support`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${base}/explore`, changeFrequency: "monthly", priority: 0.6 },
+    ...THEMES.flatMap((t) => [t, ...t.subthemes]).map((t) => ({
+      url: `${base}/themes/${t.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    })),
     { url: `${base}/privacy`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${base}/terms`, changeFrequency: "yearly", priority: 0.3 },
     ...therapists.map((t) => ({
@@ -34,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     })),
     ...articles.map((a) => ({
-      url: `${base}/blog/${a.slug}`,
+      url: `${base}/library/${a.slug}`,
       lastModified: a.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.6,

@@ -125,7 +125,7 @@ export default async function DashboardArticlesPage() {
               </div>
               {a.status === "PUBLISHED" && (
                 <Link
-                  href={`/blog/${a.slug}`}
+                  href={`/library/${a.slug}`}
                   className={cn(
                     "group/cta inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-[#1C3557]",
                     "transition-colors hover:text-[#142744] motion-reduce:transition-none",

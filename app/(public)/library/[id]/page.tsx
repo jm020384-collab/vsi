@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { AvatarPortrait } from "@/components/preview/vsi/decor";
 import { THEMES, type ThemeEntry } from "@/components/preview/vsi/data";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
+import { JsonLd, ORGANIZATION_ID, SITE_URL } from "@/components/seo/json-ld";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -35,6 +36,8 @@ interface MaterialViewModel {
   categories: string[];
   bodyParagraphs: string[] | null;
   excerpt: string;
+  /** Лише в опублікованих — чернетку пошуковикам не описуємо. */
+  publishedAt?: Date | null;
   sources?: string[];
   readingMinutes: number;
   authorName: string;
@@ -102,6 +105,7 @@ async function loadMaterial(id: string): Promise<MaterialViewModel | null> {
       categories,
       bodyParagraphs,
       excerpt: real.excerpt,
+      publishedAt: real.status === "PUBLISHED" ? real.publishedAt : null,
       readingMinutes: Math.max(1, Math.round(real.content.split(/\s+/).length / 200)),
       authorName: real.author.therapist?.fullName ?? real.author.name ?? "Фахівець VSI",
       authorHref: real.author.therapist ? `/specialists/${real.author.therapist.slug}` : undefined,
@@ -147,6 +151,24 @@ export default async function ArticlePage({ params }: PageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[760px] px-5 pb-20 sm:px-8">
+      {m.publishedAt && (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: m.title,
+            description: m.excerpt,
+            datePublished: m.publishedAt.toISOString(),
+            inLanguage: "uk",
+            author: {
+              "@type": "Person",
+              name: m.authorName,
+              url: m.authorHref ? `${SITE_URL}${m.authorHref}` : undefined,
+            },
+            publisher: { "@id": ORGANIZATION_ID },
+          }}
+        />
+      )}
       <div className="pt-8 lg:pt-12">
         <Link
           href="/library"

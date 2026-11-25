@@ -35,6 +35,10 @@ const nextConfig: NextConfig = {
         destination: "https://vsi-therapy.com/:path*",
         permanent: true,
       },
+      // Старий «Блог» показував ті самі статті, що й «Бібліотека»: для
+      // пошуковика це дубль. Одна адреса на статтю.
+      { source: "/blog", destination: "/library", permanent: true },
+      { source: "/blog/:slug", destination: "/library/:slug", permanent: true },
       // /therapists/[slug] — застарілий маршрут з часів до дизайну vsi,
       // замінений на /specialists/[slug]. Редирект, а не 404, щоб не
       // ламати вже проіндексовані/розшарені посилання.

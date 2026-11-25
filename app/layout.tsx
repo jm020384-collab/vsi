@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { JsonLd, ORGANIZATION_ID, SITE_URL } from "@/components/seo/json-ld";
 import { PageTracker } from "@/components/analytics/page-tracker";
 import { auth } from "@/auth";
 import { BRAND, SITE_NAME, SITE_DESCRIPTION } from "@/lib/brand";
@@ -50,17 +51,19 @@ export const metadata: Metadata = {
     title: SITE_NAME,
   },
   formatDetection: { telephone: false },
+  // «./» означає «адреса саме цієї сторінки»: пошуковик знає, яка з копій
+  // (з www, з параметрами реклами) основна.
+  alternates: { canonical: "./" },
+  // Заголовок і опис прев'ю навмисно не задані: тоді кожна сторінка бере
+  // свої, а не однакові на весь сайт.
   openGraph: {
     type: "website",
     locale: "uk_UA",
     siteName: SITE_NAME,
-    title: `${SITE_NAME} · ${BRAND.tagline}`,
-    description: SITE_DESCRIPTION,
+    url: "./",
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
   },
   icons: {
     icon: [
@@ -107,6 +110,29 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <SiteFooter />
             <Toaster richColors closeButton position="top-center" />
             <PageTracker />
+            <JsonLd
+              data={{
+                "@context": "https://schema.org",
+                "@graph": [
+                  {
+                    "@type": "Organization",
+                    "@id": ORGANIZATION_ID,
+                    name: SITE_NAME,
+                    url: SITE_URL,
+                    description: SITE_DESCRIPTION,
+                    logo: `${SITE_URL}/icons/icon-512.png`,
+                    sameAs: ["https://www.facebook.com/profile.php?id=61593751903159"],
+                  },
+                  {
+                    "@type": "WebSite",
+                    name: SITE_NAME,
+                    url: SITE_URL,
+                    inLanguage: "uk",
+                    publisher: { "@id": ORGANIZATION_ID },
+                  },
+                ],
+              }}
+            />
           </SessionProvider>
         </ThemeProvider>
       </body>

@@ -60,7 +60,7 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-[#F8F4EC]" href="/blog">
+                <Link className="hover:text-[#F8F4EC]" href="/library">
                   Журнал
                 </Link>
               </li>

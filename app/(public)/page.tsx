@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { Hero } from "@/components/preview/vsi/sections/hero";
 import { ThemeCircles } from "@/components/preview/vsi/sections/theme-circles";
 import { SpecialistsRow } from "@/components/preview/vsi/sections/specialists-row";
@@ -24,6 +26,12 @@ import { shuffle } from "@/lib/shuffle";
  * немає, але вони несуть реальний зміст, тож лишені нижче за основним
  * потоком. Завершує сторінку слоган бренду.
  */
+export const metadata: Metadata = {
+  title: { absolute: "Аналітична (юнгіанська) психотерапія українською, онлайн · vsi" },
+  description:
+    "vsi — простір перевірених аналітично орієнтованих психологів і психотерапевтів. Познайомтеся з фахівцями, читайте їхні тексти й оберіть, з ким почати. Українською, онлайн та очно.",
+};
+
 export default async function HomePage() {
   const [therapists, texts, events] = await Promise.all([
     loadTherapistsCached(),
