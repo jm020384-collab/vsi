@@ -22,6 +22,8 @@ import {
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { pickBaseEducation } from "@/lib/education-base";
+import { JsonLd, ORGANIZATION_ID, SITE_URL } from "@/components/seo/json-ld";
+import { scheduleLabel, upcomingEventFilter } from "@/lib/event-recurrence";
 import { cn } from "@/lib/utils";
 import { AvatarPortrait } from "@/components/preview/vsi/decor";
 import { ContactRequestForm } from "@/components/preview/vsi/contact-request-form";
@@ -357,7 +359,7 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
       where: {
         hostId: real.id,
         status: "PUBLISHED",
-        startsAt: { gte: new Date() },
+        ...upcomingEventFilter(),
         ...(isProfessional ? {} : { audience: { not: "PROFESSIONALS" } }),
       },
       orderBy: { startsAt: "asc" },
@@ -421,12 +423,7 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
         id: e.id,
         href: `/events#${e.slug}`,
         title: e.title,
-        dateLabel: e.startsAt.toLocaleString("uk-UA", {
-          day: "numeric",
-          month: "long",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        dateLabel: scheduleLabel(e),
       })),
       formatLabel: REAL_FORMAT_LABEL[real.sessionFormat],
       city: real.city,
@@ -594,6 +591,26 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 sm:px-8 lg:px-10">
+      {/* Лише схвалені справжні профілі й лише те, що видно на сторінці. */}
+      {vm.isReal && vm.verified && (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Person",
+            name: vm.name,
+            jobTitle: vm.status,
+            url: `${SITE_URL}/specialists/${id}`,
+            image: vm.photo ?? undefined,
+            knowsAbout: vm.topics,
+            knowsLanguage: vm.languages,
+            alumniOf: vm.educationSummary
+              ? { "@type": "EducationalOrganization", name: vm.educationSummary }
+              : undefined,
+            affiliation: { "@id": ORGANIZATION_ID },
+          }}
+        />
+      )}
+
       <div className="flex items-center justify-between gap-4 pt-8 lg:pt-12">
         <Link
           href="/therapists"

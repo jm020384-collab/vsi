@@ -10,7 +10,7 @@ import { prisma } from "@/lib/db";
 import { hashIp } from "@/lib/hash";
 import { EVENT_TYPES } from "@/lib/schemas/event";
 import { registrationClosedReason } from "@/lib/event-registration";
-import { EVENT_RECURRENCES } from "@/lib/event-recurrence";
+import { EVENT_RECURRENCES, parseEventDateTime } from "@/lib/event-recurrence";
 
 const eventSchema = z.object({
   title: z.string().min(4, "Заголовок надто короткий").max(160),
@@ -19,15 +19,15 @@ const eventSchema = z.object({
   type: z.enum(EVENT_TYPES),
   format: z.enum(["ONLINE", "OFFLINE", "BOTH"]),
   language: z.string().min(2).max(40),
-  startsAt: z.coerce.date({ errorMap: () => ({ message: "Вкажіть дату й час" }) }),
+  // Година з форми — київська; читаємо її без зсуву поясів.
+  startsAt: z.preprocess(
+    (value) => (typeof value === "string" ? (parseEventDateTime(value) ?? value) : value),
+    z.coerce.date({ errorMap: () => ({ message: "Вкажіть дату й час" }) }),
+  ),
   seatsTotal: z.coerce.number().int().min(1).optional().nullable(),
   recurrence: z.enum(EVENT_RECURRENCES).default("ONCE"),
-  /*
-    Полудень за місцевим часом, а не те, що дасть z.coerce.date().
-    Рядок «2026-12-16» з input[type=date] сам по собі парситься як
-    UTC-північ, і в будь-якому поясі на захід від Гринвіча дата
-    показувалася б попереднім днем.
-  */
+  // Дата без години лягає на полудень (див. parseEventDateTime), щоб не
+  // опинитися попереднім днем.
   recurrenceEndsAt: z
     .union([z.string(), z.date()])
     .nullable()
@@ -35,12 +35,7 @@ const eventSchema = z.object({
     .transform((value) => {
       if (!value) return null;
       if (value instanceof Date) return value;
-      const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-      if (parts) {
-        return new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]), 12, 0, 0);
-      }
-      const parsed = new Date(value);
-      return Number.isNaN(parsed.getTime()) ? null : parsed;
+      return parseEventDateTime(value);
     }),
   audience: z.enum(["PUBLIC", "PROFESSIONALS", "BOTH"]).default("PUBLIC"),
   contactName: z.string().max(120).optional().nullable(),

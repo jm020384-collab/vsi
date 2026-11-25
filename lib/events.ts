@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import type { Format, PublicEvent } from "@/components/preview/vsi/data";
 import { registrationClosedReason } from "@/lib/event-registration";
-import { scheduleLabel, upcomingEventFilter } from "@/lib/event-recurrence";
+import { dayLabel, scheduleLabel, upcomingEventFilter } from "@/lib/event-recurrence";
 
 export const EVENT_TYPE_LABEL: Record<string, string> = {
   LECTURE: "Лекція",
@@ -49,9 +49,7 @@ export async function loadUpcomingEvents(): Promise<PublicEvent[]> {
   return rows.map((e) => {
     const dateLabel = scheduleLabel(e);
     const once = e.recurrence === "ONCE";
-    const [day, month] = once
-      ? e.startsAt.toLocaleDateString("uk-UA", { day: "numeric", month: "long" }).split(" ")
-      : [];
+    const [day, month] = once ? dayLabel(e.startsAt).split(" ") : [];
 
     return {
       id: e.id,

@@ -179,7 +179,7 @@ export function EventComposer({ initial }: { initial?: EventInitialValues }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>
-            {repeats ? "Перша зустріч" : "Дата й час"}
+            {repeats ? "Перша зустріч" : "Дата й час"} (за Києвом)
           </label>
           <input
             name="startsAt"

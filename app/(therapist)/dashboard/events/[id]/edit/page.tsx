@@ -12,22 +12,17 @@ import { EventComposer } from "@/components/dashboard/event-composer";
 export const metadata: Metadata = { title: "Редагування події · Кабінет фахівця" };
 
 /**
- * Дата для input[type=datetime-local] береться в тому ж поясі, в якому
- * вона й показується у списку — тобто локальному для сервера. Якби ми
- * взяли UTC, збережений час зсувався б на кожному редагуванні.
+ * Дата для input[type=datetime-local]. Час подій лежить як київський
+ * «настінний» у вигляді UTC (див. lib/event-recurrence.ts), тому й читаємо
+ * UTC-частини: інакше збережена година зсувалася б при кожному редагуванні.
  */
 function toDateTimeLocal(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return (
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
-    `T${pad(date.getHours())}:${pad(date.getMinutes())}`
-  );
+  return date.toISOString().slice(0, 16);
 }
 
 /** Те саме для input[type=date] — лише дата, без часу. */
 function toDateOnly(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  return date.toISOString().slice(0, 10);
 }
 
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
