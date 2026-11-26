@@ -1,16 +1,22 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import type { Metadata } from "next";
 import { ArrowRight, Clock, FileText, Info, Leaf, Sparkle, User, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { featherEdgesSoft, focusRing, ink } from "@/components/preview/vsi/theme";
+import { getI18n } from "@/lib/i18n/server";
+import { pageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Соціальна підтримка",
-  description:
-    "Програма соціальної психологічної підтримки VSI: допомога для людей з обмеженими фінансовими можливостями за зниженою вартістю.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, tr } = await getI18n();
+  return pageMetadata(locale, "/social-support", {
+    title: tr("Соціальна підтримка"),
+    description: tr(
+      "Програма соціальної психологічної підтримки VSI: допомога для людей з обмеженими фінансовими можливостями за зниженою вартістю.",
+    ),
+  });
+}
 
 const PILLARS = [
   {
@@ -41,14 +47,15 @@ const STEPS = [
   "Якщо є відповідний фахівець, ми зв'язуємося з вами для подальших кроків.",
 ];
 
-export default function SocialSupportPage() {
+export default async function SocialSupportPage() {
+  const { tr } = await getI18n();
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 pb-24 sm:px-8 lg:px-10">
       {/* ── Знайомство з програмою ── */}
       <section className="grid items-center gap-8 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:gap-12 lg:pt-14">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
-            Програма VSI
+            {tr("Програма VSI")}
           </p>
           <h1
             className={cn(
@@ -57,11 +64,12 @@ export default function SocialSupportPage() {
             )}
             style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
           >
-            Соціальна психологічна підтримка
+            {tr("Соціальна психологічна підтримка")}
           </h1>
           <p className={cn("mt-6 max-w-md text-pretty text-[17px] leading-[1.7]", ink.body)}>
-            Програма для людей, які потребують професійної психологічної допомоги, але наразі мають
-            обмежені фінансові можливості.
+            {tr(
+              "Програма для людей, які потребують професійної психологічної допомоги, але наразі мають обмежені фінансові можливості.",
+            )}
           </p>
           <span aria-hidden className="mt-8 block h-px w-28 bg-[#B38B49]/60" />
         </div>
@@ -74,7 +82,9 @@ export default function SocialSupportPage() {
         <div className="relative mx-auto w-full max-w-[520px] lg:max-w-none">
           <Image
             src="/brand/motifs/social-support-hero.png"
-            alt="Двоє людей одне навпроти одного в арці, над ними сходить сонце; довкола — золоті орбіти й гілка"
+            alt={tr(
+              "Двоє людей одне навпроти одного в арці, над ними сходить сонце; довкола — золоті орбіти й гілка",
+            )}
             width={1111}
             height={765}
             priority
@@ -113,9 +123,9 @@ export default function SocialSupportPage() {
               className={cn("mt-4 text-[21px] font-normal leading-snug", ink.strong)}
               style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
             >
-              {title}
+              {tr(title)}
             </h2>
-            <p className={cn("mt-3 text-[14px] leading-relaxed", ink.muted)}>{text}</p>
+            <p className={cn("mt-3 text-[14px] leading-relaxed", ink.muted)}>{tr(text)}</p>
           </li>
         ))}
       </ul>
@@ -130,7 +140,7 @@ export default function SocialSupportPage() {
             focusRing,
           )}
         >
-          Подати заявку на підтримку
+          {tr("Подати заявку на підтримку")}
           <ArrowRight
             className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
             aria-hidden
@@ -150,8 +160,9 @@ export default function SocialSupportPage() {
           <Info className="h-4 w-4 text-[#876428]" strokeWidth={1.4} />
         </span>
         <p className={cn("text-[15px] leading-relaxed", ink.muted)}>
-          Подання заявки не гарантує автоматичного підбору фахівця. Можливість участі в програмі
-          залежить від поточної доступності спеціалістів.
+          {tr(
+            "Подання заявки не гарантує автоматичного підбору фахівця. Можливість участі в програмі залежить від поточної доступності спеціалістів.",
+          )}
         </p>
       </div>
 
@@ -179,13 +190,13 @@ export default function SocialSupportPage() {
                 className={cn("text-[30px] font-normal leading-snug", ink.strong)}
                 style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
               >
-                Для фахівців
+                {tr("Для фахівців")}
               </h2>
             </div>
             <p className={cn("mt-5 max-w-md text-[15px] leading-relaxed", ink.muted)}>
-              Якщо ви хочете долучитися до програми соціальної підтримки VSI та працювати з
-              клієнтами за зниженою вартістю, ви можете активувати відповідну опцію у своєму
-              професійному кабінеті.
+              {tr(
+                "Якщо ви хочете долучитися до програми соціальної підтримки VSI та працювати з клієнтами за зниженою вартістю, ви можете активувати відповідну опцію у своєму професійному кабінеті.",
+              )}
             </p>
             <Link
               href="/dashboard/contact"
@@ -196,7 +207,7 @@ export default function SocialSupportPage() {
               )}
             >
               <User className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-              Перейти до кабінету
+              {tr("Перейти до кабінету")}
             </Link>
           </div>
 
@@ -207,7 +218,7 @@ export default function SocialSupportPage() {
                 className={cn("text-[30px] font-normal leading-snug", ink.strong)}
                 style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
               >
-                Як це працює
+                {tr("Як це працює")}
               </h2>
             </div>
 
@@ -221,7 +232,7 @@ export default function SocialSupportPage() {
                   >
                     {i + 1}
                   </span>
-                  <p className={cn("pt-1.5 text-[15px] leading-relaxed", ink.muted)}>{step}</p>
+                  <p className={cn("pt-1.5 text-[15px] leading-relaxed", ink.muted)}>{tr(step)}</p>
                 </li>
               ))}
             </ol>

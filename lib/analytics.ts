@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 import { sha256 } from "@/lib/hash";
+import { splitLocale } from "@/lib/i18n/config";
 
 /**
  * Власна статистика відвідувань для адмін-панелі.
@@ -30,9 +31,17 @@ export function normalizePath(raw: unknown): string | null {
   if (typeof raw !== "string" || !raw.startsWith("/") || raw.startsWith("//")) return null;
   let path = (raw.split(/[?#]/)[0] ?? "").slice(0, 200);
   if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
-  if (SKIPPED_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`))) return null;
+  const page = splitLocale(path).path;
+  if (SKIPPED_PREFIXES.some((p) => page === p || page.startsWith(`${p}/`))) return null;
+  // Префікс /ru лишаємо в записі: за ним видно, якою мовою читали.
   return path;
 }
+
+/**
+ * Адреса сторінки без мовного префікса: /ru/therapists — той самий
+ * каталог. Для звітів по сторінках мову зводимо докупи.
+ */
+const PAGE = Prisma.sql`regexp_replace("path", '^/ru(/|$)', '/')`;
 
 /** Хост зовнішнього джерела; перехід усередині сайту джерелом не є. */
 export function referrerHost(raw: unknown, ownHost: string | null): string | null {
@@ -142,6 +151,8 @@ export interface Totals {
   views: number;
   catalog: number;
   profiles: number;
+  /** Скільки людей відкривали сторінки російською. */
+  russian: number;
 }
 
 export interface SiteStats {
@@ -175,12 +186,13 @@ async function totalsFor(from: string, to: string): Promise<Totals> {
     SELECT
       count(*)::int AS views,
       count(DISTINCT "visitorHash")::int AS visitors,
-      (count(DISTINCT "visitorHash") FILTER (WHERE "path" = '/therapists'))::int AS catalog,
-      (count(DISTINCT "visitorHash") FILTER (WHERE "path" LIKE '/specialists/%'))::int AS profiles
+      (count(DISTINCT "visitorHash") FILTER (WHERE ${PAGE} = '/therapists'))::int AS catalog,
+      (count(DISTINCT "visitorHash") FILTER (WHERE ${PAGE} LIKE '/specialists/%'))::int AS profiles,
+      (count(DISTINCT "visitorHash") FILTER (WHERE "path" = '/ru' OR "path" LIKE '/ru/%'))::int AS russian
     FROM "PageView"
     WHERE "createdAt" >= ${floor} AND ${KYIV_DAY} BETWEEN ${from} AND ${to}
   `;
-  return row ?? { views: 0, visitors: 0, catalog: 0, profiles: 0 };
+  return row ?? { views: 0, visitors: 0, catalog: 0, profiles: 0, russian: 0 };
 }
 
 export async function loadSiteStats(days: number): Promise<SiteStats> {
@@ -199,7 +211,7 @@ export async function loadSiteStats(days: number): Promise<SiteStats> {
         count(DISTINCT "visitorHash")::int AS visitors,
         (count(DISTINCT "visitorHash") FILTER (WHERE EXISTS (
           SELECT 1 FROM "PageView" c
-          WHERE c."visitorHash" = p."visitorHash" AND c."path" = '/therapists')))::int AS catalog
+          WHERE c."visitorHash" = p."visitorHash" AND c."path" IN ('/therapists', '/ru/therapists'))))::int AS catalog
       FROM "PageView" p WHERE ${inRange} AND "utmSource" IS NOT NULL
       GROUP BY 1, 2, 3
     ), r AS (
@@ -223,7 +235,7 @@ export async function loadSiteStats(days: number): Promise<SiteStats> {
         SELECT ${KYIV_DAY} AS day,
           count(DISTINCT "visitorHash")::int AS visitors,
           count(*)::int AS views,
-          (count(DISTINCT "visitorHash") FILTER (WHERE "path" = '/therapists'))::int AS catalog
+          (count(DISTINCT "visitorHash") FILTER (WHERE ${PAGE} = '/therapists'))::int AS catalog
         FROM "PageView" WHERE ${inRange}
         GROUP BY 1 ORDER BY 1
       `,
@@ -234,13 +246,13 @@ export async function loadSiteStats(days: number): Promise<SiteStats> {
         WHERE "createdAt" >= ${floor} AND ${KYIV_DAY} BETWEEN ${from} AND ${to}
       `,
       prisma.$queryRaw<{ path: string; views: number; visitors: number }[]>`
-        SELECT "path", count(*)::int AS views, count(DISTINCT "visitorHash")::int AS visitors
+        SELECT ${PAGE} AS path, count(*)::int AS views, count(DISTINCT "visitorHash")::int AS visitors
         FROM "PageView" WHERE ${inRange}
         GROUP BY 1 ORDER BY visitors DESC, views DESC LIMIT 12
       `,
       prisma.$queryRaw<{ path: string; views: number; visitors: number }[]>`
-        SELECT "path", count(*)::int AS views, count(DISTINCT "visitorHash")::int AS visitors
-        FROM "PageView" WHERE ${inRange} AND "path" LIKE '/specialists/%'
+        SELECT ${PAGE} AS path, count(*)::int AS views, count(DISTINCT "visitorHash")::int AS visitors
+        FROM "PageView" WHERE ${inRange} AND ${PAGE} LIKE '/specialists/%'
         GROUP BY 1 ORDER BY visitors DESC, views DESC LIMIT 20
       `,
       prisma.$queryRaw<{ host: string; visitors: number }[]>`

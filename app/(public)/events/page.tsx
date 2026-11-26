@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import {
   ArrowRight,
   CalendarDays,
@@ -21,11 +21,19 @@ import { EventInterestButtons } from "@/components/preview/vsi/event-interest-bu
 import { featherEdgesSoft, focusRing, ink, serif } from "@/components/preview/vsi/theme";
 import { registrationClosedReason } from "@/lib/event-registration";
 import { scheduleLabel, upcomingEventFilter } from "@/lib/event-recurrence";
+import { getI18n } from "@/lib/i18n/server";
+import type { Locale } from "@/lib/i18n/config";
+import { createContentTranslator, type ContentTranslator } from "@/lib/i18n/content";
+import { TranslatedNote } from "@/components/i18n/translated-note";
+import { pageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Події",
-  description: "Групи, семінари та інтенсиви VSI: робота, яка можлива тільки разом.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, tr } = await getI18n();
+  return pageMetadata(locale, "/events", {
+    title: tr("Події"),
+    description: tr("Групи, семінари та інтенсиви VSI: робота, яка можлива тільки разом."),
+  });
+}
 
 /** Три опори під абзацом у шапці — коротко про те, чим є група. */
 const HERO_NOTES = [
@@ -56,7 +64,10 @@ interface EventViewModel {
   price: number | null;
 }
 
-async function loadEvents(): Promise<{ events: EventViewModel[]; isLoggedIn: boolean }> {
+async function loadEvents(
+  locale: Locale,
+  content: ContentTranslator,
+): Promise<{ events: EventViewModel[]; isLoggedIn: boolean }> {
   const session = await auth();
   const isProfessional = session?.user.role === "THERAPIST" || session?.user.role === "ADMIN";
 
@@ -82,18 +93,18 @@ async function loadEvents(): Promise<{ events: EventViewModel[]; isLoggedIn: boo
     id: e.id,
     slug: e.slug,
     typeLabel: EVENT_TYPE_LABEL[e.type] ?? e.type,
-    title: e.title,
-    description: e.description,
+    title: content.text(e.title),
+    description: content.text(e.description),
     imageUrl: e.imageUrl,
-    dateLabel: scheduleLabel(e),
+    dateLabel: scheduleLabel(e, locale),
     format: EVENT_FORMAT[e.format],
     seatsLeft: e.seatsTotal ? Math.max(0, e.seatsTotal - e._count.registrations) : null,
     seatsTotal: e.seatsTotal,
     closedReason: registrationClosedReason(e, e._count.registrations),
-    leadLabel: e.host?.fullName ?? "VSI",
+    leadLabel: content.name(e.host?.fullName ?? "VSI"),
     leadSlug: e.host?.slug ?? null,
     myStatus: (Array.isArray(e.registrations) ? e.registrations[0]?.status : null) ?? null,
-    contactName: e.contactName,
+    contactName: e.contactName && content.name(e.contactName),
     contactEmail: e.contactEmail,
     contactPhone: e.contactPhone,
     price: e.price,
@@ -103,7 +114,9 @@ async function loadEvents(): Promise<{ events: EventViewModel[]; isLoggedIn: boo
 }
 
 export default async function EventsPage() {
-  const { events, isLoggedIn } = await loadEvents();
+  const { tr, locale } = await getI18n();
+  const content = createContentTranslator(locale);
+  const { events, isLoggedIn } = await loadEvents(locale, content);
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 sm:px-8 lg:px-10">
@@ -119,12 +132,13 @@ export default async function EventsPage() {
             className={`text-balance text-[2.6rem] font-normal leading-[1.08] sm:text-5xl ${ink.strong}`}
             style={serif}
           >
-            Групи, семінари, інтенсиви
+            {tr("Групи, семінари, інтенсиви")}
           </h1>
 
           <p className={`mt-6 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
-            Групові та освітні формати, що поглиблюють розуміння себе, стосунків і внутрішніх
-            процесів у спільному, безпечному просторі.
+            {tr(
+              "Групові та освітні формати, що поглиблюють розуміння себе, стосунків і внутрішніх процесів у спільному, безпечному просторі.",
+            )}
           </p>
 
           {/*
@@ -139,9 +153,9 @@ export default async function EventsPage() {
               >
                 <Icon className="mx-auto h-6 w-6 text-[#B38B49]" strokeWidth={1.2} aria-hidden />
                 <p className={`mt-3 text-[13px] leading-snug ${ink.muted}`}>
-                  {lines[0]}
+                  {tr(lines[0]!)}
                   <br />
-                  {lines[1]}
+                  {tr(lines[1]!)}
                 </p>
               </li>
             ))}
@@ -157,7 +171,7 @@ export default async function EventsPage() {
             )}
             style={serif}
           >
-            Переглянути події
+            {tr("Переглянути події")}
             <ArrowRight
               className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
               aria-hidden
@@ -167,7 +181,7 @@ export default async function EventsPage() {
 
         <Image
           src="/brand/motifs/events-hero.png"
-          alt="Арка, у прорізі якої гори, схід сонця й стежка; поряд — золота гілка та орбіти"
+          alt={tr("Арка, у прорізі якої гори, схід сонця й стежка; поряд — золота гілка та орбіти")}
           width={1131}
           height={754}
           priority
@@ -180,11 +194,14 @@ export default async function EventsPage() {
       {events.length === 0 && (
         <div className="mt-14 rounded-2xl border border-dashed border-[#142744]/20 bg-[#FFFDF8]/60 px-6 py-14 text-center">
           <p className={cn("mx-auto max-w-md text-[15px] leading-relaxed", ink.muted)}>
-            Найближчих подій поки немає. Щойно фахівці оголосять нові групи й семінари, вони
-            з'являться тут.
+            {tr(
+              "Найближчих подій поки немає. Щойно фахівці оголосять нові групи й семінари, вони з'являться тут.",
+            )}
           </p>
         </div>
       )}
+
+      <TranslatedNote show={content.used} className="mt-10" />
 
       <ul id="events-list" className="mt-14 grid scroll-mt-28 gap-5 md:grid-cols-2">
         {events.map((e) => {
@@ -214,22 +231,26 @@ export default async function EventsPage() {
               <div className="flex flex-1 flex-col p-6">
                 <div className="flex items-center justify-between gap-3">
                   <span className="inline-flex items-center rounded-full bg-[#1C3557]/[0.08] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.1em] text-[#1C3557]">
-                    {e.typeLabel}
+                    {tr(e.typeLabel)}
                   </span>
                   {/*
                     Закритий запис важливіший за лічильник місць: коли
                     ведучий закрив набір, «Вільно 5 з 10» вводило б в оману.
                   */}
                   {e.closedReason === "closed" ? (
-                    <span className="text-xs font-medium text-[#876428]">Запис закрито</span>
+                    <span className="text-xs font-medium text-[#876428]">
+                      {tr("Запис закрито")}
+                    </span>
                   ) : (
                     e.seatsTotal !== null &&
                     e.seatsLeft !== null &&
                     (full ? (
-                      <span className="text-xs font-medium text-[#8A4B33]">Місць немає</span>
+                      <span className="text-xs font-medium text-[#8A4B33]">
+                        {tr("Місць немає")}
+                      </span>
                     ) : (
                       <span className="text-xs font-medium text-[#245A41]">
-                        Вільно {e.seatsLeft} з {e.seatsTotal}
+                        {tr("Вільно")} {e.seatsLeft} {tr("з")} {e.seatsTotal}
                       </span>
                     ))
                   )}
@@ -247,21 +268,21 @@ export default async function EventsPage() {
 
                 <dl className={cn("mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-sm", ink.body)}>
                   <div className="flex items-center gap-1.5">
-                    <dt className="sr-only">Дата</dt>
+                    <dt className="sr-only">{tr("Дата")}</dt>
                     <CalendarDays className="h-4 w-4 text-[#5C6672]" aria-hidden />
                     <dd>{e.dateLabel}</dd>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <dt className="sr-only">Формат</dt>
+                    <dt className="sr-only">{tr("Формат")}</dt>
                     {e.format === "offline" ? (
                       <MapPin className="h-4 w-4 text-[#5C6672]" aria-hidden />
                     ) : (
                       <Monitor className="h-4 w-4 text-[#5C6672]" aria-hidden />
                     )}
-                    <dd>{FORMAT_LABEL[e.format]}</dd>
+                    <dd>{tr(FORMAT_LABEL[e.format])}</dd>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <dt className="sr-only">Ведучий</dt>
+                    <dt className="sr-only">{tr("Ведучий")}</dt>
                     <Users className="h-4 w-4 text-[#5C6672]" aria-hidden />
                     <dd>
                       {e.leadSlug ? (
@@ -275,16 +296,16 @@ export default async function EventsPage() {
                   </div>
                   {e.price !== null && (
                     <div className="flex items-center gap-1.5">
-                      <dt className="sr-only">Вартість</dt>
+                      <dt className="sr-only">{tr("Вартість")}</dt>
                       <Wallet className="h-4 w-4 text-[#5C6672]" aria-hidden />
-                      <dd>{e.price === 0 ? "Безкоштовно" : `${e.price} грн`}</dd>
+                      <dd>{e.price === 0 ? tr("Безкоштовно") : `${e.price} ${tr("грн")}`}</dd>
                     </div>
                   )}
                 </dl>
 
                 {(e.contactName || e.contactEmail) && (
                   <p className={cn("mt-3 text-[13px]", ink.soft)}>
-                    Питання про подію: {e.contactName}
+                    {tr("Питання про подію:")} {e.contactName}
                     {e.contactName && e.contactEmail && " · "}
                     {e.contactEmail && (
                       <a href={`mailto:${e.contactEmail}`} className="underline">
@@ -302,7 +323,7 @@ export default async function EventsPage() {
                     aria-valuenow={pct}
                     aria-valuemin={0}
                     aria-valuemax={100}
-                    aria-label={`Заповненість: ${pct}%`}
+                    aria-label={tr("Заповненість: {pct}%", { pct })}
                   >
                     <div
                       className={cn("h-full rounded-full", full ? "bg-[#B8785E]" : "bg-[#B38B49]")}

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -8,12 +8,19 @@ import { loadUpcomingEvents } from "@/lib/events";
 import { ThemeGlyph } from "@/components/preview/vsi/sections/themes";
 import { THEMES, findTheme, themeContent } from "@/components/preview/vsi/data";
 import { focusRing, ink } from "@/components/preview/vsi/theme";
+import { getI18n } from "@/lib/i18n/server";
+import { countLabel } from "@/lib/i18n/counts";
+import { pageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Досліджувати",
-  description:
-    "Мапа психологічних тем VSI: поняття, що перетікають одне в одне. Почніть із будь-якої точки — кожна веде далі.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, tr } = await getI18n();
+  return pageMetadata(locale, "/explore", {
+    title: tr("Досліджувати"),
+    description: tr(
+      "Мапа психологічних тем VSI: поняття, що перетікають одне в одне. Почніть із будь-якої точки — кожна веде далі.",
+    ),
+  });
+}
 
 /** Перетини — пари понять, між якими природно рухатись. */
 const CROSSINGS: [string, string][] = [
@@ -33,6 +40,7 @@ const CROSSINGS: [string, string][] = [
  * живі посилання; внизу — «перетини», рух між кластерами.
  */
 export default async function ExplorePage() {
+  const { tr } = await getI18n();
   const [texts, upcoming] = await Promise.all([loadPublishedMaterials(), loadUpcomingEvents()]);
   return (
     <div className="relative overflow-hidden">
@@ -79,18 +87,18 @@ export default async function ExplorePage() {
         <div className="max-w-2xl pt-10 lg:pt-14">
           <p className="inline-flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.22em] text-[#5C6672]">
             <span aria-hidden className="h-px w-6 bg-[#B38B49]" />
-            Мапа тем
+            {tr("Мапа тем")}
           </p>
           <h1
             className={`mt-5 text-balance text-4xl font-normal leading-[1.1] sm:text-5xl ${ink.strong}`}
             style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
           >
-            Досліджувати
+            {tr("Досліджувати")}
           </h1>
           <p className={`mt-5 text-pretty text-[17px] leading-relaxed ${ink.muted}`}>
-            Це не перелік симптомів і не анкета. Це мапа понять, які перетікають одне в одне:
-            близькість межує із самотністю, втрата — із сенсом, тривога — з тим, що не має слів.
-            Почніть із будь-якої точки — кожна веде далі.
+            {tr(
+              "Це не перелік симптомів і не анкета. Це мапа понять, які перетікають одне в одне: близькість межує із самотністю, втрата — із сенсом, тривога — з тим, що не має слів. Почніть із будь-якої точки — кожна веде далі.",
+            )}
           </p>
         </div>
 
@@ -123,13 +131,15 @@ export default async function ExplorePage() {
                       href={`/themes/${theme.slug}`}
                       className={cn("transition-colors hover:text-[#1C3557]", focusRing)}
                     >
-                      {theme.title}
+                      {tr(theme.title)}
                     </Link>
                   </h2>
                 </div>
 
                 {theme.about && (
-                  <p className={`mt-3 text-[15px] leading-relaxed ${ink.muted}`}>{theme.about}</p>
+                  <p className={`mt-3 text-[15px] leading-relaxed ${ink.muted}`}>
+                    {theme.about && tr(theme.about)}
+                  </p>
                 )}
 
                 {/* Поняття кластера — редакційний рядок, не чекліст */}
@@ -143,13 +153,13 @@ export default async function ExplorePage() {
                       )}
                       <Link
                         href={`/themes/${s.slug}`}
-                        title={s.about}
+                        title={s.about && tr(s.about)}
                         className={cn(
                           "text-[#1C3557] underline decoration-[#B38B49]/40 underline-offset-4 transition-colors hover:decoration-[#B38B49]",
                           focusRing,
                         )}
                       >
-                        {s.title}
+                        {tr(s.title)}
                       </Link>
                     </span>
                   ))}
@@ -158,10 +168,10 @@ export default async function ExplorePage() {
                 {total > 0 && (
                   <p className="mt-3 text-[13px] text-[#876428]">
                     {[
-                      c.therapists.length && `${c.therapists.length} фахівців`,
-                      c.articles.length && `${c.articles.length} статей`,
-                      c.lectures.length && `${c.lectures.length} лекцій`,
-                      c.events.length && `${c.events.length} груп`,
+                      c.therapists.length && countLabel(c.therapists.length, "therapists", tr),
+                      c.articles.length && countLabel(c.articles.length, "articles", tr),
+                      c.lectures.length && countLabel(c.lectures.length, "lectures", tr),
+                      c.events.length && countLabel(c.events.length, "groups", tr),
                     ]
                       .filter(Boolean)
                       .join(" · ")}
@@ -178,10 +188,10 @@ export default async function ExplorePage() {
             className={`text-2xl font-normal ${ink.strong}`}
             style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
           >
-            Перетини
+            {tr("Перетини")}
           </h2>
           <p className={`mt-2 max-w-xl text-[15px] leading-relaxed ${ink.muted}`}>
-            Теми не живуть окремо. Найцікавіше починається там, де одна переходить в іншу.
+            {tr("Теми не живуть окремо. Найцікавіше починається там, де одна переходить в іншу.")}
           </p>
           <ul className="mt-6 flex flex-wrap gap-2.5">
             {CROSSINGS.map(([a, b]) => {
@@ -200,7 +210,7 @@ export default async function ExplorePage() {
                       focusRing,
                     )}
                   >
-                    {ta.title}
+                    {tr(ta.title)}
                   </Link>
                   <span aria-hidden className="self-center text-[#B38B49]">
                     ↔
@@ -212,7 +222,7 @@ export default async function ExplorePage() {
                       focusRing,
                     )}
                   >
-                    {tb.title}
+                    {tr(tb.title)}
                   </Link>
                 </li>
               );
@@ -230,7 +240,7 @@ export default async function ExplorePage() {
               focusRing,
             )}
           >
-            Простір фахівців
+            {tr("Простір фахівців")}
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
           <Link
@@ -241,7 +251,7 @@ export default async function ExplorePage() {
               focusRing,
             )}
           >
-            Бібліотека
+            {tr("Бібліотека")}
           </Link>
         </div>
       </div>

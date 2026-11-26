@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { useMemo, useState } from "react";
 import { BookOpen, Clock3 } from "lucide-react";
 
@@ -12,6 +12,8 @@ import {
   type Material,
 } from "@/components/preview/vsi/data";
 import { focusRing, ink, serif, touch } from "@/components/preview/vsi/theme";
+import { useI18n } from "@/lib/i18n/client";
+import { TranslatedNote } from "@/components/i18n/translated-note";
 
 /**
  * Бібліотека — редакційна професійна добірка.
@@ -35,7 +37,14 @@ const FEATHER_CROPPED = {
   WebkitMaskComposite: "source-in",
 } as const;
 
-export function LibraryClient({ materials }: { materials: Material[] }) {
+export function LibraryClient({
+  materials,
+  translated,
+}: {
+  materials: Material[];
+  translated: boolean;
+}) {
+  const { tr } = useI18n();
   const [category, setCategory] = useState<LibraryCategory | null>(null);
 
   const items = useMemo(
@@ -55,7 +64,7 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
           <div className="flex items-center gap-4">
             <span aria-hidden className="h-px w-8 bg-[#B38B49]/50" />
             <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
-              Бібліотека VSI
+              {tr("Бібліотека VSI")}
             </p>
             <span aria-hidden className="h-px w-16 bg-[#B38B49]/50" />
           </div>
@@ -64,20 +73,23 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
             className={`mt-5 max-w-[470px] text-balance text-[2.6rem] font-normal leading-[1.08] sm:text-5xl ${ink.strong}`}
             style={serif}
           >
-            Тексти, лекції та дослідження
+            {tr("Тексти, лекції та дослідження")}
           </h1>
 
           <span aria-hidden className="mt-7 block h-px w-24 bg-[#B38B49]/60" />
 
           <p className={`mt-7 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
-            Статті, лекції, аналітичні роздуми та матеріали з психоаналітичної традиції й суміжних
-            сфер — для професійного розвитку, натхнення і глибшого розуміння психічного життя.
+            {tr(
+              "Статті, лекції, аналітичні роздуми та матеріали з психоаналітичної традиції й суміжних сфер — для професійного розвитку, натхнення і глибшого розуміння психічного життя.",
+            )}
           </p>
         </div>
 
         <Image
           src="/brand/motifs/library-hero.png"
-          alt="Світла арка з книжковими полицями й розгорнутою книгою, довкола — золоті орбіти та гілка"
+          alt={tr(
+            "Світла арка з книжковими полицями й розгорнутою книгою, довкола — золоті орбіти та гілка",
+          )}
           width={1254}
           height={1254}
           priority
@@ -88,7 +100,11 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
       </section>
 
       {/* ── Категорії ── */}
-      <div className="mt-14 flex flex-wrap gap-2" role="group" aria-label="Категорії бібліотеки">
+      <div
+        className="mt-14 flex flex-wrap gap-2"
+        role="group"
+        aria-label={tr("Категорії бібліотеки")}
+      >
         <button
           type="button"
           onClick={() => setCategory(null)}
@@ -102,7 +118,7 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
               : "border-[#142744]/15 bg-[#FFFDF8] text-[#4A5568] hover:border-[#142744]/35",
           )}
         >
-          Усі
+          {tr("Усі")}
         </button>
         {LIBRARY_CATEGORIES.map((c) => (
           <button
@@ -119,17 +135,19 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
                 : "border-[#142744]/15 bg-[#FFFDF8] text-[#4A5568] hover:border-[#142744]/35",
             )}
           >
-            {c}
+            {tr(c)}
           </button>
         ))}
       </div>
+
+      <TranslatedNote show={translated} className="mt-6" />
 
       {/* ── Матеріали ── */}
       <div className="mt-8" aria-live="polite">
         {items.length === 0 ? (
           <div className="border-[#142744]/18 rounded-2xl border border-dashed bg-[#FFFDF8]/60 px-6 py-14 text-center">
             <p className={`mx-auto max-w-md text-[15px] leading-relaxed ${ink.muted}`}>
-              У цій категорії поки немає матеріалів — вони готуються.
+              {tr("У цій категорії поки немає матеріалів — вони готуються.")}
             </p>
           </div>
         ) : (
@@ -163,7 +181,7 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
 
                   <div className="flex flex-1 flex-col p-5">
                     <span className="inline-flex w-fit items-center rounded-full bg-[#1C3557]/[0.08] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.1em] text-[#1C3557]">
-                      {m.kind}
+                      {tr(m.kind)}
                     </span>
                     <h2
                       className={`mt-3 text-xl font-normal leading-snug ${ink.strong}`}
@@ -180,7 +198,7 @@ export function LibraryClient({ materials }: { materials: Material[] }) {
                       {m.author}
                       <span aria-hidden className="h-1 w-1 rounded-full bg-[#B38B49]" />
                       <Clock3 className="h-3.5 w-3.5" aria-hidden />
-                      {m.readingMinutes} хв
+                      {m.readingMinutes} {tr("хв")}
                     </p>
                   </div>
                 </Link>

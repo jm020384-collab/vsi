@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import type { Format, PublicEvent } from "@/components/preview/vsi/data";
 import { registrationClosedReason } from "@/lib/event-registration";
+import type { Locale } from "@/lib/i18n/config";
 import { dayLabel, scheduleLabel, upcomingEventFilter } from "@/lib/event-recurrence";
 
 export const EVENT_TYPE_LABEL: Record<string, string> = {
@@ -32,7 +33,7 @@ export const EVENT_FORMAT: Record<"ONLINE" | "OFFLINE" | "BOTH", Format> = {
  * групи «дата» — це початок серії, а не наступна зустріч, тож замість
  * числа показуємо розклад («Щосереди»).
  */
-export async function loadUpcomingEvents(): Promise<PublicEvent[]> {
+export async function loadUpcomingEvents(locale: Locale = "uk"): Promise<PublicEvent[]> {
   const rows = await prisma.event.findMany({
     where: {
       status: "PUBLISHED",
@@ -47,9 +48,9 @@ export async function loadUpcomingEvents(): Promise<PublicEvent[]> {
   });
 
   return rows.map((e) => {
-    const dateLabel = scheduleLabel(e);
+    const dateLabel = scheduleLabel(e, locale);
     const once = e.recurrence === "ONCE";
-    const [day, month] = once ? dayLabel(e.startsAt).split(" ") : [];
+    const [day, month] = once ? dayLabel(e.startsAt, locale).split(" ") : [];
 
     return {
       id: e.id,
@@ -61,7 +62,8 @@ export async function loadUpcomingEvents(): Promise<PublicEvent[]> {
       day,
       month,
       // «Щосереди о 18:30, з 20 вересня» → «Щосереди»
-      shortWhen: dateLabel.split(/,| о /)[0] ?? dateLabel,
+      // Прийменник відрізаємо лише перед годиною: у «Раз в две недели» теж є «в».
+      shortWhen: dateLabel.split(/,| [ов] (?=\d)/)[0] ?? dateLabel,
       format: EVENT_FORMAT[e.format],
       seatsTotal: e.seatsTotal,
       seatsLeft: e.seatsTotal ? Math.max(0, e.seatsTotal - e._count.registrations) : null,

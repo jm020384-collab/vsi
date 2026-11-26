@@ -1,3 +1,6 @@
+import type { Locale } from "@/lib/i18n/config";
+import { intlLocale } from "@/lib/i18n/translate";
+
 export const EVENT_RECURRENCES = ["ONCE", "WEEKLY", "BIWEEKLY", "MONTHLY"] as const;
 export type EventRecurrence = (typeof EVENT_RECURRENCES)[number];
 
@@ -27,6 +30,38 @@ const WEEKDAY_NAME: string[] = [
   "п'ятниця",
   "субота",
 ];
+
+/** Слова, з яких складається підпис розкладу, — двома мовами сайту. */
+const SCHEDULE_WORDS = {
+  uk: {
+    every: WEEKDAY_EVERY,
+    day: WEEKDAY_NAME,
+    at: "о",
+    kyiv: "за Києвом",
+    biweekly: "Раз на два тижні",
+    monthly: "Раз на місяць",
+    from: "з",
+    until: "до",
+  },
+  ru: {
+    every: [
+      "каждое воскресенье",
+      "каждый понедельник",
+      "каждый вторник",
+      "каждую среду",
+      "каждый четверг",
+      "каждую пятницу",
+      "каждую субботу",
+    ],
+    day: ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"],
+    at: "в",
+    kyiv: "по Киеву",
+    biweekly: "Раз в две недели",
+    monthly: "Раз в месяц",
+    from: "с",
+    until: "до",
+  },
+};
 
 /**
  * Час подій — київський «настінний» час.
@@ -61,16 +96,20 @@ export function parseEventDateTime(value: string): Date | null {
   return new Date(Date.UTC(+m[1]!, +m[2]! - 1, +m[3]!, m[4] ? +m[4] : 12, m[5] ? +m[5] : 0));
 }
 
-function timeLabel(date: Date): string {
-  return date.toLocaleTimeString("uk-UA", {
+function timeLabel(date: Date, locale: Locale): string {
+  return date.toLocaleTimeString(intlLocale(locale), {
     hour: "2-digit",
     minute: "2-digit",
     timeZone: FLOATING,
   });
 }
 
-export function dayLabel(date: Date): string {
-  return date.toLocaleDateString("uk-UA", { day: "numeric", month: "long", timeZone: FLOATING });
+export function dayLabel(date: Date, locale: Locale = "uk"): string {
+  return date.toLocaleDateString(intlLocale(locale), {
+    day: "numeric",
+    month: "long",
+    timeZone: FLOATING,
+  });
 }
 
 /**
@@ -79,29 +118,35 @@ export function dayLabel(date: Date): string {
  * День тижня не зберігається окремо — він завжди виводиться з дати
  * першої зустрічі, тож не може розійтися з нею.
  */
-export function scheduleLabel(event: {
-  startsAt: Date;
-  recurrence: EventRecurrence;
-  recurrenceEndsAt: Date | null;
-}): string {
+export function scheduleLabel(
+  event: {
+    startsAt: Date;
+    recurrence: EventRecurrence;
+    recurrenceEndsAt: Date | null;
+  },
+  locale: Locale = "uk",
+): string {
   const { startsAt, recurrence, recurrenceEndsAt } = event;
-  const time = timeLabel(startsAt);
+  const w = SCHEDULE_WORDS[locale];
+  const at = `${w.at} ${timeLabel(startsAt, locale)} ${w.kyiv}`;
 
   if (recurrence === "ONCE") {
-    return `${dayLabel(startsAt)} о ${time} за Києвом`;
+    return `${dayLabel(startsAt, locale)} ${at}`;
   }
 
   const weekday = startsAt.getUTCDay();
   const head =
     recurrence === "WEEKLY"
-      ? `${WEEKDAY_EVERY[weekday]} о ${time} за Києвом`
+      ? `${w.every[weekday]} ${at}`
       : recurrence === "BIWEEKLY"
-        ? `Раз на два тижні, ${WEEKDAY_NAME[weekday]} о ${time} за Києвом`
-        : `Раз на місяць, ${WEEKDAY_NAME[weekday]} о ${time} за Києвом`;
+        ? `${w.biweekly}, ${w.day[weekday]} ${at}`
+        : `${w.monthly}, ${w.day[weekday]} ${at}`;
 
   const parts = [head.charAt(0).toUpperCase() + head.slice(1)];
-  if (startsAt.getTime() > kyivWallNow().getTime()) parts.push(`з ${dayLabel(startsAt)}`);
-  if (recurrenceEndsAt) parts.push(`до ${dayLabel(recurrenceEndsAt)}`);
+  if (startsAt.getTime() > kyivWallNow().getTime()) {
+    parts.push(`${w.from} ${dayLabel(startsAt, locale)}`);
+  }
+  if (recurrenceEndsAt) parts.push(`${w.until} ${dayLabel(recurrenceEndsAt, locale)}`);
   return parts.join(", ");
 }
 

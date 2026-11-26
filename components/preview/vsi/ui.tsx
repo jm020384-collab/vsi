@@ -1,3 +1,4 @@
+import Link from "@/components/i18n/link";
 import { cn } from "@/lib/utils";
 import { focusRing, focusRingDark, ink, touch } from "./theme";
 
@@ -102,8 +103,8 @@ export function ButtonLink({
 } & React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   const onDark = variant === "onDark" || variant === "ghostOnDark";
   return (
-    <a
-      href={href}
+    <Link
+      href={href ?? "#"}
       className={cn(
         "inline-flex items-center justify-center gap-2 rounded-xl px-6 text-sm font-medium",
         "transition-all duration-200 motion-reduce:transition-none",
@@ -115,7 +116,7 @@ export function ButtonLink({
       {...rest}
     >
       {children}
-    </a>
+    </Link>
   );
 }
 

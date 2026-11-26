@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n/client";
 
 const RELOAD_FLAG = "vsi-chunk-reload";
 
@@ -22,6 +23,7 @@ function isStaleBuildError(error: Error) {
 }
 
 export default function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
+  const { tr } = useI18n();
   const stale = isStaleBuildError(error);
   // Поки вирішуємо, чи перезавантажувати, екран помилки не показуємо —
   // інакше він блимнув би перед оновленням.
@@ -51,13 +53,13 @@ export default function ErrorBoundary({ error, reset }: { error: Error; reset: (
 
   return (
     <div className="container max-w-md py-24 text-center">
-      <h1 className="text-3xl font-semibold">Щось пішло не так</h1>
+      <h1 className="text-3xl font-semibold">{tr("Щось пішло не так")}</h1>
       <p className="mt-3 text-muted-foreground">
-        Спробуйте оновити сторінку або повторіть пізніше.
+        {tr("Спробуйте оновити сторінку або повторіть пізніше.")}
       </p>
       {/* Для застарілої збірки reset() не допоможе: потрібні нові файли. */}
       <Button className="mt-6" onClick={stale ? () => window.location.reload() : reset}>
-        Спробувати ще раз
+        {tr("Спробувати ще раз")}
       </Button>
     </div>
   );

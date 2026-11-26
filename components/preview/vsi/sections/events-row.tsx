@@ -1,10 +1,11 @@
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Wrap } from "../ui";
 import { FORMAT_LABEL, type PublicEvent } from "../data";
 import { focusRing, ink } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
 
 const COUNT = 3;
 
@@ -14,7 +15,8 @@ const COUNT = 3;
  * Якщо опублікованих подій немає, рядок не показуємо зовсім: порожній
  * блок із заголовком «Найближче…» і без подій гірший за його відсутність.
  */
-export function EventsRow({ events }: { events: PublicEvent[] }) {
+export async function EventsRow({ events }: { events: PublicEvent[] }) {
+  const { tr } = await getI18n();
   const items = events.slice(0, COUNT);
   if (items.length === 0) return null;
 
@@ -23,7 +25,7 @@ export function EventsRow({ events }: { events: PublicEvent[] }) {
       <Wrap className="py-10 lg:py-12">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className={cn("text-[13px] font-medium uppercase tracking-[0.18em]", ink.strong)}>
-            Найближче в аналітичному середовищі
+            {tr("Найближче в аналітичному середовищі")}
           </h2>
           <Link
             href="/events"
@@ -33,7 +35,7 @@ export function EventsRow({ events }: { events: PublicEvent[] }) {
               focusRing,
             )}
           >
-            Усі події
+            {tr("Усі події")}
             <ArrowRight
               className="h-3.5 w-3.5 transition-transform duration-200 group-hover/all:translate-x-1 motion-reduce:transition-none"
               aria-hidden
@@ -87,7 +89,7 @@ export function EventsRow({ events }: { events: PublicEvent[] }) {
                     {e.title}
                   </span>
                   <span className={cn("mt-1.5 block text-[12px]", ink.soft)}>
-                    {e.typeLabel} · {FORMAT_LABEL[e.format].toLowerCase()} · {e.lead}
+                    {tr(e.typeLabel)} · {tr(FORMAT_LABEL[e.format]).toLowerCase()} · {e.lead}
                   </span>
                 </span>
               </Link>

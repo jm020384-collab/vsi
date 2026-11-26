@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -7,6 +7,7 @@ import { Wrap } from "../ui";
 import { AvatarPortrait } from "../decor";
 import type { Therapist } from "../data";
 import { focusRing, ink } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
 
 /**
  * Троє на головній, решта — за посиланням «Усі фахівці».
@@ -112,7 +113,8 @@ function TopicGlyph({ topic }: { topic: string }) {
  * на кожен запит (кореневий layout читає сесію), тож тасування нічого не
  * ламає в кешуванні: кешується список із бази, а не вибір із нього.
  */
-export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
+export async function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
+  const { tr } = await getI18n();
   const items = shuffle(therapists).slice(0, COUNT);
   if (items.length === 0) return null;
 
@@ -127,7 +129,7 @@ export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
             )}
             style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
           >
-            Познайомитися з фахівцями
+            {tr("Познайомитися з фахівцями")}
           </h2>
           <Link
             href="/therapists"
@@ -137,7 +139,7 @@ export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
               focusRing,
             )}
           >
-            Усі фахівці
+            {tr("Усі фахівці")}
             <ArrowRight
               className="h-3.5 w-3.5 transition-transform duration-200 group-hover/all:translate-x-1 motion-reduce:transition-none"
               aria-hidden
@@ -200,7 +202,9 @@ export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
                     Звання не обрізаємо: ширша картка вміщає його повністю,
                     а обірване трьома крапками — це вже не представлення.
                   */}
-                  <p className={cn("mt-1.5 text-[12px] leading-[1.45]", ink.muted)}>{t.status}</p>
+                  <p className={cn("mt-1.5 text-[12px] leading-[1.45]", ink.muted)}>
+                    {tr(t.status)}
+                  </p>
 
                   {t.topics.length > 0 && (
                     <>
@@ -212,7 +216,7 @@ export function SpecialistsRow({ therapists }: { therapists: Therapist[] }) {
                             className={cn("flex gap-2 text-[12px] leading-tight", ink.soft)}
                           >
                             <TopicGlyph topic={topic} />
-                            <span className="min-w-0">{topic}</span>
+                            <span className="min-w-0">{tr(topic)}</span>
                           </li>
                         ))}
                       </ul>

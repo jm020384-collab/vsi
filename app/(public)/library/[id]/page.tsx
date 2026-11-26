@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Clock3 } from "lucide-react";
 
@@ -10,6 +10,10 @@ import { AvatarPortrait } from "@/components/preview/vsi/decor";
 import { THEMES, type ThemeEntry } from "@/components/preview/vsi/data";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
 import { JsonLd, ORGANIZATION_ID, SITE_URL } from "@/components/seo/json-ld";
+import { getI18n } from "@/lib/i18n/server";
+import { pageMetadata } from "@/lib/i18n/metadata";
+import { createContentTranslator } from "@/lib/i18n/content";
+import { TranslatedNote } from "@/components/i18n/translated-note";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -45,6 +49,8 @@ interface MaterialViewModel {
   authorStatus?: string;
   authorPhoto?: string | null;
   authorSeed: number;
+  /** Чи показано переклад — тоді сторінка про це каже. */
+  translated: boolean;
   concepts: ThemeEntry[];
   relatedArticles: RelatedLink[];
   topicSpecialists: SpecialistLink[];
@@ -73,6 +79,8 @@ function matchConcepts(text: string, categories: string[]): ThemeEntry[] {
 
 async function loadMaterial(id: string): Promise<MaterialViewModel | null> {
   const session = await auth();
+  const { locale } = await getI18n();
+  const content = createContentTranslator(locale);
 
   const real = await prisma.article.findUnique({
     where: { slug: id },
@@ -84,8 +92,12 @@ async function loadMaterial(id: string): Promise<MaterialViewModel | null> {
     if (real.status !== "PUBLISHED" && !isOwner) return null;
 
     const categories = real.tags.map((t) => t.tag.nameUk);
-    const bodyParagraphs = real.content
-      .split(/\n{2,}/)
+    // Перекладаємо статтю цілою: абзаци ділимо вже після перекладу.
+    const title = content.text(real.title);
+    const excerpt = content.text(real.excerpt);
+    const bodyParagraphs = content
+      .text(real.content)
+      .split(/\r?\n(?:\r?\n)+/)
       .map((p) => p.trim())
       .filter(Boolean);
 
@@ -101,13 +113,15 @@ async function loadMaterial(id: string): Promise<MaterialViewModel | null> {
 
     return {
       kind: "Стаття",
-      title: real.title,
+      title,
       categories,
       bodyParagraphs,
-      excerpt: real.excerpt,
+      excerpt,
       publishedAt: real.status === "PUBLISHED" ? real.publishedAt : null,
       readingMinutes: Math.max(1, Math.round(real.content.split(/\s+/).length / 200)),
-      authorName: real.author.therapist?.fullName ?? real.author.name ?? "Фахівець VSI",
+      authorName: content.name(
+        real.author.therapist?.fullName ?? real.author.name ?? "Фахівець VSI",
+      ),
       authorHref: real.author.therapist ? `/specialists/${real.author.therapist.slug}` : undefined,
       authorStatus: real.author.therapist ? "Фахівець VSI" : undefined,
       authorPhoto: real.author.therapist?.photoUrl,
@@ -116,9 +130,10 @@ async function loadMaterial(id: string): Promise<MaterialViewModel | null> {
       relatedArticles: relatedRows.map((r) => ({
         id: r.slug,
         href: `/library/${r.slug}`,
-        title: r.title,
+        title: content.text(r.title),
       })),
       topicSpecialists: [],
+      translated: content.used,
     };
   }
 
@@ -133,7 +148,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // app/loading.tsx встигає застрімити 200 до того, як стане відомо,
   // що сторінки не існує, і статус-код уже не змінити.
   if (!m) notFound();
-  return { title: m.title, description: m.excerpt };
+  const { locale } = await getI18n();
+  return pageMetadata(locale, `/library/${id}`, { title: m.title, description: m.excerpt });
 }
 
 /**
@@ -145,6 +161,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
  * не глухий кут, а вузол руху.
  */
 export default async function ArticlePage({ params }: PageProps) {
+  const { tr, locale, href } = await getI18n();
   const { id } = await params;
   const m = await loadMaterial(id);
   if (!m) notFound();
@@ -159,11 +176,11 @@ export default async function ArticlePage({ params }: PageProps) {
             headline: m.title,
             description: m.excerpt,
             datePublished: m.publishedAt.toISOString(),
-            inLanguage: "uk",
+            inLanguage: locale,
             author: {
               "@type": "Person",
               name: m.authorName,
-              url: m.authorHref ? `${SITE_URL}${m.authorHref}` : undefined,
+              url: m.authorHref ? `${SITE_URL}${href(m.authorHref)}` : undefined,
             },
             publisher: { "@id": ORGANIZATION_ID },
           }}
@@ -178,7 +195,7 @@ export default async function ArticlePage({ params }: PageProps) {
           )}
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
-          Бібліотека
+          {tr("Бібліотека")}
         </Link>
       </div>
 
@@ -186,11 +203,11 @@ export default async function ArticlePage({ params }: PageProps) {
       <header className="mt-4">
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center rounded-full border border-[#142744]/15 bg-[#FFFDF8] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.1em] text-[#1C3557]">
-            {m.kind}
+            {tr(m.kind)}
           </span>
           {m.categories.map((c) => (
             <span key={c} className={`text-[12px] ${ink.soft}`}>
-              {c}
+              {tr(c)}
             </span>
           ))}
         </div>
@@ -213,14 +230,18 @@ export default async function ArticlePage({ params }: PageProps) {
           />
           <div>
             <div className={`text-[15px] font-medium ${ink.strong}`}>{m.authorName}</div>
-            {m.authorStatus && <div className={`text-[13px] ${ink.soft}`}>{m.authorStatus}</div>}
+            {m.authorStatus && (
+              <div className={`text-[13px] ${ink.soft}`}>{tr(m.authorStatus)}</div>
+            )}
           </div>
           <span className={`ml-auto inline-flex items-center gap-1.5 text-[13px] ${ink.soft}`}>
             <Clock3 className="h-3.5 w-3.5" aria-hidden />
-            {m.readingMinutes} хв
+            {m.readingMinutes} {tr("хв")}
           </span>
         </div>
       </header>
+
+      <TranslatedNote show={m.translated} className="mt-4" />
 
       <hr className="mt-6 border-[#142744]/10" />
 
@@ -248,7 +269,7 @@ export default async function ArticlePage({ params }: PageProps) {
             <p
               className={`mt-6 rounded-xl border border-dashed border-[#142744]/15 bg-[#FFFDF8]/70 px-5 py-4 text-[14px] italic ${ink.soft}`}
             >
-              Повний текст цього матеріалу готується до публікації.
+              {tr("Повний текст цього матеріалу готується до публікації.")}
             </p>
           </div>
         )}
@@ -256,7 +277,7 @@ export default async function ArticlePage({ params }: PageProps) {
         {m.sources && m.sources.length > 0 && (
           <div className="mt-10 border-t border-[#142744]/10 pt-5">
             <h2 className={`text-[13px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
-              Джерела
+              {tr("Джерела")}
             </h2>
             <ul className={`mt-3 space-y-1.5 text-[14px] ${ink.muted}`}>
               {m.sources.map((s) => (
@@ -273,13 +294,13 @@ export default async function ArticlePage({ params }: PageProps) {
           className={`text-2xl font-normal ${ink.strong}`}
           style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
         >
-          Продовжити дослідження
+          {tr("Продовжити дослідження")}
         </h2>
 
         {m.concepts.length > 0 && (
           <div className="mt-5">
             <h3 className={`text-[12px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
-              Суміжні поняття
+              {tr("Суміжні поняття")}
             </h3>
             <div className="mt-2.5 flex flex-wrap gap-2">
               {m.concepts.map((c) => (
@@ -293,7 +314,7 @@ export default async function ArticlePage({ params }: PageProps) {
                     focusRing,
                   )}
                 >
-                  {c.title}
+                  {tr(c.title)}
                 </Link>
               ))}
             </div>
@@ -303,7 +324,7 @@ export default async function ArticlePage({ params }: PageProps) {
         {m.relatedArticles.length > 0 && (
           <div className="mt-7">
             <h3 className={`text-[12px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
-              Пов'язані матеріали
+              {tr("Пов'язані матеріали")}
             </h3>
             <ul className="mt-3 space-y-2.5">
               {m.relatedArticles.map((r) => (
@@ -336,7 +357,7 @@ export default async function ArticlePage({ params }: PageProps) {
         {m.authorHref && (
           <div className="mt-7">
             <h3 className={`text-[12px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
-              Простір автора
+              {tr("Простір автора")}
             </h3>
             <Link
               href={m.authorHref}
@@ -359,10 +380,12 @@ export default async function ArticlePage({ params }: PageProps) {
                   {m.authorName}
                 </span>
                 {m.authorStatus && (
-                  <span className={`block truncate text-[13px] ${ink.soft}`}>{m.authorStatus}</span>
+                  <span className={`block truncate text-[13px] ${ink.soft}`}>
+                    {tr(m.authorStatus)}
+                  </span>
                 )}
                 <span className="mt-1 inline-flex items-center gap-1 text-[13px] font-medium text-[#1C3557]">
-                  Познайомитися з фахівцем
+                  {tr("Познайомитися з фахівцем")}
                   <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
                 </span>
               </span>
@@ -373,7 +396,8 @@ export default async function ArticlePage({ params }: PageProps) {
         {m.topicSpecialists.length > 0 && m.concepts[0] && (
           <div className="mt-7">
             <h3 className={`text-[12px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
-              Фахівці за темою «{m.concepts[0].title}»
+              {tr("Фахівці за темою «")}
+              {tr(m.concepts[0].title)}»
             </h3>
             <ul className="mt-3 space-y-2.5">
               {m.topicSpecialists.map((t) => (

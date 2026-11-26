@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X, User } from "lucide-react";
@@ -10,6 +10,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoVsi } from "@/components/brand/vsi/logo-vsi";
 import { cn } from "@/lib/utils";
 import { BRAND } from "@/lib/brand";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { localizeHref, splitLocale } from "@/lib/i18n/config";
+import { useI18n } from "@/lib/i18n/client";
 
 // «Навчання» і «Супервізія» з макета поки не додані — під ними ще немає
 // сторінок, а пункт меню в нікуди гірший за його відсутність.
@@ -43,8 +46,11 @@ const FOCUS =
  * знизу: у рядку з пʼяти пунктів пігулку видно відразу.
  */
 export function SiteHeader() {
+  const { tr } = useI18n();
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
+  // На сервері шлях приходить без /ru, у браузері — з ним.
+  const { path } = splitLocale(usePathname());
+  const { locale } = useI18n();
   const { data: session, status } = useSession();
   const user = session?.user;
   const isPro = user?.role === "THERAPIST" || user?.role === "ADMIN";
@@ -66,7 +72,7 @@ export function SiteHeader() {
           <Link
             href="/"
             className={cn("group flex items-center rounded-xl", FOCUS)}
-            aria-label={`${BRAND.name} — на головну`}
+            aria-label={tr("{brand} — на головну", { brand: BRAND.name })}
           >
             <LogoVsi className="font-serif text-[2.2rem] text-[#F8F4EC]" />
           </Link>
@@ -75,10 +81,10 @@ export function SiteHeader() {
 
           <nav
             className="hidden items-center gap-0.5 lg:flex xl:gap-1.5"
-            aria-label="Основна навігація"
+            aria-label={tr("Основна навігація")}
           >
             {NAV.map((item) => {
-              const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              const active = item.href === "/" ? path === "/" : path.startsWith(item.href);
               return (
                 <Link
                   key={item.href}
@@ -95,7 +101,7 @@ export function SiteHeader() {
                     FOCUS,
                   )}
                 >
-                  {item.label}
+                  {tr(item.label)}
                 </Link>
               );
             })}
@@ -103,6 +109,7 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-2 xl:gap-3">
+          <LanguageSwitcher />
           <ThemeToggle />
 
           {status === "authenticated" && user ? (
@@ -118,7 +125,7 @@ export function SiteHeader() {
                 )}
               >
                 <User className="h-4 w-4 text-[#E7C77B]" strokeWidth={1.6} aria-hidden />
-                {isPro ? "Кабінет фахівця" : (user.name ?? user.email)}
+                {isPro ? tr("Кабінет фахівця") : (user.name ?? user.email)}
               </Link>
 
               <Divider />
@@ -126,14 +133,14 @@ export function SiteHeader() {
               <button
                 type="button"
                 style={serif}
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={() => signOut({ callbackUrl: localizeHref("/", locale) })}
                 className={cn(
                   "whitespace-nowrap rounded-full px-2 py-2 text-[15px] text-[#F8F4EC]/80 transition-colors hover:text-[#F8F4EC] xl:text-[17px]",
                   "motion-reduce:transition-none",
                   FOCUS,
                 )}
               >
-                Вийти
+                {tr("Вийти")}
               </button>
             </div>
           ) : (
@@ -147,7 +154,7 @@ export function SiteHeader() {
                   FOCUS,
                 )}
               >
-                Увійти
+                {tr("Увійти")}
               </Link>
 
               <Divider />
@@ -164,14 +171,14 @@ export function SiteHeader() {
                 )}
               >
                 <User className="h-4 w-4 text-[#E7C77B]" strokeWidth={1.6} aria-hidden />
-                Створити профіль
+                {tr("Створити профіль")}
               </Link>
             </div>
           )}
 
           <button
             type="button"
-            aria-label="Меню"
+            aria-label={tr("Меню")}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
             className={cn(
@@ -191,7 +198,7 @@ export function SiteHeader() {
       >
         <nav className="container flex flex-col py-3">
           {NAV.map((item) => {
-            const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            const active = item.href === "/" ? path === "/" : path.startsWith(item.href);
             return (
               <Link
                 key={item.href}
@@ -204,7 +211,7 @@ export function SiteHeader() {
                   FOCUS,
                 )}
               >
-                {item.label}
+                {tr(item.label)}
               </Link>
             );
           })}
@@ -221,18 +228,18 @@ export function SiteHeader() {
                     FOCUS,
                   )}
                 >
-                  {isPro ? "Кабінет фахівця" : "Кабінет"}
+                  {isPro ? tr("Кабінет фахівця") : tr("Кабінет")}
                 </Link>
                 <button
                   type="button"
                   style={serif}
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={() => signOut({ callbackUrl: localizeHref("/", locale) })}
                   className={cn(
                     "rounded-full px-4 py-3 text-[16px] text-[#F8F4EC]/80 hover:text-[#F8F4EC]",
                     FOCUS,
                   )}
                 >
-                  Вийти
+                  {tr("Вийти")}
                 </button>
               </>
             ) : (
@@ -245,7 +252,7 @@ export function SiteHeader() {
                   FOCUS,
                 )}
               >
-                Увійти
+                {tr("Увійти")}
               </Link>
             )}
           </div>

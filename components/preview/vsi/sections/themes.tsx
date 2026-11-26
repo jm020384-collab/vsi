@@ -1,10 +1,13 @@
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Eyebrow, Lead, SectionTitle, Wrap } from "../ui";
 import { THEMES, themeContent, type Theme } from "../data";
 import { focusRing, ink, VSI } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
+import { countLabel } from "@/lib/i18n/counts";
+import type { Translate } from "@/lib/i18n/translate";
 
 /**
  * «Що привело вас сюди?» — тематичні входи.
@@ -141,26 +144,28 @@ export function ThemeGlyph({ slug }: { slug: Theme["slug"] }) {
   );
 }
 
-function countsLine(theme: Theme) {
+function countsLine(theme: Theme, tr: Translate) {
   const c = themeContent(theme);
   const parts: string[] = [];
-  if (c.therapists.length) parts.push(`${c.therapists.length} фахівців`);
-  if (c.articles.length) parts.push(`${c.articles.length} статей`);
-  if (c.lectures.length) parts.push(`${c.lectures.length} лекцій`);
-  if (c.events.length) parts.push(`${c.events.length} груп`);
+  if (c.therapists.length) parts.push(countLabel(c.therapists.length, "therapists", tr));
+  if (c.articles.length) parts.push(countLabel(c.articles.length, "articles", tr));
+  if (c.lectures.length) parts.push(countLabel(c.lectures.length, "lectures", tr));
+  if (c.events.length) parts.push(countLabel(c.events.length, "groups", tr));
   return parts.join(" · ");
 }
 
-export function Themes() {
+export async function Themes() {
+  const { tr } = await getI18n();
   return (
     <section id="themes" className="bg-[#FFFDF8]">
       <Wrap className="py-20 lg:py-28">
         <div className="max-w-2xl">
-          <Eyebrow>Тематичні входи</Eyebrow>
-          <SectionTitle className="mt-6">Що привело вас сюди?</SectionTitle>
+          <Eyebrow>{tr("Тематичні входи")}</Eyebrow>
+          <SectionTitle className="mt-6">{tr("Що привело вас сюди?")}</SectionTitle>
           <Lead className="mt-6">
-            Не діагноз і не «проблема» — тема. Оберіть ту, що відгукується: за нею відкриються
-            фахівці, які з нею працюють, статті, лекції та групи.
+            {tr(
+              "Не діагноз і не «проблема» — тема. Оберіть ту, що відгукується: за нею відкриються фахівці, які з нею працюють, статті, лекції та групи.",
+            )}
           </Lead>
         </div>
 
@@ -188,15 +193,15 @@ export function Themes() {
                   className={cn("mt-4 text-2xl font-normal leading-snug", ink.strong)}
                   style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
                 >
-                  {theme.title}
+                  {tr(theme.title)}
                 </h3>
                 <p className={cn("mt-2 flex-1 text-[14px] leading-relaxed", ink.muted)}>
-                  {theme.subline}
+                  {tr(theme.subline)}
                 </p>
 
                 {/* Тема — зріз платформи: скільки за нею живого контенту */}
                 <p className="mt-5 border-t border-[#142744]/[0.08] pt-3.5 text-[13px] text-[#876428]">
-                  {countsLine(theme)}
+                  {countsLine(theme, tr)}
                 </p>
               </Link>
             </li>
@@ -205,7 +210,7 @@ export function Themes() {
 
         {/* Тихий вихід для тих, хто не впізнав себе */}
         <p className={cn("mt-8 text-[15px]", ink.muted)}>
-          Не впізнали себе в жодній темі?{" "}
+          {tr("Не впізнали себе в жодній темі?")}{" "}
           <Link
             href="/explore"
             className={cn(
@@ -213,9 +218,9 @@ export function Themes() {
               focusRing,
             )}
           >
-            Відкрийте повну мапу тем
+            {tr("Відкрийте повну мапу тем")}
           </Link>{" "}
-          або{" "}
+          {tr("або")}{" "}
           <Link
             href="/therapists"
             className={cn(
@@ -223,7 +228,7 @@ export function Themes() {
               focusRing,
             )}
           >
-            перегляньте всіх фахівців
+            {tr("перегляньте всіх фахівців")}
           </Link>
           .
         </p>

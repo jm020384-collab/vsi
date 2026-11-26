@@ -16,6 +16,15 @@ import { loadTherapistsCached } from "@/lib/therapists";
 import { loadPublishedMaterials } from "@/lib/materials";
 import { loadUpcomingEvents } from "@/lib/events";
 import { shuffle } from "@/lib/shuffle";
+import {
+  createContentTranslator,
+  localizeEvents,
+  localizeMaterials,
+  localizeTherapists,
+} from "@/lib/i18n/content";
+import { TranslatedNote } from "@/components/i18n/translated-note";
+import { pageMetadata } from "@/lib/i18n/metadata";
+import { getI18n } from "@/lib/i18n/server";
 
 /**
  * Головна сторінка «vsi» — за макетом користувача.
@@ -26,22 +35,30 @@ import { shuffle } from "@/lib/shuffle";
  * немає, але вони несуть реальний зміст, тож лишені нижче за основним
  * потоком. Завершує сторінку слоган бренду.
  */
-export const metadata: Metadata = {
-  title: { absolute: "Аналітична (юнгіанська) психотерапія українською, онлайн · vsi" },
-  description:
-    "vsi — простір перевірених аналітично орієнтованих психологів і психотерапевтів. Познайомтеся з фахівцями, читайте їхні тексти й оберіть, з ким почати. Українською, онлайн та очно.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, tr } = await getI18n();
+  return pageMetadata(locale, "/", {
+    title: { absolute: tr("Аналітична (юнгіанська) психотерапія українською, онлайн · vsi") },
+    description: tr(
+      "vsi — простір перевірених аналітично орієнтованих психологів і психотерапевтів. Познайомтеся з фахівцями, читайте їхні тексти й оберіть, з ким почати. Українською, онлайн та очно.",
+    ),
+  });
+}
 
 export default async function HomePage() {
+  const { locale } = await getI18n();
+  const content = createContentTranslator(locale);
   const [therapists, texts, events] = await Promise.all([
     loadTherapistsCached(),
     loadPublishedMaterials(),
-    loadUpcomingEvents(),
+    loadUpcomingEvents(locale),
   ]);
   // Тексти, як і фахівці, на кожне відкриття йдуть у випадковому порядку:
   // рядок показує лише три, і за фіксованого порядку решта не потрапила б
   // на головну ніколи.
-  const materials = shuffle(texts);
+  const materials = localizeMaterials(shuffle(texts), content);
+  const people = localizeTherapists(therapists, content);
+  const upcoming = localizeEvents(events, content);
 
   return (
     <div className="relative">
@@ -53,10 +70,11 @@ export default async function HomePage() {
       <div className="relative z-[2]">
         <Hero />
         <ThemeCircles />
-        <SpecialistsRow therapists={therapists} />
+        <SpecialistsRow therapists={people} />
         <TextsRow materials={materials} />
+        <TranslatedNote show={content.used} className="text-center" />
         <ForProfessionals />
-        <EventsRow events={events} />
+        <EventsRow events={upcoming} />
         <Approach />
         <HowToChoose />
         <QuoteBand />

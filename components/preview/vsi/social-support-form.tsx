@@ -10,6 +10,7 @@ import {
 } from "@/lib/actions/social-support";
 import { DAY_PARTS, SOCIAL_CURRENCIES, WEEKDAYS } from "@/lib/social-support";
 import { focusRing, ink, touch } from "./theme";
+import { useI18n } from "@/lib/i18n/client";
 
 const inputClass = cn(
   "h-11 w-full rounded-xl border border-[#142744]/15 bg-[#FFFDF8] px-3.5 text-[15px] text-[#142744]",
@@ -29,8 +30,9 @@ const FORMATS: { value: string; label: string }[] = [
 ];
 
 function FieldError({ message }: { message?: string }) {
+  const { tr } = useI18n();
   if (!message) return null;
-  return <p className="mt-1.5 text-[13px] text-[#8A4B33]">{message}</p>;
+  return <p className="mt-1.5 text-[13px] text-[#8A4B33]">{tr(message)}</p>;
 }
 
 /**
@@ -45,6 +47,7 @@ export function SocialSupportForm({
 }: {
   languages: { code: string; nameUk: string }[];
 }) {
+  const { tr } = useI18n();
   const [state, formAction, pending] = useActionState<SocialSupportState | null, FormData>(
     (prev, fd) => createSocialSupportRequestAction(prev, fd),
     null,
@@ -63,10 +66,11 @@ export function SocialSupportForm({
       >
         <Check className="mt-0.5 h-5 w-5 shrink-0 text-[#245A41]" aria-hidden />
         <div className="text-[15px] leading-relaxed text-[#245A41]">
-          <p className="font-medium">Дякуємо. Ми отримали вашу заявку.</p>
+          <p className="font-medium">{tr("Дякуємо. Ми отримали вашу заявку.")}</p>
           <p className="mt-2">
-            Ми розглянемо її протягом 48 годин і зв&apos;яжемося з вами, якщо знайдемо фахівця, який
-            відповідає вашому запиту та доступності.
+            {tr(
+              "Ми розглянемо її протягом 48 годин і зв'яжемося з вами, якщо знайдемо фахівця, який відповідає вашому запиту та доступності.",
+            )}
           </p>
         </div>
       </div>
@@ -86,18 +90,18 @@ export function SocialSupportForm({
     >
       {/* Пастка для ботів — прихована від людей */}
       <div className="sr-only" aria-hidden="true">
-        <label htmlFor="ss-website">Не заповнюйте це поле</label>
+        <label htmlFor="ss-website">{tr("Не заповнюйте це поле")}</label>
         <input id="ss-website" name="website" tabIndex={-1} autoComplete="off" />
       </div>
 
       <fieldset className="space-y-4">
         <legend className={cn("text-[13px] font-medium uppercase tracking-[0.14em]", ink.soft)}>
-          Контактні дані
+          {tr("Контактні дані")}
         </legend>
 
         <div>
           <label htmlFor="ss-name" className={labelClass}>
-            Ім&apos;я
+            {tr("Ім'я")}
           </label>
           <input
             id="ss-name"
@@ -128,13 +132,13 @@ export function SocialSupportForm({
 
         <div>
           <label htmlFor="ss-contact" className={labelClass}>
-            Телефон або месенджер
+            {tr("Телефон або месенджер")}
           </label>
           <input
             id="ss-contact"
             name="contact"
             required
-            placeholder="+380 … або @nickname"
+            placeholder={tr("+380 … або @nickname")}
             defaultValue={prev?.contact ?? ""}
             onChange={clearOnEdit("contact")}
             className={inputClass}
@@ -144,13 +148,13 @@ export function SocialSupportForm({
 
         <div>
           <label htmlFor="ss-country" className={labelClass}>
-            Країна або часовий пояс
+            {tr("Країна або часовий пояс")}
           </label>
           <input
             id="ss-country"
             name="country"
             required
-            placeholder="Україна, Київ · або UTC+2"
+            placeholder={tr("Україна, Київ · або UTC+2")}
             defaultValue={prev?.country ?? ""}
             onChange={clearOnEdit("country")}
             className={inputClass}
@@ -161,13 +165,13 @@ export function SocialSupportForm({
 
       <fieldset className="space-y-4">
         <legend className={cn("text-[13px] font-medium uppercase tracking-[0.14em]", ink.soft)}>
-          Про вас
+          {tr("Про вас")}
         </legend>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="ss-age" className={labelClass}>
-              Вік
+              {tr("Вік")}
             </label>
             <input
               id="ss-age"
@@ -184,7 +188,7 @@ export function SocialSupportForm({
           </div>
           <div>
             <label htmlFor="ss-gender" className={labelClass}>
-              Стать
+              {tr("Стать")}
             </label>
             <select
               id="ss-gender"
@@ -194,10 +198,10 @@ export function SocialSupportForm({
               onChange={clearOnEdit("gender")}
               className={inputClass}
             >
-              <option value="">Оберіть</option>
+              <option value="">{tr("Оберіть")}</option>
               {GENDERS.map((g) => (
                 <option key={g} value={g}>
-                  {g}
+                  {tr(g)}
                 </option>
               ))}
             </select>
@@ -208,7 +212,7 @@ export function SocialSupportForm({
 
       <div>
         <label htmlFor="ss-request" className={labelClass}>
-          Опишіть коротко ваш запит
+          {tr("Опишіть коротко ваш запит")}
         </label>
         <textarea
           id="ss-request"
@@ -224,7 +228,7 @@ export function SocialSupportForm({
 
       <fieldset>
         <legend className={labelClass}>
-          Який бюджет ви можете виділити на одну психологічну консультацію?
+          {tr("Який бюджет ви можете виділити на одну психологічну консультацію?")}
         </legend>
         <div className="mt-1.5 grid gap-3 sm:grid-cols-[1fr_auto]">
           <input
@@ -232,7 +236,7 @@ export function SocialSupportForm({
             type="number"
             min={1}
             required
-            aria-label="Сума"
+            aria-label={tr("Сума")}
             placeholder="50"
             defaultValue={prev?.budgetAmount ?? ""}
             onChange={clearOnEdit("budgetAmount")}
@@ -241,7 +245,7 @@ export function SocialSupportForm({
           <select
             name="budgetCurrency"
             required
-            aria-label="Валюта"
+            aria-label={tr("Валюта")}
             defaultValue={prev?.budgetCurrency ?? "UAH"}
             className={cn(inputClass, "sm:w-32")}
           >
@@ -256,7 +260,7 @@ export function SocialSupportForm({
       </fieldset>
 
       <fieldset>
-        <legend className={labelClass}>У які дні вам зручно зустрічатися?</legend>
+        <legend className={labelClass}>{tr("У які дні вам зручно зустрічатися?")}</legend>
         <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
           {WEEKDAYS.map((d) => (
             <label key={d.value} className="flex items-center gap-2 text-[15px]">
@@ -268,7 +272,7 @@ export function SocialSupportForm({
                 onChange={clearOnEdit("days")}
                 className="h-4 w-4 rounded border-[#142744]/30 accent-[#1C3557]"
               />
-              <span className={ink.body}>{d.label}</span>
+              <span className={ink.body}>{tr(d.label)}</span>
             </label>
           ))}
         </div>
@@ -276,7 +280,7 @@ export function SocialSupportForm({
       </fieldset>
 
       <fieldset>
-        <legend className={labelClass}>Який час вам підходить?</legend>
+        <legend className={labelClass}>{tr("Який час вам підходить?")}</legend>
         <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
           {DAY_PARTS.map((p) => (
             <label key={p.value} className="flex items-center gap-2 text-[15px]">
@@ -288,7 +292,7 @@ export function SocialSupportForm({
                 onChange={clearOnEdit("dayParts")}
                 className="h-4 w-4 rounded border-[#142744]/30 accent-[#1C3557]"
               />
-              <span className={ink.body}>{p.label}</span>
+              <span className={ink.body}>{tr(p.label)}</span>
             </label>
           ))}
         </div>
@@ -297,12 +301,13 @@ export function SocialSupportForm({
 
       <div>
         <label htmlFor="ss-note" className={labelClass}>
-          Уточнення щодо доступного часу <span className={ink.soft}>(необов&apos;язково)</span>
+          {tr("Уточнення щодо доступного часу")}{" "}
+          <span className={ink.soft}>{tr("(необов'язково)")}</span>
         </label>
         <input
           id="ss-note"
           name="availabilityNote"
-          placeholder="Наприклад: після 18:00 за київським часом"
+          placeholder={tr("Наприклад: після 18:00 за київським часом")}
           defaultValue={prev?.availabilityNote ?? ""}
           className={inputClass}
         />
@@ -311,7 +316,7 @@ export function SocialSupportForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="ss-language" className={labelClass}>
-            Бажана мова роботи
+            {tr("Бажана мова роботи")}
           </label>
           <select
             id="ss-language"
@@ -319,17 +324,17 @@ export function SocialSupportForm({
             defaultValue={prev?.languageCode ?? ""}
             className={inputClass}
           >
-            <option value="">Не має значення</option>
+            <option value="">{tr("Не має значення")}</option>
             {languages.map((l) => (
               <option key={l.code} value={l.code}>
-                {l.nameUk}
+                {tr(l.nameUk)}
               </option>
             ))}
           </select>
         </div>
         <div>
           <label htmlFor="ss-format" className={labelClass}>
-            Формат
+            {tr("Формат")}
           </label>
           <select
             id="ss-format"
@@ -339,7 +344,7 @@ export function SocialSupportForm({
           >
             {FORMATS.map((f) => (
               <option key={f.value} value={f.value}>
-                {f.label}
+                {tr(f.label)}
               </option>
             ))}
           </select>
@@ -356,14 +361,14 @@ export function SocialSupportForm({
           className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#142744]/30 accent-[#1C3557]"
         />
         <span className={ink.body}>
-          Я погоджуюся на обробку моїх даних для розгляду заявки та підбору фахівця.
+          {tr("Я погоджуюся на обробку моїх даних для розгляду заявки та підбору фахівця.")}
         </span>
       </label>
       <FieldError message={errorFor("consent")} />
 
       {state?.ok === false && state.error && (
         <p className="rounded-lg border border-[#8A4B33]/25 bg-[#8A4B33]/[0.06] px-4 py-3 text-[14px] text-[#8A4B33]">
-          {state.error}
+          {tr(state.error)}
         </p>
       )}
 
@@ -377,12 +382,13 @@ export function SocialSupportForm({
           focusRing,
         )}
       >
-        {pending ? "Надсилаємо…" : "Подати заявку"}
+        {pending ? tr("Надсилаємо…") : tr("Подати заявку")}
       </button>
 
       <p className={hintClass}>
-        Подання заявки не гарантує підбору фахівця — можливість участі залежить від поточної
-        доступності спеціалістів.
+        {tr(
+          "Подання заявки не гарантує підбору фахівця — можливість участі залежить від поточної доступності спеціалістів.",
+        )}
       </p>
     </form>
   );

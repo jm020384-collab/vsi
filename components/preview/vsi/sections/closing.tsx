@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { ButtonLink, Wrap } from "../ui";
 import { cn } from "@/lib/utils";
 import { ink, VSI } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
 
 /** Тонка золота лінія з декором — розділювач у завершенні сторінки. */
 function Ornament({ flip }: { flip?: boolean }) {
@@ -29,7 +30,8 @@ function Ornament({ flip }: { flip?: boolean }) {
  * Тут свідомо немає форми й нових обіцянок: після темної смуги для
  * фахівців сторінка має закінчитися тишею, а не ще одним закликом.
  */
-export function Closing() {
+export async function Closing() {
+  const { tr } = await getI18n();
   return (
     <section id="closing" className="bg-[#F8F4EC]">
       <Wrap className="pb-12 pt-4 text-center lg:pb-16 lg:pt-6">
@@ -39,7 +41,7 @@ export function Closing() {
             className={cn("shrink-0 text-2xl font-normal sm:text-[1.75rem]", ink.strong)}
             style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
           >
-            Траєкторія цілісності
+            {tr("Траєкторія цілісності")}
           </h2>
           <Ornament flip />
         </div>
@@ -47,16 +49,18 @@ export function Closing() {
         <p
           className={cn("mx-auto mt-5 max-w-xl text-pretty text-[15px] leading-relaxed", ink.muted)}
         >
-          Шлях до себе не завжди починається з готової відповіді. Іноді він починається з питання.
+          {tr(
+            "Шлях до себе не завжди починається з готової відповіді. Іноді він починається з питання.",
+          )}
         </p>
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/explore" variant="primary">
-            Досліджувати
+            {tr("Досліджувати")}
             <ArrowRight className="h-4 w-4" aria-hidden />
           </ButtonLink>
           <ButtonLink href="/therapists" variant="outline">
-            Познайомитися з фахівцями
+            {tr("Познайомитися з фахівцями")}
           </ButtonLink>
         </div>
       </Wrap>

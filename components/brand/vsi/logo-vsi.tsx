@@ -201,6 +201,8 @@ interface LogoVsiLockupProps {
   align?: "center" | "start";
   /** Світле тло (текст синій) чи темне (текст світлий). */
   tone?: "light" | "dark";
+  /** Два підписи під знаком — передаються, коли потрібна інша мова. */
+  captions?: [string, string];
 }
 
 /**
@@ -220,6 +222,7 @@ export function LogoVsiLockup({
   still,
   align = "center",
   tone = "light",
+  captions = ["аналітично орієнтована терапія", "Траєкторія цілісності"],
 }: LogoVsiLockupProps) {
   return (
     /* Розмір знака задається на обгортці — підписи масштабуються від нього в em */
@@ -247,7 +250,7 @@ export function LogoVsiLockup({
           fontFamily: "var(--vsi-sans), system-ui, sans-serif",
         }}
       >
-        аналітично орієнтована терапія
+        {captions[0]}
       </p>
       <p
         className={cn(
@@ -260,7 +263,7 @@ export function LogoVsiLockup({
           fontFamily: "var(--vsi-sans), system-ui, sans-serif",
         }}
       >
-        Траєкторія цілісності
+        {captions[1]}
       </p>
     </div>
   );

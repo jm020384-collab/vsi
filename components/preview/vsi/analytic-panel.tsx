@@ -1,5 +1,6 @@
 import type { AnalyticNote } from "./analytic-notes";
 import { ink, serif } from "./theme";
+import { getI18n } from "@/lib/i18n/server";
 
 const EYEBROW = "text-[11px] font-medium uppercase tracking-[0.2em] text-[#876428]";
 
@@ -11,7 +12,8 @@ const EYEBROW = "text-[11px] font-medium uppercase tracking-[0.2em] text-[#87642
  * інакше сторінка теми, і без того складена зі списків, розсипалася б
  * на вісім заголовків однакової ваги.
  */
-export function AnalyticPanel({ note }: { note: AnalyticNote }) {
+export async function AnalyticPanel({ note }: { note: AnalyticNote }) {
+  const { tr } = await getI18n();
   const { body, terms, practice, reading } = note;
 
   return (
@@ -21,7 +23,7 @@ export function AnalyticPanel({ note }: { note: AnalyticNote }) {
     >
       <p className={`inline-flex items-center gap-3 ${EYEBROW}`}>
         <span aria-hidden className="h-px w-6 bg-[#B38B49]" />
-        Юнгіанський погляд
+        {tr("Юнгіанський погляд")}
       </p>
 
       <h2
@@ -29,27 +31,27 @@ export function AnalyticPanel({ note }: { note: AnalyticNote }) {
         className={`mt-4 text-3xl font-normal leading-tight ${ink.strong}`}
         style={serif}
       >
-        Як на це дивиться аналітична психологія
+        {tr("Як на це дивиться аналітична психологія")}
       </h2>
 
       {/* Міра рядка така сама, як в описі теми вище */}
       <div className="mt-5 max-w-[680px] space-y-4">
         {body.map((p) => (
           <p key={p} className={`text-pretty text-[16px] leading-[1.8] ${ink.body}`}>
-            {p}
+            {tr(p)}
           </p>
         ))}
       </div>
 
       <div className="mt-8 border-t border-[#142744]/10 pt-7">
-        <h3 className={EYEBROW}>Поняття</h3>
+        <h3 className={EYEBROW}>{tr("Поняття")}</h3>
         <dl className="mt-4 grid gap-x-8 gap-y-5 sm:grid-cols-3">
           {terms.map(({ term, gloss }) => (
             <div key={term}>
               <dt className={`text-[17px] font-normal ${ink.strong}`} style={serif}>
-                {term}
+                {tr(term)}
               </dt>
-              <dd className={`mt-1.5 text-[14px] leading-relaxed ${ink.muted}`}>{gloss}</dd>
+              <dd className={`mt-1.5 text-[14px] leading-relaxed ${ink.muted}`}>{tr(gloss)}</dd>
             </div>
           ))}
         </dl>
@@ -61,11 +63,11 @@ export function AnalyticPanel({ note }: { note: AnalyticNote }) {
           лежить на підкладці: інакше губиться серед переліків.
         */}
         <div className="rounded-2xl bg-[#F8F4EC] p-6">
-          <h3 className={EYEBROW}>Вправа</h3>
+          <h3 className={EYEBROW}>{tr("Вправа")}</h3>
           <p className={`mt-3 text-xl font-normal leading-snug ${ink.strong}`} style={serif}>
-            {practice.title}
+            {tr(practice.title)}
           </p>
-          <p className={`mt-1 text-[13px] ${ink.soft}`}>{practice.duration}</p>
+          <p className={`mt-1 text-[13px] ${ink.soft}`}>{tr(practice.duration)}</p>
 
           <ol className="mt-5 space-y-3">
             {practice.steps.map((step, i) => (
@@ -77,25 +79,25 @@ export function AnalyticPanel({ note }: { note: AnalyticNote }) {
                 >
                   {i + 1}
                 </span>
-                <span className={`text-[14px] leading-relaxed ${ink.body}`}>{step}</span>
+                <span className={`text-[14px] leading-relaxed ${ink.body}`}>{tr(step)}</span>
               </li>
             ))}
           </ol>
 
           {practice.note && (
             <p className="mt-5 border-t border-[#B38B49]/30 pt-4 text-[13px] leading-relaxed text-[#6E5120]">
-              {practice.note}
+              {tr(practice.note)}
             </p>
           )}
         </div>
 
         <div>
-          <h3 className={EYEBROW}>Література</h3>
+          <h3 className={EYEBROW}>{tr("Література")}</h3>
           <ul className="mt-4 space-y-6">
             {reading.map((b) => (
               <li key={b.title}>
                 <p className={`text-[17px] font-normal leading-snug ${ink.strong}`} style={serif}>
-                  {b.author} — «{b.title}»
+                  {tr(b.author)} — «{tr(b.title)}»
                 </p>
                 {/*
                   Назва оригіналу потрібна не для солідності: українських
@@ -103,7 +105,7 @@ export function AnalyticPanel({ note }: { note: AnalyticNote }) {
                   доведеться саме за нею.
                 */}
                 {b.original && <p className={`mt-0.5 text-[13px] ${ink.soft}`}>{b.original}</p>}
-                <p className={`mt-1.5 text-[14px] leading-relaxed ${ink.muted}`}>{b.note}</p>
+                <p className={`mt-1.5 text-[14px] leading-relaxed ${ink.muted}`}>{tr(b.note)}</p>
               </li>
             ))}
           </ul>
@@ -113,8 +115,9 @@ export function AnalyticPanel({ note }: { note: AnalyticNote }) {
       <p
         className={`mt-8 border-t border-[#142744]/10 pt-5 text-[13px] leading-relaxed ${ink.soft}`}
       >
-        Цей розділ оглядовий: він описує спосіб думати про тему, а не ставить діагноз і не замінює
-        роботу з фахівцем.
+        {tr(
+          "Цей розділ оглядовий: він описує спосіб думати про тему, а не ставить діагноз і не замінює роботу з фахівцем.",
+        )}
       </p>
     </section>
   );

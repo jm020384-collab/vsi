@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
@@ -29,6 +29,11 @@ import { AvatarPortrait } from "@/components/preview/vsi/decor";
 import { ContactRequestForm } from "@/components/preview/vsi/contact-request-form";
 import { MATERIALS, THERAPISTS, specialistSpace } from "@/components/preview/vsi/data";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
+import { getI18n } from "@/lib/i18n/server";
+import { pageMetadata } from "@/lib/i18n/metadata";
+import { createContentTranslator, type ContentTranslator } from "@/lib/i18n/content";
+import { intlLocale, type Translate } from "@/lib/i18n/translate";
+import { TranslatedNote } from "@/components/i18n/translated-note";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -112,6 +117,8 @@ interface SpaceViewModel {
   socialLinks: string[];
   acceptingNew: boolean;
   isOwner: boolean;
+  /** Чи показано переклад слів фахівця. */
+  translated: boolean;
   /** Чи це реальний профіль у базі (можна залишити заявку) чи демо-персона. */
   isReal: boolean;
   acceptsRequestsViaVsi: boolean;
@@ -204,15 +211,20 @@ function publicFiles(docs: UploadedDocument[]): DiplomaFile[] | undefined {
   return files.length > 0 ? files : undefined;
 }
 
-function educationPeriod(e: EducationRow) {
+function educationPeriod(e: EducationRow, tr: Translate) {
   if (e.ongoing) {
-    if (e.startYear) return `Навчається з ${e.startYear}`;
-    return e.expectedEndYear ? `У процесі, до ${e.expectedEndYear}` : "У процесі навчання";
+    if (e.startYear) return tr("Навчається з {year}", { year: e.startYear });
+    return e.expectedEndYear
+      ? tr("У процесі, до {year}", { year: e.expectedEndYear })
+      : tr("У процесі навчання");
   }
   if (e.startYear && e.endYear) {
     return e.startYear === e.endYear ? `${e.startYear}` : `${e.startYear}–${e.endYear}`;
   }
-  return e.eventDate ?? (e.endYear ? `${e.endYear}` : e.startYear ? `з ${e.startYear}` : undefined);
+  return (
+    e.eventDate ??
+    (e.endYear ? `${e.endYear}` : e.startYear ? tr("з {year}", { year: e.startYear }) : undefined)
+  );
 }
 
 /**
@@ -222,7 +234,11 @@ function educationPeriod(e: EducationRow) {
  * «Перевірено VSI» ставимо лише коли адміністратор справді підтвердив
  * документ: решта — інформація зі слів фахівця.
  */
-function buildEducationGroups(rows: EducationRow[]): EducationGroup[] {
+function buildEducationGroups(
+  rows: EducationRow[],
+  tr: Translate,
+  content: ContentTranslator,
+): EducationGroup[] {
   const groups: { title: string; kinds: string[] }[] = [
     { title: "Освіта", kinds: ["EDUCATION"] },
     { title: "Професійна підготовка", kinds: ["SPECIALIZATION", "TRAINING"] },
@@ -235,17 +251,24 @@ function buildEducationGroups(rows: EducationRow[]): EducationGroup[] {
       items: rows
         .filter((e) => kinds.includes(e.kind))
         .map((e): DiplomaCard => {
-          const degree = e.degree ? DEGREE_LABEL[e.degree] : "";
-          const subtitle = [degree, e.specialization].filter(Boolean).join(" ");
-          const period = educationPeriod(e);
+          const degree = e.degree ? tr(DEGREE_LABEL[e.degree] ?? "") : "";
+          const subtitle = [degree, content.text(e.specialization)].filter(Boolean).join(" ");
+          const period = educationPeriod(e, tr);
           const roleLabel = e.role ? ROLE_LABEL[e.role] : undefined;
+          const title = content.text(e.title);
+          const institution = content.text(e.institution);
 
           return {
-            title: e.title || e.institution || subtitle || "Навчання",
-            meta: [e.title ? e.institution : subtitle, period, roleLabel, e.duration]
+            title: title || institution || subtitle || tr("Навчання"),
+            meta: [
+              title ? institution : subtitle,
+              content.text(period),
+              roleLabel && tr(roleLabel),
+              content.text(e.duration),
+            ]
               .filter(Boolean)
               .join(" · "),
-            tags: e.presentationTitle ? [e.presentationTitle] : undefined,
+            tags: e.presentationTitle ? [content.text(e.presentationTitle)] : undefined,
             reviewStatus: e.documents.some((d) => d.status === "VERIFIED") ? "reviewed" : undefined,
             files: publicFiles(e.documents),
           };
@@ -260,14 +283,14 @@ function buildEducationGroups(rows: EducationRow[]): EducationGroup[] {
  * групу наприкінці — але тільки поруч із записами: якщо записів немає
  * зовсім, сторінка й так показує документи запасним списком.
  */
-function withLooseDocuments(groups: EducationGroup[], loose: UploadedDocument[]) {
+function withLooseDocuments(groups: EducationGroup[], loose: UploadedDocument[], tr: Translate) {
   const files = publicFiles(loose);
   if (groups.length === 0 || !files) return groups;
   return [
     ...groups,
     {
       title: "Документи",
-      items: files.map((f): DiplomaCard => ({ title: "Документ про освіту", files: [f] })),
+      items: files.map((f): DiplomaCard => ({ title: tr("Документ про освіту"), files: [f] })),
     },
   ];
 }
@@ -277,7 +300,8 @@ function withLooseDocuments(groups: EducationGroup[], loose: UploadedDocument[])
  * новій вкладці: диплом читають збільшеним, а не в картці. Мініатюру
  * готує оптимізатор зображень — оригінали бувають по 5–6 МБ.
  */
-function DiplomaFiles({ files, label }: { files: DiplomaFile[]; label: string }) {
+async function DiplomaFiles({ files, label }: { files: DiplomaFile[]; label: string }) {
+  const { tr } = await getI18n();
   return (
     <ul className="mt-3 flex flex-wrap gap-2">
       {files.map((f) => (
@@ -294,7 +318,7 @@ function DiplomaFiles({ files, label }: { files: DiplomaFile[]; label: string })
             {f.kind === "image" ? (
               <Image
                 src={f.url}
-                alt={`Документ: ${label}. Відкрити у повному розмірі`}
+                alt={tr("Документ: {label}. Відкрити у повному розмірі", { label })}
                 width={288}
                 height={216}
                 sizes="144px"
@@ -305,7 +329,7 @@ function DiplomaFiles({ files, label }: { files: DiplomaFile[]; label: string })
                 className={`flex h-[108px] w-[144px] flex-col items-center justify-center gap-2 text-[12px] ${ink.muted}`}
               >
                 <FileText className="h-6 w-6 text-[#876428]" aria-hidden />
-                Відкрити документ
+                {tr("Відкрити документ")}
                 <span className="sr-only">: {label}</span>
               </span>
             )}
@@ -325,6 +349,8 @@ function seedFromString(s: string) {
 /** Завантажує вьюмодель: спершу реальний профіль у базі, інакше — демо-персона. */
 async function loadSpace(id: string): Promise<SpaceViewModel | null> {
   const session = await auth();
+  const { locale, tr } = await getI18n();
+  const content = createContentTranslator(locale);
 
   const real = await prisma.therapistProfile.findUnique({
     where: { slug: id },
@@ -365,31 +391,35 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
       orderBy: { startsAt: "asc" },
     });
 
-    return {
-      name: real.fullName,
-      status: real.professionalTitle ?? "Фахівець VSI",
+    const city = content.text(real.city);
+    const hours = content.text(real.workingHours);
+    const space: SpaceViewModel = {
+      name: content.name(real.fullName),
+      status: content.text(real.professionalTitle) ?? tr("Фахівець VSI"),
       photo: real.photoUrl,
       seed: seedFromString(real.id),
       verified: real.status === "APPROVED",
-      approaches: real.approaches,
-      ageGroups: real.ageGroups.map((g) => REAL_AGE_GROUP_LABEL[g] ?? g),
-      educationSummary: pickBaseEducation(real.education)?.institution ?? null,
-      lead: real.analyticalOrientation,
-      availability: real.workingHours,
+      approaches: real.approaches.map((a) => tr(a)),
+      ageGroups: real.ageGroups.map((g) => tr(REAL_AGE_GROUP_LABEL[g] ?? g)),
+      educationSummary: content.text(pickBaseEducation(real.education)?.institution) ?? null,
+      lead: content.text(real.analyticalOrientation),
+      availability: hours,
       socialSupport: real.participatesInSocialSupport,
-      topics: real.specializations.map((s) => s.specialization.nameUk),
-      position: real.bio.trim() ? [real.bio.trim()] : [],
+      topics: real.specializations.map((s) => tr(s.specialization.nameUk)),
+      position: real.bio.trim() ? [content.text(real.bio.trim())] : [],
       practice: [
-        `Формат роботи: ${REAL_FORMAT_LABEL[real.sessionFormat].toLowerCase()}, ${real.city}.` +
-          (real.workingHours ? ` Графік: ${real.workingHours}.` : ""),
+        tr("Формат роботи: {format}, {city}.", {
+          format: tr(REAL_FORMAT_LABEL[real.sessionFormat]).toLowerCase(),
+          city: city ?? "",
+        }) + (hours ? ` ${tr("Графік: {hours}.", { hours })}` : ""),
       ],
       // Публічно показуємо текст освіти (заклад, спеціальність, роки)
       // і прикріплені скани; назви файлів у заголовки не виносимо.
       diplomas: real.documents.map((d): DiplomaCard => {
         const period = d.inProgress
           ? d.yearFrom
-            ? `з ${d.yearFrom}, триває`
-            : "триває"
+            ? tr("з {year}, триває", { year: d.yearFrom })
+            : tr("триває")
           : d.yearFrom && d.yearTo
             ? d.yearFrom === d.yearTo
               ? `${d.yearFrom}`
@@ -397,37 +427,38 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
             : (d.yearTo ?? d.yearFrom)
               ? `${d.yearTo ?? d.yearFrom}`
               : undefined;
-        const typeLabel = EDUCATION_TYPE_LABEL[d.docType] ?? "Навчання";
+        const typeLabel = tr(EDUCATION_TYPE_LABEL[d.docType] ?? "Навчання");
         return {
-          title: d.institution ?? d.fileName ?? typeLabel,
+          title: content.text(d.institution) ?? d.fileName ?? typeLabel,
           meta: [typeLabel, period].filter(Boolean).join(" · "),
-          tags: d.specialization ? [d.specialization] : undefined,
+          tags: d.specialization ? [content.text(d.specialization)] : undefined,
           reviewStatus: d.status === "VERIFIED" ? "reviewed" : "pending",
           files: publicFiles([d]),
         };
       }),
       educationGroups: withLooseDocuments(
-        buildEducationGroups(real.education),
+        buildEducationGroups(real.education, tr, content),
         real.documents.filter((d) => !d.entryId),
+        tr,
       ),
       path: [],
       research: [],
       texts: articles.map((a) => ({
         id: a.id,
-        href: `/blog/${a.slug}`,
+        href: `/library/${a.slug}`,
         kind: "Стаття",
-        title: a.title,
+        title: content.text(a.title),
         readingMinutes: Math.max(1, Math.round(a.content.split(/\s+/).length / 200)),
       })),
       events: events.map((e) => ({
         id: e.id,
         href: `/events#${e.slug}`,
-        title: e.title,
-        dateLabel: scheduleLabel(e),
+        title: content.text(e.title),
+        dateLabel: scheduleLabel(e, locale),
       })),
-      formatLabel: REAL_FORMAT_LABEL[real.sessionFormat],
-      city: real.city,
-      languages: real.languages.map((l) => l.language.nameUk),
+      formatLabel: tr(REAL_FORMAT_LABEL[real.sessionFormat]),
+      city: city ?? undefined,
+      languages: real.languages.map((l) => tr(l.language.nameUk)),
       sessionMinutes: null,
       priceFrom: real.priceFrom,
       priceTo: real.priceTo,
@@ -438,7 +469,10 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
       isOwner,
       isReal: true,
       acceptsRequestsViaVsi: real.acceptsRequestsViaVsi,
+      translated: false,
     };
+    // Прапорець читаємо наприкінці: до цього моменту все вже перекладено.
+    return { ...space, translated: content.used };
   }
 
   const t = THERAPISTS.find((x) => x.id === id);
@@ -492,6 +526,7 @@ async function loadSpace(id: string): Promise<SpaceViewModel | null> {
     isOwner: false,
     isReal: false,
     acceptsRequestsViaVsi: true,
+    translated: false,
   };
 }
 
@@ -513,7 +548,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // app/loading.tsx встигає застрімити 200 до того, як стане відомо,
   // що сторінки не існує, і статус-код уже не змінити.
   if (!vm) notFound();
-  return { title: vm.name, description: vm.status };
+  const { locale } = await getI18n();
+  return pageMetadata(locale, `/specialists/${id}`, { title: vm.name, description: vm.status });
 }
 
 const SECTIONS = [
@@ -585,6 +621,7 @@ function PendingSection({ children }: { children: React.ReactNode }) {
  * і закликів «забронювати зараз».
  */
 export default async function SpecialistSpacePage({ params }: PageProps) {
+  const { tr, locale, href } = await getI18n();
   const { id } = await params;
   const vm = await loadSpace(id);
   if (!vm) notFound();
@@ -599,7 +636,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             "@type": "Person",
             name: vm.name,
             jobTitle: vm.status,
-            url: `${SITE_URL}/specialists/${id}`,
+            url: `${SITE_URL}${href(`/specialists/${id}`)}`,
             image: vm.photo ?? undefined,
             knowsAbout: vm.topics,
             knowsLanguage: vm.languages,
@@ -620,7 +657,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
           )}
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
-          Простір фахівців
+          {tr("Простір фахівців")}
         </Link>
 
         {vm.isOwner && (
@@ -633,14 +670,14 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             )}
           >
             <Pencil className="h-3.5 w-3.5" aria-hidden />
-            Редагувати анкету
+            {tr("Редагувати анкету")}
           </Link>
         )}
       </div>
 
       {vm.isOwner && !vm.verified && (
         <p className="mt-4 rounded-xl border border-[#B38B49]/35 bg-[#F8F4EC] px-4 py-3 text-[13px] text-[#876428]">
-          Це попередній перегляд. Профіль стане видимим у каталозі після ручної перевірки.
+          {tr("Це попередній перегляд. Профіль стане видимим у каталозі після ручної перевірки.")}
         </p>
       )}
 
@@ -693,18 +730,19 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             <p className="mt-3 text-[12px] font-medium uppercase leading-relaxed tracking-[0.16em] text-[#5C6672]">
               {vm.status}
             </p>
+            <TranslatedNote show={vm.translated} className="mt-2" />
 
             <div className="mt-5 flex flex-wrap gap-3">
               {vm.verified && (
                 <span className="inline-flex items-center gap-2 rounded-full border border-[#142744]/20 px-4 py-2 text-[14px] text-[#142744]">
                   <ShieldCheck className="h-4 w-4 text-[#1C3557]" strokeWidth={1.5} aria-hidden />
-                  Перевірений профіль
+                  {tr("Перевірений профіль")}
                 </span>
               )}
               {vm.socialSupport && (
                 <span className="inline-flex items-center gap-2.5 rounded-full border border-[#B38B49]/35 bg-[#E9DECE]/55 px-5 py-2.5 text-[13px] leading-snug text-[#6E5120]">
                   <Users className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
-                  Учасник програми соціальної підтримки VSI
+                  {tr("Учасник програми соціальної підтримки VSI")}
                 </span>
               )}
             </div>
@@ -722,7 +760,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
 
             <dl className={`mt-5 flex flex-wrap gap-x-7 gap-y-3 text-[15px] ${ink.body}`}>
               <div className="flex items-center gap-2">
-                <dt className="sr-only">Формат</dt>
+                <dt className="sr-only">{tr("Формат")}</dt>
                 <MapPin className="h-4 w-4 shrink-0 text-[#876428]" strokeWidth={1.5} aria-hidden />
                 <dd>
                   {vm.formatLabel}
@@ -731,7 +769,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               </div>
               {vm.languages.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <dt className="sr-only">Мови</dt>
+                  <dt className="sr-only">{tr("Мови")}</dt>
                   <Globe
                     className="h-4 w-4 shrink-0 text-[#876428]"
                     strokeWidth={1.5}
@@ -742,13 +780,15 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               )}
               {vm.availability && (
                 <div className="flex items-center gap-2">
-                  <dt className="sr-only">Доступність</dt>
+                  <dt className="sr-only">{tr("Доступність")}</dt>
                   <Clock
                     className="h-4 w-4 shrink-0 text-[#876428]"
                     strokeWidth={1.5}
                     aria-hidden
                   />
-                  <dd>Доступність: {vm.availability}</dd>
+                  <dd>
+                    {tr("Доступність:")} {vm.availability}
+                  </dd>
                 </div>
               )}
             </dl>
@@ -762,7 +802,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                   focusRing,
                 )}
               >
-                Записатися
+                {tr("Записатися")}
                 <ArrowRight
                   className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
                   aria-hidden
@@ -771,7 +811,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               <p
                 className={cn("text-[14px]", vm.acceptingNew ? "text-[#245A41]" : "text-[#5C6672]")}
               >
-                {vm.acceptingNew ? "Приймає нових клієнтів" : "У листі очікування"}
+                {vm.acceptingNew ? tr("Приймає нових клієнтів") : tr("У листі очікування")}
               </p>
             </div>
 
@@ -781,39 +821,41 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               внизу сторінки, кнопка веде до неї якорем #contact.
             */}
             <section aria-labelledby="conditions" className="mt-10 max-w-xl">
-              <SectionTitleRow id="conditions">Умови роботи</SectionTitleRow>
+              <SectionTitleRow id="conditions">{tr("Умови роботи")}</SectionTitleRow>
               <dl className={`mt-4 space-y-3 text-[15px] ${ink.body}`}>
                 <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
-                  <dt className={ink.soft}>Формат</dt>
+                  <dt className={ink.soft}>{tr("Формат")}</dt>
                   <dd className="text-right">{vm.formatLabel}</dd>
                 </div>
                 {vm.city && (
                   <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
-                    <dt className={ink.soft}>Місто</dt>
+                    <dt className={ink.soft}>{tr("Місто")}</dt>
                     <dd>{vm.city}</dd>
                   </div>
                 )}
                 {vm.languages.length > 0 && (
                   <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
-                    <dt className={ink.soft}>Мови</dt>
+                    <dt className={ink.soft}>{tr("Мови")}</dt>
                     <dd className="text-right">{vm.languages.join(", ")}</dd>
                   </div>
                 )}
                 {vm.sessionMinutes && (
                   <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
-                    <dt className={ink.soft}>Тривалість</dt>
-                    <dd>{vm.sessionMinutes} хв</dd>
+                    <dt className={ink.soft}>{tr("Тривалість")}</dt>
+                    <dd>
+                      {vm.sessionMinutes} {tr("хв")}
+                    </dd>
                   </div>
                 )}
                 <div className="flex justify-between gap-4">
-                  <dt className={ink.soft}>Вартість</dt>
+                  <dt className={ink.soft}>{tr("Вартість")}</dt>
                   <dd>
-                    від {vm.priceFrom.toLocaleString("uk-UA")} {vm.currency}
+                    {tr("від")} {vm.priceFrom.toLocaleString(intlLocale(locale))} {tr(vm.currency)}
                   </dd>
                 </div>
                 {(vm.website || vm.socialLinks.length > 0) && (
                   <div className="flex justify-between gap-4 border-t border-[#142744]/[0.07] pt-2.5">
-                    <dt className={ink.soft}>Онлайн</dt>
+                    <dt className={ink.soft}>{tr("Онлайн")}</dt>
                     <dd className="flex flex-col items-end gap-1 text-right">
                       {vm.website && (
                         <a
@@ -865,7 +907,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
 
       {/* ── Внутрішня навігація простору ── */}
       <nav
-        aria-label="Розділи простору"
+        aria-label={tr("Розділи простору")}
         className="sticky top-[104px] z-20 -mx-5 mt-10 border-y border-[#142744]/10 bg-[#F8F4EC]/90 px-5 backdrop-blur-md sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10"
       >
         <div className="flex gap-1 overflow-x-auto">
@@ -882,7 +924,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                 focusRing,
               )}
             >
-              {s.label}
+              {tr(s.label)}
             </a>
           ))}
         </div>
@@ -900,7 +942,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
         читають першим.
       */}
       <section aria-labelledby="position" className="mt-10">
-        <SectionTitleRow id="position">Про фахівця</SectionTitleRow>
+        <SectionTitleRow id="position">{tr("Про фахівця")}</SectionTitleRow>
 
         <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)] lg:gap-16">
           <div className="max-w-2xl">
@@ -915,33 +957,37 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             ) : (
               <PendingSection>
                 {vm.isOwner
-                  ? "Ви ще не заповнили цей розділ — розкажіть, як розумієте терапію, в анкеті."
-                  : "Фахівець ще формулює цей розділ — як він сам розуміє терапію і психологічну роботу."}
+                  ? tr("Ви ще не заповнили цей розділ — розкажіть, як розумієте терапію, в анкеті.")
+                  : tr(
+                      "Фахівець ще формулює цей розділ — як він сам розуміє терапію і психологічну роботу.",
+                    )}
               </PendingSection>
             )}
           </div>
 
           <div className="space-y-7">
             {vm.educationSummary && (
-              <InfoRow icon={GraduationCap} title="Освіта">
+              <InfoRow icon={GraduationCap} title={tr("Освіта")}>
                 {vm.educationSummary}
               </InfoRow>
             )}
             {vm.approaches.length > 0 && (
-              <InfoRow icon={User} title="Спеціалізація">
+              <InfoRow icon={User} title={tr("Спеціалізація")}>
                 {vm.approaches.join(", ")}
               </InfoRow>
             )}
             {vm.ageGroups.length > 0 && (
-              <InfoRow icon={Users} title="Цільові групи">
+              <InfoRow icon={Users} title={tr("Цільові групи")}>
                 {vm.ageGroups.join(", ")}
               </InfoRow>
             )}
 
             {vm.socialSupport && (
               <p className="flex items-start gap-3 rounded-2xl border border-[#B38B49]/30 bg-[#E9DECE]/35 px-5 py-4 text-[14px] italic leading-relaxed text-[#6E5120]">
-                <Leaf className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.4} aria-hidden />У межах
-                програми соціальної підтримки VSI фахівець може працювати зі зниженою вартістю.
+                <Leaf className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.4} aria-hidden />
+                {tr(
+                  "У межах програми соціальної підтримки VSI фахівець може працювати зі зниженою вартістю.",
+                )}
               </p>
             )}
           </div>
@@ -956,7 +1002,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
       */}
       <div className="mt-14 max-w-2xl space-y-14">
         <section aria-labelledby="practice">
-          <SectionTitleRow id="practice">Практика</SectionTitleRow>
+          <SectionTitleRow id="practice">{tr("Практика")}</SectionTitleRow>
           {vm.practice.length > 0 ? (
             <div className="mt-4 space-y-4">
               {vm.practice.map((p, i) => (
@@ -966,18 +1012,18 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               ))}
             </div>
           ) : (
-            <PendingSection>Опис практики готується.</PendingSection>
+            <PendingSection>{tr("Опис практики готується.")}</PendingSection>
           )}
         </section>
 
         <section aria-labelledby="texts">
-          <SectionTitleRow id="texts">Тексти</SectionTitleRow>
+          <SectionTitleRow id="texts">{tr("Тексти")}</SectionTitleRow>
           {vm.texts.length > 0 ? (
             <ul className="mt-4 space-y-3">
               {vm.texts.map((m) => (
                 <li key={m.id}>
                   <a
-                    href={m.href}
+                    href={href(m.href)}
                     className={cn(
                       "group flex items-baseline justify-between gap-4 rounded-xl border border-[#142744]/10 bg-[#FFFDF8] px-5 py-4",
                       "transition-colors hover:border-[#142744]/25 motion-reduce:transition-none",
@@ -986,7 +1032,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                   >
                     <span>
                       <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-[#876428]">
-                        {m.kind}
+                        {tr(m.kind)}
                       </span>
                       <span
                         className={`mt-1 block text-[17px] leading-snug ${ink.strong}`}
@@ -1000,7 +1046,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                         className={`inline-flex shrink-0 items-center gap-1 text-[13px] ${ink.soft}`}
                       >
                         <Clock3 className="h-3.5 w-3.5" aria-hidden />
-                        {m.readingMinutes} хв
+                        {m.readingMinutes} {tr("хв")}
                       </span>
                     )}
                   </a>
@@ -1011,17 +1057,17 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             <p className={`mt-4 text-[15px] ${ink.soft}`}>
               {vm.isOwner ? (
                 <>
-                  Ви ще не опублікували жодного тексту.{" "}
+                  {tr("Ви ще не опублікували жодного тексту.")}{" "}
                   <Link
                     href="/dashboard/articles/new"
                     className="font-medium text-[#1C3557] hover:underline"
                   >
-                    Написати перший
+                    {tr("Написати перший")}
                   </Link>
                   .
                 </>
               ) : (
-                "Тексти цього фахівця готуються до публікації."
+                tr("Тексти цього фахівця готуються до публікації.")
               )}
             </p>
           )}
@@ -1029,13 +1075,13 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
 
         {(vm.events.length > 0 || vm.isOwner) && (
           <section aria-labelledby="events">
-            <SectionTitleRow id="events">Події</SectionTitleRow>
+            <SectionTitleRow id="events">{tr("Події")}</SectionTitleRow>
             {vm.events.length > 0 ? (
               <ul className="mt-4 space-y-3">
                 {vm.events.map((ev) => (
                   <li key={ev.id}>
                     <a
-                      href={ev.href}
+                      href={href(ev.href)}
                       className={cn(
                         "group flex items-baseline justify-between gap-4 rounded-xl border border-[#142744]/10 bg-[#FFFDF8] px-5 py-4",
                         "transition-colors hover:border-[#142744]/25 motion-reduce:transition-none",
@@ -1061,17 +1107,17 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               <p className={`mt-4 text-[15px] ${ink.soft}`}>
                 {vm.isOwner ? (
                   <>
-                    У вас ще немає найближчих подій.{" "}
+                    {tr("У вас ще немає найближчих подій.")}{" "}
                     <Link
                       href="/dashboard/events"
                       className="font-medium text-[#1C3557] hover:underline"
                     >
-                      Створити подію
+                      {tr("Створити подію")}
                     </Link>
                     .
                   </>
                 ) : (
-                  "Найближчих подій немає."
+                  tr("Найближчих подій немає.")
                 )}
               </p>
             )}
@@ -1079,7 +1125,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
         )}
 
         <section aria-labelledby="research">
-          <SectionTitleRow id="research">Досліджую</SectionTitleRow>
+          <SectionTitleRow id="research">{tr("Досліджую")}</SectionTitleRow>
           {vm.research.length > 0 ? (
             <ul className="mt-4 space-y-2.5">
               {vm.research.map((r, i) => (
@@ -1096,19 +1142,19 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               ))}
             </ul>
           ) : (
-            <PendingSection>Дослідницькі інтереси ще не опубліковані.</PendingSection>
+            <PendingSection>{tr("Дослідницькі інтереси ще не опубліковані.")}</PendingSection>
           )}
         </section>
 
         <section aria-labelledby="path">
-          <SectionTitleRow id="path">Освіта та професійна підготовка</SectionTitleRow>
+          <SectionTitleRow id="path">{tr("Освіта та професійна підготовка")}</SectionTitleRow>
 
           {vm.educationGroups.length > 0 ? (
             <div className="mt-5 space-y-7">
               {vm.educationGroups.map((group) => (
                 <div key={group.title}>
                   <h3 className={`text-[11px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
-                    {group.title}
+                    {tr(group.title)}
                   </h3>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
                     {group.items.map((d, i) => (
@@ -1145,7 +1191,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                               решта лишається інформацією зі слів фахівця. */}
                           {d.reviewStatus === "reviewed" && (
                             <div className="mt-1.5 text-[12px] text-[#245A41]">
-                              Документ перевірено VSI
+                              {tr("Документ перевірено VSI")}
                             </div>
                           )}
                           {d.files && <DiplomaFiles files={d.files} label={d.title} />}
@@ -1155,7 +1201,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
                   </div>
                 </div>
               ))}
-              <p className={`text-[12px] ${ink.soft}`}>Інформацію додано фахівцем.</p>
+              <p className={`text-[12px] ${ink.soft}`}>{tr("Інформацію додано фахівцем.")}</p>
             </div>
           ) : vm.diplomas.length > 0 ? (
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -1212,21 +1258,21 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
           ) : (
             <PendingSection>
               {vm.isOwner
-                ? "Додайте дипломи чи сертифікати в анкеті — вони зʼявляться тут."
-                : "Освіта й професійний шлях додаються."}
+                ? tr("Додайте дипломи чи сертифікати в анкеті — вони зʼявляться тут.")
+                : tr("Освіта й професійний шлях додаються.")}
             </PendingSection>
           )}
         </section>
 
         {/* Контакт — завершує знайомство, свідомо останній розділ */}
         <section aria-labelledby="contact" className="scroll-mt-40">
-          <SectionTitleRow id="contact">Контакт</SectionTitleRow>
+          <SectionTitleRow id="contact">{tr("Контакт")}</SectionTitleRow>
 
           {vm.isOwner ? (
             <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
-              Це ваш власний простір — заявки від клієнтів зʼявляться в{" "}
+              {tr("Це ваш власний простір — заявки від клієнтів зʼявляться в")}{" "}
               <Link href="/dashboard/requests" className={cn("underline", focusRing)}>
-                кабінеті
+                {tr("кабінеті")}
               </Link>
               .
             </p>
@@ -1234,26 +1280,31 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             <>
               <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
                 {vm.acceptingNew
-                  ? "Фахівець приймає нових клієнтів. Залиште заявку через VSI — це не бронювання, а запрошення до першого листування."
-                  : "Наразі фахівець веде лист очікування. Заявку можна залишити — ми повідомимо, щойно зʼявиться місце."}
+                  ? tr(
+                      "Фахівець приймає нових клієнтів. Залиште заявку через VSI — це не бронювання, а запрошення до першого листування.",
+                    )
+                  : tr(
+                      "Наразі фахівець веде лист очікування. Заявку можна залишити — ми повідомимо, щойно зʼявиться місце.",
+                    )}
               </p>
               <ContactRequestForm therapistSlug={id} />
               <p className={`mt-3 text-[12px] leading-relaxed ${ink.soft}`}>
-                Відповідь зазвичай протягом двох робочих днів
+                {tr("Відповідь зазвичай протягом двох робочих днів")}
               </p>
             </>
           ) : vm.isReal ? (
             <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
-              Цей фахівець наразі не приймає звернення через VSI.
-              {vm.city && " Контакти можна знайти в описі вище."}
+              {tr("Цей фахівець наразі не приймає звернення через VSI.")}
+              {vm.city && tr(" Контакти можна знайти в описі вище.")}
             </p>
           ) : (
             <p className={`mt-4 max-w-md text-pretty text-[15px] leading-relaxed ${ink.muted}`}>
               {vm.acceptingNew
-                ? "Фахівець приймає нових клієнтів."
-                : "Наразі фахівець веде лист очікування."}{" "}
-              Ця сторінка — демонстраційна; форма звернення зʼявиться, щойно фахівець зареєструється
-              на VSI.
+                ? tr("Фахівець приймає нових клієнтів.")
+                : tr("Наразі фахівець веде лист очікування.")}{" "}
+              {tr(
+                "Ця сторінка — демонстраційна; форма звернення зʼявиться, щойно фахівець зареєструється на VSI.",
+              )}
             </p>
           )}
         </section>
@@ -1262,7 +1313,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
       {/* ── Продовжити рух ── */}
       {vm.topics.length > 0 && (
         <div className="mt-16 border-t border-[#142744]/10 pt-8">
-          <p className={`text-[15px] ${ink.muted}`}>Продовжити дослідження</p>
+          <p className={`text-[15px] ${ink.muted}`}>{tr("Продовжити дослідження")}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {vm.topics.slice(0, 4).map((topic) => (
               <Link

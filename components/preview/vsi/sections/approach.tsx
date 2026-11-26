@@ -1,5 +1,6 @@
 import { Eyebrow, Lead, SectionTitle, Wrap } from "../ui";
 import { ink, VSI } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
 
 /**
  * Що таке аналітично орієнтована психотерапія.
@@ -156,7 +157,8 @@ const PRINCIPLES = [
   },
 ];
 
-export function Approach() {
+export async function Approach() {
+  const { tr } = await getI18n();
   return (
     <section id="approach" className="relative bg-[#FFFDF8]">
       {/*
@@ -174,15 +176,14 @@ export function Approach() {
 
       <Wrap className="py-10 lg:py-14">
         <div className="mx-auto max-w-2xl text-center">
-          <Eyebrow className="justify-center">Про підхід</Eyebrow>
+          <Eyebrow className="justify-center">{tr("Про підхід")}</Eyebrow>
           <SectionTitle className="mt-6">
-            Терапія, що працює з причиною, а не лише з симптомом
+            {tr("Терапія, що працює з причиною, а не лише з симптомом")}
           </SectionTitle>
           <Lead className="mt-6">
-            Аналітично орієнтована психотерапія допомагає зрозуміти, що стоїть за тривогою,
-            повторюваними труднощами чи внутрішніми конфліктами. Вона досліджує особисту історію,
-            стосунки, психологічні захисти та несвідомі процеси, щоб розширити розуміння себе і
-            можливість більш вільного вибору.
+            {tr(
+              "Аналітично орієнтована психотерапія допомагає зрозуміти, що стоїть за тривогою, повторюваними труднощами чи внутрішніми конфліктами. Вона досліджує особисту історію, стосунки, психологічні захисти та несвідомі процеси, щоб розширити розуміння себе і можливість більш вільного вибору.",
+            )}
           </Lead>
         </div>
 
@@ -200,10 +201,10 @@ export function Approach() {
                 className={`mt-5 text-2xl font-normal leading-snug ${ink.strong}`}
                 style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
               >
-                {title}
+                {tr(title)}
               </h3>
               <p className={`mx-auto mt-3 max-w-[17rem] text-[15px] leading-relaxed ${ink.muted}`}>
-                {body}
+                {tr(body)}
               </p>
             </div>
           ))}
@@ -213,11 +214,11 @@ export function Approach() {
         <div className="mx-auto mt-16 max-w-3xl rounded-2xl border border-[#142744]/10 bg-[#F8F4EC] p-6 text-center sm:p-8">
           <p className={`text-[15px] leading-relaxed ${ink.muted}`}>
             <span className={`font-medium ${ink.strong}`}>
-              Аналітична традиція має понад століття клінічного розвитку
+              {tr("Аналітична традиція має понад століття клінічного розвитку")}
             </span>{" "}
-            та залишається важливою частиною сучасної психотерапії. Фахівці VSI працюють у
-            професійних спільнотах, проходять власну терапію або аналіз і регулярну супервізію, що
-            підтримує якість, відповідальність та етичність терапевтичної роботи.
+            {tr(
+              "та залишається важливою частиною сучасної психотерапії. Фахівці VSI працюють у професійних спільнотах, проходять власну терапію або аналіз і регулярну супервізію, що підтримує якість, відповідальність та етичність терапевтичної роботи.",
+            )}
           </p>
         </div>
       </Wrap>

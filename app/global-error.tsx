@@ -21,6 +21,9 @@ export default function GlobalError({
   reset: () => void;
 }) {
   const [clearing, setClearing] = useState(false);
+  // Кореневий layout тут не рендериться, тож мову беремо просто з адреси,
+  // а обидва тексти лежать поруч.
+  const ru = typeof window !== "undefined" && /^\/ru(\/|$)/.test(window.location.pathname);
 
   useEffect(() => {
     // Помилку не ховаємо: без Sentry консоль — єдине місце, де її видно.
@@ -52,7 +55,7 @@ export default function GlobalError({
   const detail = error.digest ? `${error.message} · ${error.digest}` : error.message;
 
   return (
-    <html lang="uk">
+    <html lang={ru ? "ru" : "uk"}>
       <body
         style={{
           margin: 0,
@@ -75,11 +78,12 @@ export default function GlobalError({
               lineHeight: 1.2,
             }}
           >
-            Щось пішло не так
+            {ru ? "Что-то пошло не так" : "Щось пішло не так"}
           </h1>
           <p style={{ margin: "14px 0 0", fontSize: 16, lineHeight: 1.6, color: "#4A5568" }}>
-            Сторінка не змогла завантажитися. Найчастіше допомагає очистити збережену копію сайту в
-            браузері.
+            {ru
+              ? "Страница не смогла загрузиться. Чаще всего помогает очистить сохранённую копию сайта в браузере."
+              : "Сторінка не змогла завантажитися. Найчастіше допомагає очистити збережену копію сайту в браузері."}
           </p>
 
           <div
@@ -108,7 +112,13 @@ export default function GlobalError({
                 opacity: clearing ? 0.7 : 1,
               }}
             >
-              {clearing ? "Очищуємо…" : "Очистити кеш і оновити"}
+              {clearing
+                ? ru
+                  ? "Очищаем…"
+                  : "Очищуємо…"
+                : ru
+                  ? "Очистить кэш и обновить"
+                  : "Очистити кеш і оновити"}
             </button>
             <button
               type="button"
@@ -125,7 +135,7 @@ export default function GlobalError({
                 cursor: "pointer",
               }}
             >
-              Спробувати ще раз
+              {ru ? "Попробовать ещё раз" : "Спробувати ще раз"}
             </button>
           </div>
 

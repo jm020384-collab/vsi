@@ -1,16 +1,18 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Wrap } from "../ui";
 import type { Material } from "../data";
 import { focusRing, ink } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
 
 const COUNT = 3;
 
 /** Аналітична думка: обкладинка ліворуч, заголовок і автор праворуч. */
-export function TextsRow({ materials }: { materials: Material[] }) {
+export async function TextsRow({ materials }: { materials: Material[] }) {
+  const { tr } = await getI18n();
   const items = materials.slice(0, COUNT);
   if (items.length === 0) return null;
 
@@ -23,7 +25,7 @@ export function TextsRow({ materials }: { materials: Material[] }) {
               className={cn("text-[15px] font-normal", ink.strong)}
               style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
             >
-              Аналітична думка
+              {tr("Аналітична думка")}
             </h2>
             <Link
               href="/library"
@@ -33,7 +35,7 @@ export function TextsRow({ materials }: { materials: Material[] }) {
                 focusRing,
               )}
             >
-              Уся бібліотека
+              {tr("Уся бібліотека")}
               <ArrowRight
                 className="h-3.5 w-3.5 transition-transform duration-200 group-hover/all:translate-x-1 motion-reduce:transition-none"
                 aria-hidden
@@ -76,7 +78,7 @@ export function TextsRow({ materials }: { materials: Material[] }) {
                     </span>
                     <span className={cn("mt-1.5 block text-[12px]", ink.muted)}>{m.author}</span>
                     <span className={cn("mt-0.5 block text-[11px]", ink.soft)}>
-                      {m.readingMinutes} хв читання
+                      {m.readingMinutes} {tr("хв читання")}
                     </span>
                   </span>
                 </Link>

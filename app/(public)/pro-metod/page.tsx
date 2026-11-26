@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import type { Metadata } from "next";
 import {
   ArrowRight,
@@ -22,12 +22,18 @@ import {
 
 import { cn } from "@/lib/utils";
 import { featherEdges, focusRing, ink, serif } from "@/components/preview/vsi/theme";
+import { getI18n } from "@/lib/i18n/server";
+import { pageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Про напрямок",
-  description:
-    "Аналітично орієнтована психотерапія: простір для глибшого розуміння психічного життя, стосунків і внутрішніх процесів людини.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, tr } = await getI18n();
+  return pageMetadata(locale, "/pro-metod", {
+    title: tr("Про напрямок"),
+    description: tr(
+      "Аналітично орієнтована психотерапія: простір для глибшого розуміння психічного життя, стосунків і внутрішніх процесів людини.",
+    ),
+  });
+}
 
 /** Смуга контенту. Темний блок навмисно живе поза нею — він на всю ширину. */
 const SHELL = "mx-auto w-full max-w-[1180px] px-5 sm:px-8 lg:px-10";
@@ -146,7 +152,8 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function ProMethodPage() {
+export default async function ProMethodPage() {
+  const { tr } = await getI18n();
   return (
     <div className="pb-24">
       {/* ── Знайомство з напрямком ── */}
@@ -163,7 +170,7 @@ export default function ProMethodPage() {
       >
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
-            Про напрямок VSI
+            {tr("Про напрямок VSI")}
           </p>
           <h1
             className={cn(
@@ -172,15 +179,17 @@ export default function ProMethodPage() {
             )}
             style={serif}
           >
-            Аналітично орієнтована психотерапія
+            {tr("Аналітично орієнтована психотерапія")}
           </h1>
           <p className={cn("mt-6 max-w-lg text-pretty text-[19px] leading-[1.6]", ink.body)}>
-            Простір для глибшого розуміння психічного життя, стосунків і внутрішніх процесів людини.
+            {tr(
+              "Простір для глибшого розуміння психічного життя, стосунків і внутрішніх процесів людини.",
+            )}
           </p>
           <p className={cn("mt-5 max-w-lg text-pretty text-[15px] leading-[1.75]", ink.muted)}>
-            VSI є професійною спільнотою аналітично орієнтованих психологів і психотерапевтів. Ми
-            створили платформу для розвитку цього напряму, професійного діалогу між фахівцями та
-            доступу до якісної психологічної і психотерапевтичної допомоги.
+            {tr(
+              "VSI є професійною спільнотою аналітично орієнтованих психологів і психотерапевтів. Ми створили платформу для розвитку цього напряму, професійного діалогу між фахівцями та доступу до якісної психологічної і психотерапевтичної допомоги.",
+            )}
           </p>
 
           <div className="mt-9 flex flex-wrap gap-3">
@@ -192,7 +201,7 @@ export default function ProMethodPage() {
                 focusRing,
               )}
             >
-              Познайомитися з фахівцями
+              {tr("Познайомитися з фахівцями")}
               <ArrowRight
                 className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
                 aria-hidden
@@ -206,7 +215,7 @@ export default function ProMethodPage() {
                 focusRing,
               )}
             >
-              Долучитися як фахівець
+              {tr("Долучитися як фахівець")}
               <ArrowRight
                 className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
                 aria-hidden
@@ -221,7 +230,9 @@ export default function ProMethodPage() {
         */}
         <Image
           src="/brand/motifs/pro-metod-hero.png"
-          alt="Арка, у прорізі якої гори, схід сонця й золота стежка; довкола — орбіта і гілка"
+          alt={tr(
+            "Арка, у прорізі якої гори, схід сонця й золота стежка; довкола — орбіта і гілка",
+          )}
           width={1536}
           height={1024}
           priority
@@ -239,22 +250,22 @@ export default function ProMethodPage() {
         )}
       >
         <div>
-          <SectionTitle>Не лише прибрати симптом</SectionTitle>
+          <SectionTitle>{tr("Не лише прибрати симптом")}</SectionTitle>
           <div className={cn("mt-6 space-y-5 text-[14px] leading-[1.75]", ink.muted)}>
             <p className="text-pretty">
-              Тривога, повторювані труднощі у стосунках, внутрішня напруга, кризи, втрата опори або
-              відчуття, що певні життєві ситуації постійно повторюються, можуть стати початком
-              глибшого дослідження себе.
+              {tr(
+                "Тривога, повторювані труднощі у стосунках, внутрішня напруга, кризи, втрата опори або відчуття, що певні життєві ситуації постійно повторюються, можуть стати початком глибшого дослідження себе.",
+              )}
             </p>
             <p className="text-pretty">
-              Аналітично орієнтована психотерапія допомагає не лише зменшити симптом, а й зрозуміти,
-              що за ним стоїть. У роботі поступово стають помітнішими внутрішні конфлікти, несвідомі
-              мотиви, досвід ранніх стосунків, звичні способи реагування та сценарії, які впливають
-              на теперішнє життя.
+              {tr(
+                "Аналітично орієнтована психотерапія допомагає не лише зменшити симптом, а й зрозуміти, що за ним стоїть. У роботі поступово стають помітнішими внутрішні конфлікти, несвідомі мотиви, досвід ранніх стосунків, звичні способи реагування та сценарії, які впливають на теперішнє життя.",
+              )}
             </p>
             <p className="text-pretty">
-              Мета такої роботи не в тому, щоб швидко змінити людину. Йдеться про можливість краще
-              розуміти себе, свої переживання, бажання, страхи та способи будувати стосунки.
+              {tr(
+                "Мета такої роботи не в тому, щоб швидко змінити людину. Йдеться про можливість краще розуміти себе, свої переживання, бажання, страхи та способи будувати стосунки.",
+              )}
             </p>
           </div>
         </div>
@@ -274,10 +285,10 @@ export default function ProMethodPage() {
                   <Icon className="h-5 w-5 text-[#876428]" strokeWidth={1.3} />
                 </span>
                 <span className={cn("mt-4 text-[16px] leading-snug", ink.strong)} style={serif}>
-                  {label}
+                  {tr(label)}
                 </span>
                 <p className={cn("mt-2 max-w-[200px] text-[12.5px] leading-relaxed", ink.muted)}>
-                  {text}
+                  {tr(text)}
                 </p>
               </div>
               {i < STAGES.length - 1 && (
@@ -293,7 +304,7 @@ export default function ProMethodPage() {
 
       {/* ── Що лежить в основі роботи ── */}
       <section className={cn(SHELL, "mt-20")}>
-        <SectionTitle>Що лежить в основі роботи</SectionTitle>
+        <SectionTitle>{tr("Що лежить в основі роботи")}</SectionTitle>
 
         {/*
           Розділювач — ліва межа сусідньої колонки, а не окрема лінія:
@@ -315,10 +326,10 @@ export default function ProMethodPage() {
                 className={cn("mt-5 text-[19px] font-normal leading-snug", ink.strong)}
                 style={serif}
               >
-                {title}
+                {tr(title)}
               </h3>
               <p className={cn("mt-3 text-pretty text-[14px] leading-relaxed", ink.muted)}>
-                {text}
+                {tr(text)}
               </p>
             </li>
           ))}
@@ -358,19 +369,21 @@ export default function ProMethodPage() {
               className="text-balance text-[2rem] font-normal leading-tight text-[#F8F4EC]"
               style={serif}
             >
-              Професійний простір VSI
+              {tr("Професійний простір VSI")}
             </h2>
             {/*
               Два абзаци вступу з тексту. У макеті цього місця не видно —
               там лише заголовок, — але викидати написане я не став.
             */}
             <p className="mt-5 text-pretty text-[13.5px] leading-[1.7] text-[#D6D3DD]">
-              VSI створює професійне середовище для фахівців, які працюють в аналітичному,
-              психоаналітичному, психодинамічному, юнгіанському та близьких до них напрямках.
+              {tr(
+                "VSI створює професійне середовище для фахівців, які працюють в аналітичному, психоаналітичному, психодинамічному, юнгіанському та близьких до них напрямках.",
+              )}
             </p>
             <p className="mt-3 text-pretty text-[13.5px] leading-[1.7] text-[#AAA8B5]">
-              Для нас важливі професійна етика, відповідальність за власну практику, регулярний
-              професійний розвиток, супервізія та повага до меж терапевтичних стосунків.
+              {tr(
+                "Для нас важливі професійна етика, відповідальність за власну практику, регулярний професійний розвиток, супервізія та повага до меж терапевтичних стосунків.",
+              )}
             </p>
           </div>
 
@@ -382,10 +395,10 @@ export default function ProMethodPage() {
                   className="mt-3 text-[15px] font-normal leading-snug text-[#F8F4EC]"
                   style={serif}
                 >
-                  {title}
+                  {tr(title)}
                 </h3>
                 <p className="mt-2 text-pretty text-[12px] leading-relaxed text-[#AAA8B5]">
-                  {text}
+                  {tr(text)}
                 </p>
               </li>
             ))}
@@ -406,14 +419,14 @@ export default function ProMethodPage() {
                 className={cn("text-[1.75rem] font-normal leading-snug", ink.strong)}
                 style={serif}
               >
-                {title}
+                {tr(title)}
               </h2>
             </div>
 
             <div className={cn("mt-6 space-y-4 text-[15px] leading-[1.75]", ink.muted)}>
               {paragraphs.map((p) => (
                 <p key={p.slice(0, 32)} className="text-pretty">
-                  {p}
+                  {tr(p)}
                 </p>
               ))}
             </div>
@@ -428,7 +441,7 @@ export default function ProMethodPage() {
                   focusRing,
                 )}
               >
-                {cta}
+                {tr(cta)}
                 <ArrowRight
                   className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
                   aria-hidden
@@ -447,19 +460,20 @@ export default function ProMethodPage() {
         )}
       >
         <div>
-          <SectionTitle>Траєкторія цілісності</SectionTitle>
+          <SectionTitle>{tr("Траєкторія цілісності")}</SectionTitle>
           <div className={cn("mt-6 space-y-4 text-[14px] leading-[1.8]", ink.muted)}>
             <p className="text-pretty">
-              Ми не бачимо психотерапію як шлях до ідеальної версії себе.
+              {tr("Ми не бачимо психотерапію як шлях до ідеальної версії себе.")}
             </p>
             <p className="text-pretty">
-              Для нас це можливість краще розуміти власне психічне життя, помічати його складність,
-              зустрічатися з різними частинами себе і поступово знаходити більш цілісний спосіб бути
-              у стосунках із собою, іншими людьми та світом.
+              {tr(
+                "Для нас це можливість краще розуміти власне психічне життя, помічати його складність, зустрічатися з різними частинами себе і поступово знаходити більш цілісний спосіб бути у стосунках із собою, іншими людьми та світом.",
+              )}
             </p>
             <p className="text-pretty">
-              VSI створений як простір, у якому можуть зустрічатися психотерапевтична практика,
-              професійна думка, навчання і люди, для яких важливе глибше розуміння себе.
+              {tr(
+                "VSI створений як простір, у якому можуть зустрічатися психотерапевтична практика, професійна думка, навчання і люди, для яких важливе глибше розуміння себе.",
+              )}
             </p>
           </div>
         </div>
@@ -471,7 +485,7 @@ export default function ProMethodPage() {
         */}
         <Image
           src="/brand/motifs/trajectory.png"
-          alt="Пагорби й вода у вранішньому світлі, над ними — тонка золота орбіта"
+          alt={tr("Пагорби й вода у вранішньому світлі, над ними — тонка золота орбіта")}
           width={1774}
           height={887}
           sizes="(min-width: 1024px) 600px, 100vw"

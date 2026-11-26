@@ -11,6 +11,7 @@ import {
   type GuestRegistrationState,
 } from "@/lib/actions/events";
 import { focusRing, touch } from "./theme";
+import { useI18n } from "@/lib/i18n/client";
 
 const inputClass = cn(
   "h-10 w-full rounded-lg border border-[#142744]/15 bg-[#FFFDF8] px-3 text-sm text-[#142744]",
@@ -24,6 +25,7 @@ const inputClass = cn(
  * honeypot-поле, стан успіху замінює форму на місці.
  */
 function GuestRegistrationForm({ eventId, onCancel }: { eventId: string; onCancel: () => void }) {
+  const { tr } = useI18n();
   const [state, formAction, pending] = useActionState<GuestRegistrationState | null, FormData>(
     (prev, fd) => registerForEventAction(prev, fd),
     null,
@@ -33,7 +35,7 @@ function GuestRegistrationForm({ eventId, onCancel }: { eventId: string; onCance
     return (
       <p className="mt-4 flex items-center gap-1.5 text-sm font-medium text-[#245A41]">
         <Check className="h-4 w-4 shrink-0" aria-hidden />
-        Реєстрацію прийнято — з вами зв'яжуться перед подією.
+        {tr("Реєстрацію прийнято — з вами зв'яжуться перед подією.")}
       </p>
     );
   }
@@ -48,26 +50,26 @@ function GuestRegistrationForm({ eventId, onCancel }: { eventId: string; onCance
       <input type="hidden" name="eventId" value={eventId} />
       <div className="sr-only" aria-hidden="true">
         <label>
-          Залиште це поле порожнім
+          {tr("Залиште це поле порожнім")}
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
 
       <div>
-        <input name="name" required placeholder="Ваше ім'я" className={inputClass} />
+        <input name="name" required placeholder={tr("Ваше ім'я")} className={inputClass} />
         {fieldErrors?.name?.[0] && (
-          <p className="mt-1 text-[12px] text-[#8A4B33]">{fieldErrors.name[0]}</p>
+          <p className="mt-1 text-[12px] text-[#8A4B33]">{tr(fieldErrors.name[0])}</p>
         )}
       </div>
       <div>
         <input name="email" type="email" required placeholder="Email" className={inputClass} />
         {fieldErrors?.email?.[0] && (
-          <p className="mt-1 text-[12px] text-[#8A4B33]">{fieldErrors.email[0]}</p>
+          <p className="mt-1 text-[12px] text-[#8A4B33]">{tr(fieldErrors.email[0])}</p>
         )}
       </div>
-      <input name="phone" placeholder="Телефон (необов'язково)" className={inputClass} />
+      <input name="phone" placeholder={tr("Телефон (необов'язково)")} className={inputClass} />
 
-      {state?.ok === false && <p className="text-[12px] text-[#8A4B33]">{state.error}</p>}
+      {state?.ok === false && <p className="text-[12px] text-[#8A4B33]">{tr(state.error)}</p>}
 
       <div className="flex items-center gap-2 pt-1">
         <button
@@ -79,14 +81,14 @@ function GuestRegistrationForm({ eventId, onCancel }: { eventId: string; onCance
             focusRing,
           )}
         >
-          {pending ? "Реєструємо…" : "Підтвердити"}
+          {pending ? tr("Реєструємо…") : tr("Підтвердити")}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className={cn("text-sm font-medium text-[#5C6672] hover:text-[#142744]", focusRing)}
         >
-          Скасувати
+          {tr("Скасувати")}
         </button>
       </div>
     </form>
@@ -111,6 +113,7 @@ export function EventInterestButtons({
   /** null — запис відкрито; інакше причина, чому вже ні. */
   closedReason: "closed" | "full" | null;
 }) {
+  const { tr } = useI18n();
   const [status, setStatus] = useState(initialStatus);
   const [pending, startTransition] = useTransition();
   const [guestMode, setGuestMode] = useState(false);
@@ -127,7 +130,7 @@ export function EventInterestButtons({
       const result = await setEventInterestAction(eventId, "REGISTERED");
       if (!result.ok) {
         setStatus(status);
-        toast.error(result.error);
+        toast.error(tr(result.error));
       } else {
         setStatus(result.status);
       }
@@ -148,8 +151,8 @@ export function EventInterestButtons({
     return (
       <p className="mt-4 text-xs font-medium text-[#876428]">
         {closedReason === "full"
-          ? "Місць немає — запис закрито"
-          : "Запис закрито. Подія відбудеться за розкладом"}
+          ? tr("Місць немає — запис закрито")
+          : tr("Запис закрито. Подія відбудеться за розкладом")}
       </p>
     );
   }
@@ -171,7 +174,7 @@ export function EventInterestButtons({
         )}
       >
         <Check className="h-3.5 w-3.5" aria-hidden />
-        {status === "REGISTERED" ? "Зареєстровано" : "Зареєструватися"}
+        {status === "REGISTERED" ? tr("Зареєстровано") : tr("Зареєструватися")}
       </button>
     </div>
   );

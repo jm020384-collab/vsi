@@ -10,6 +10,9 @@ import { JsonLd, ORGANIZATION_ID, SITE_URL } from "@/components/seo/json-ld";
 import { PageTracker } from "@/components/analytics/page-tracker";
 import { auth } from "@/auth";
 import { BRAND, SITE_NAME, SITE_DESCRIPTION } from "@/lib/brand";
+import { I18nProvider } from "@/lib/i18n/client";
+import { getI18n } from "@/lib/i18n/server";
+import ruMessages from "@/lib/i18n/ru.json";
 
 import "./globals.css";
 
@@ -27,23 +30,9 @@ const serif = Cormorant_Garamond({
   display: "swap",
 });
 
-export const metadata: Metadata = {
+const BASE_METADATA: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: {
-    default: `${SITE_NAME} · ${BRAND.tagline}`,
-    template: `%s · ${SITE_NAME}`,
-  },
-  description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  keywords: [
-    "аналітична психотерапія",
-    "юнгіанська терапія",
-    "психоаналіз",
-    "психотерапевт Україна",
-    "пошук психолога",
-    "індивідуація",
-    SITE_NAME,
-  ],
   authors: [{ name: SITE_NAME }],
   appleWebApp: {
     capable: true,
@@ -75,6 +64,26 @@ export const metadata: Metadata = {
   },
 };
 
+const KEYWORDS = [
+  "аналітична психотерапія",
+  "юнгіанська терапія",
+  "психоаналіз",
+  "психотерапевт Україна",
+  "пошук психолога",
+  "індивідуація",
+];
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, tr } = await getI18n();
+  return {
+    ...BASE_METADATA,
+    title: { default: `${SITE_NAME} · ${tr(BRAND.tagline)}`, template: `%s · ${SITE_NAME}` },
+    description: tr(SITE_DESCRIPTION),
+    keywords: [...KEYWORDS.map((k) => tr(k)), SITE_NAME],
+    openGraph: { ...BASE_METADATA.openGraph, locale: locale === "ru" ? "ru_RU" : "uk_UA" },
+  };
+}
+
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: BRAND.themeColor.background },
@@ -87,9 +96,10 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
+  const { locale, tr } = await getI18n();
 
   return (
-    <html lang="uk" suppressHydrationWarning className={`${sans.variable} ${serif.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${sans.variable} ${serif.variable}`}>
       <body className="flex min-h-screen flex-col font-sans">
         {/*
           storageKey навмисно новий: у старому ключі в багатьох уже
@@ -104,36 +114,38 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           storageKey="vsi-theme"
           disableTransitionOnChange
         >
-          <SessionProvider session={session}>
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <SiteFooter />
-            <Toaster richColors closeButton position="top-center" />
-            <PageTracker />
-            <JsonLd
-              data={{
-                "@context": "https://schema.org",
-                "@graph": [
-                  {
-                    "@type": "Organization",
-                    "@id": ORGANIZATION_ID,
-                    name: SITE_NAME,
-                    url: SITE_URL,
-                    description: SITE_DESCRIPTION,
-                    logo: `${SITE_URL}/icons/icon-512.png`,
-                    sameAs: ["https://www.facebook.com/profile.php?id=61593751903159"],
-                  },
-                  {
-                    "@type": "WebSite",
-                    name: SITE_NAME,
-                    url: SITE_URL,
-                    inLanguage: "uk",
-                    publisher: { "@id": ORGANIZATION_ID },
-                  },
-                ],
-              }}
-            />
-          </SessionProvider>
+          <I18nProvider locale={locale} messages={locale === "ru" ? ruMessages : null}>
+            <SessionProvider session={session}>
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+              <Toaster richColors closeButton position="top-center" />
+              <PageTracker />
+              <JsonLd
+                data={{
+                  "@context": "https://schema.org",
+                  "@graph": [
+                    {
+                      "@type": "Organization",
+                      "@id": ORGANIZATION_ID,
+                      name: SITE_NAME,
+                      url: SITE_URL,
+                      description: tr(SITE_DESCRIPTION),
+                      logo: `${SITE_URL}/icons/icon-512.png`,
+                      sameAs: ["https://www.facebook.com/profile.php?id=61593751903159"],
+                    },
+                    {
+                      "@type": "WebSite",
+                      name: SITE_NAME,
+                      url: SITE_URL,
+                      inLanguage: ["uk", "ru"],
+                      publisher: { "@id": ORGANIZATION_ID },
+                    },
+                  ],
+                }}
+              />
+            </SessionProvider>
+          </I18nProvider>
         </ThemeProvider>
       </body>
     </html>

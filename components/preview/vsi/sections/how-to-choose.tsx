@@ -1,5 +1,6 @@
 import { Eyebrow, Lead, SectionTitle, Wrap } from "../ui";
 import { ink, serif } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
 
 /**
  * Кожен крок — кілька коротких абзаців, а не один суцільний. Порада
@@ -43,7 +44,8 @@ const STEPS = [
   },
 ];
 
-export function HowToChoose() {
+export async function HowToChoose() {
+  const { tr } = await getI18n();
   return (
     <section id="how-to-choose" className="bg-[#E9DECE]">
       <Wrap className="py-10 lg:py-14">
@@ -52,12 +54,12 @@ export function HowToChoose() {
           три рядки, а на вузькій колонці розсипався б на п'ять.
         */}
         <div className="max-w-[780px]">
-          <Eyebrow>Як обрати фахівця</Eyebrow>
-          <SectionTitle className="mt-6">Чотири кроки без поспіху</SectionTitle>
+          <Eyebrow>{tr("Як обрати фахівця")}</Eyebrow>
+          <SectionTitle className="mt-6">{tr("Чотири кроки без поспіху")}</SectionTitle>
           <Lead className="mt-6">
-            Вибір терапевта не означає пошук «найкращого» фахівця. Важливо знайти людину, з якою вам
-            буде достатньо безпечно говорити про складне, ставити запитання і поступово входити в
-            терапевтичну роботу.
+            {tr(
+              "Вибір терапевта не означає пошук «найкращого» фахівця. Важливо знайти людину, з якою вам буде достатньо безпечно говорити про складне, ставити запитання і поступово входити в терапевтичну роботу.",
+            )}
           </Lead>
         </div>
 
@@ -86,13 +88,13 @@ export function HowToChoose() {
                 className={`mt-5 text-balance text-[22px] font-normal leading-[1.22] ${ink.strong}`}
                 style={serif}
               >
-                {title}
+                {tr(title)}
               </h3>
 
               <div className="mt-5 space-y-4">
                 {body.map((p) => (
                   <p key={p} className={`text-[15px] leading-[1.65] ${ink.muted}`}>
-                    {p}
+                    {tr(p)}
                   </p>
                 ))}
               </div>
@@ -111,15 +113,14 @@ export function HowToChoose() {
             className="self-center text-[28px] leading-none text-[#6E5120] sm:pr-10 sm:text-right"
             style={serif}
           >
-            Важливо
+            {tr("Важливо")}
           </p>
           <p
             className={`text-[15px] leading-[1.75] sm:border-l sm:border-[#B38B49]/45 sm:pl-10 ${ink.muted}`}
           >
-            Хороший терапевтичний контакт не означає, що на сесіях завжди буде легко або приємно.
-            Важливіше інше: чи можете ви говорити про складне, чи витримується незгода, чи
-            поважаються ваші межі і чи поступово з'являється простір для більш чесної розмови про
-            себе.
+            {tr(
+              "Хороший терапевтичний контакт не означає, що на сесіях завжди буде легко або приємно. Важливіше інше: чи можете ви говорити про складне, чи витримується незгода, чи поважаються ваші межі і чи поступово з'являється простір для більш чесної розмови про себе.",
+            )}
           </p>
         </div>
       </Wrap>

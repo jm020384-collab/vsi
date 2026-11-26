@@ -191,6 +191,9 @@ export function SiteStatsView({
         </Tile>
         <Tile label="Зайшли на «Фахівці»" value={num(totals.catalog)}>
           {share(totals.catalog, totals.visitors)}% усіх відвідувачів
+          {totals.russian > 0 && (
+            <span className="block">російською читали {num(totals.russian)}</span>
+          )}
         </Tile>
         <Tile label="Сьогодні" value={num(today?.visitors ?? 0)}>
           відвідувачів · {num(today?.views ?? 0)} переглядів

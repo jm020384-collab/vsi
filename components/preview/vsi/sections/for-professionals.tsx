@@ -1,9 +1,10 @@
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { ArrowRight, CalendarDays, FileText, User, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Wrap } from "../ui";
 import { focusRingDark } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
 
 const FEATURES = [
   {
@@ -34,17 +35,18 @@ const FEATURES = [
  * Він же виконує роль головного заклику зареєструватися: далі на
  * сторінці лишається тільки спокійне завершення, без ще одного CTA.
  */
-export function ForProfessionals() {
+export async function ForProfessionals() {
+  const { tr } = await getI18n();
   return (
     <section id="for-professionals" className="bg-[#142744]">
       <Wrap className="py-10 lg:py-12">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-14">
           <div>
             <h2 className="text-[13px] font-medium uppercase tracking-[0.2em] text-[#E9DECE]">
-              Для фахівців
+              {tr("Для фахівців")}
             </h2>
             <p className="mt-4 max-w-xs text-[15px] leading-relaxed text-[#C9C7D1]">
-              VSI — місце професійної присутності та розвитку в аналітичному середовищі.
+              {tr("VSI — місце професійної присутності та розвитку в аналітичному середовищі.")}
             </p>
             <Link
               href="/register"
@@ -54,7 +56,7 @@ export function ForProfessionals() {
                 focusRingDark,
               )}
             >
-              Створити професійний простір
+              {tr("Створити професійний простір")}
               <ArrowRight
                 className="h-4 w-4 transition-transform duration-200 group-hover/cta:translate-x-1 motion-reduce:transition-none"
                 aria-hidden
@@ -72,9 +74,9 @@ export function ForProfessionals() {
                   <Icon className="h-5 w-5 text-[#D9B269]" strokeWidth={1.2} />
                 </span>
                 <h3 className="mt-4 text-[12px] font-medium uppercase tracking-[0.14em] text-[#E9DECE]">
-                  {title}
+                  {tr(title)}
                 </h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-[#AAA8B5]">{text}</p>
+                <p className="mt-2 text-[13px] leading-relaxed text-[#AAA8B5]">{tr(text)}</p>
               </li>
             ))}
           </ul>

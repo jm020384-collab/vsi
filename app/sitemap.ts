@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import { THEMES } from "@/components/preview/vsi/data";
+import { localizeHref } from "@/lib/i18n/config";
 
 // Не пре-рендерити на етапі build (БД може бути недоступна);
 // генеруємо на льоту і кешуємо на годину.
@@ -21,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   ]);
 
-  return [
+  const pages: MetadataRoute.Sitemap = [
     { url: `${base}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${base}/pro-metod`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/therapists`, changeFrequency: "daily", priority: 0.9 },
@@ -49,4 +50,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     })),
   ];
+
+  // Кожна сторінка існує двома мовами, і пошуковик має бачити обидві
+  // адреси разом із зв'язком між ними.
+  return pages.flatMap((page) => {
+    const ru = `${base}${localizeHref(page.url.slice(base.length), "ru")}`;
+    const alternates = { languages: { uk: page.url, ru } };
+    return [
+      { ...page, alternates },
+      { ...page, url: ru, alternates },
+    ];
+  });
 }

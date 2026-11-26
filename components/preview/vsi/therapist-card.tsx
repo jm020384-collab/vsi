@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowRight,
   BadgeCheck,
@@ -13,24 +15,10 @@ import { cn } from "@/lib/utils";
 import { AvatarPortrait } from "./decor";
 import { FORMAT_LABEL, specialistSpace, type Therapist } from "./data";
 import { focusRing, ink, touch, VSI } from "./theme";
-
-/** Відмінювання: 1 рік / 2 роки / 5 років. */
-function yearsLabel(n: number) {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return `${n} рік`;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${n} роки`;
-  return `${n} років`;
-}
-
-/** Відмінювання: 1 програма / 2 програми / 5 програм. */
-function programsLabel(n: number) {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return `${n} програма`;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${n} програми`;
-  return `${n} програм`;
-}
+import Link from "@/components/i18n/link";
+import { countLabel } from "@/lib/i18n/counts";
+import { intlLocale } from "@/lib/i18n/translate";
+import { useI18n } from "@/lib/i18n/client";
 
 /** Маркер довіри — свідома заміна зірковому рейтингу. */
 function TrustMark({
@@ -74,6 +62,7 @@ export function TherapistCard({
    */
   variant?: "full" | "editorial";
 }) {
+  const { tr, locale } = useI18n();
   if (variant === "editorial") {
     const quote = specialistSpace(t).position[0];
     return (
@@ -101,7 +90,7 @@ export function TherapistCard({
           {t.verified && (
             <span className="bg-[#FFFDF8]/92 absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-[#1C3557] shadow-sm backdrop-blur-sm">
               <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
-              Профіль перевірено
+              {tr("Профіль перевірено")}
             </span>
           )}
 
@@ -111,10 +100,10 @@ export function TherapistCard({
           */}
           {t.socialSupport && (
             <span
-              title="Фахівець бере участь у програмі соціальної психологічної підтримки VSI."
+              title={tr("Фахівець бере участь у програмі соціальної психологічної підтримки VSI.")}
               className="bg-[#FFFDF8]/92 absolute right-3 top-3 inline-flex items-center rounded-full border border-[#B38B49]/45 px-2.5 py-1 text-xs font-medium text-[#876428] shadow-sm backdrop-blur-sm"
             >
-              Соціальна підтримка
+              {tr("Соціальна підтримка")}
             </span>
           )}
         </div>
@@ -126,7 +115,7 @@ export function TherapistCard({
           >
             {t.name}
           </h3>
-          <p className={cn("mt-1 text-sm leading-snug", ink.muted)}>{t.status}</p>
+          <p className={cn("mt-1 text-sm leading-snug", ink.muted)}>{tr(t.status)}</p>
 
           {quote && (
             <blockquote
@@ -149,7 +138,7 @@ export function TherapistCard({
                 {t.education.institution}
                 {t.education.extra > 0 && (
                   <span className={cn("block", ink.soft)}>
-                    та ще {programsLabel(t.education.extra)} навчання
+                    {tr("та ще")} {countLabel(t.education.extra, "programs", tr)} {tr("навчання")}
                   </span>
                 )}
               </span>
@@ -157,10 +146,15 @@ export function TherapistCard({
           )}
 
           {t.topics.length > 0 && (
-            <p className={cn("mt-4 text-[13px]", ink.soft)}>{t.topics.slice(0, 4).join(" · ")}</p>
+            <p className={cn("mt-4 text-[13px]", ink.soft)}>
+              {t.topics
+                .slice(0, 4)
+                .map((topic) => tr(topic))
+                .join(" · ")}
+            </p>
           )}
 
-          <a
+          <Link
             href={`/specialists/${t.id}`}
             className={cn(
               "group/cta mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-medium text-[#1C3557]",
@@ -168,12 +162,12 @@ export function TherapistCard({
               focusRing,
             )}
           >
-            Познайомитися
+            {tr("Познайомитися")}
             <ArrowRight
               className="h-3.5 w-3.5 transition-transform duration-200 group-hover/cta:translate-x-1 motion-reduce:transition-none"
               aria-hidden
             />
-          </a>
+          </Link>
         </div>
       </article>
     );
@@ -206,7 +200,7 @@ export function TherapistCard({
         {t.verified && (
           <span className="bg-[#FFFDF8]/92 absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-[#1C3557] shadow-sm backdrop-blur-sm">
             <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
-            Профіль перевірено
+            {tr("Профіль перевірено")}
           </span>
         )}
 
@@ -216,10 +210,10 @@ export function TherapistCard({
         */}
         {t.socialSupport && (
           <span
-            title="Фахівець бере участь у програмі соціальної психологічної підтримки VSI."
+            title={tr("Фахівець бере участь у програмі соціальної психологічної підтримки VSI.")}
             className="bg-[#FFFDF8]/92 absolute right-3 top-3 inline-flex items-center rounded-full border border-[#B38B49]/45 px-2.5 py-1 text-xs font-medium text-[#876428] shadow-sm backdrop-blur-sm"
           >
-            Соціальна підтримка
+            {tr("Соціальна підтримка")}
           </span>
         )}
       </div>
@@ -231,40 +225,42 @@ export function TherapistCard({
         >
           {t.name}
         </h3>
-        <p className={cn("mt-1 text-sm leading-snug", ink.muted)}>{t.status}</p>
+        <p className={cn("mt-1 text-sm leading-snug", ink.muted)}>{tr(t.status)}</p>
 
         {/* Напрям роботи */}
         <p className="border-[#142744]/12 mt-3 inline-flex w-fit items-center rounded-md border px-2 py-1 text-xs font-medium text-[#1C3557]">
-          {t.approach}
+          {tr(t.approach)}
         </p>
 
         {/* Маркери довіри — замість зірок */}
         <div className="mt-4 flex flex-wrap gap-1.5">
-          <TrustMark icon={Clock}>{yearsLabel(t.yearsOfPractice)} практики</TrustMark>
+          <TrustMark icon={Clock}>
+            {countLabel(t.yearsOfPractice, "years", tr)} {tr("практики")}
+          </TrustMark>
           {t.acceptingNew ? (
             <TrustMark icon={CalendarCheck} tone="open">
-              Приймає нових клієнтів
+              {tr("Приймає нових клієнтів")}
             </TrustMark>
           ) : (
-            <TrustMark icon={CalendarCheck}>Запис у лист очікування</TrustMark>
+            <TrustMark icon={CalendarCheck}>{tr("Запис у лист очікування")}</TrustMark>
           )}
         </div>
 
         {/* Формат, мови, місто */}
         <dl className={cn("mt-4 space-y-1.5 text-sm", ink.body)}>
           <div className="flex items-center gap-2">
-            <dt className="sr-only">Формат</dt>
+            <dt className="sr-only">{tr("Формат")}</dt>
             <Monitor className="h-4 w-4 shrink-0 text-[#5C6672]" aria-hidden />
-            <dd>{FORMAT_LABEL[t.format]}</dd>
+            <dd>{tr(FORMAT_LABEL[t.format])}</dd>
           </div>
           <div className="flex items-center gap-2">
-            <dt className="sr-only">Мови</dt>
+            <dt className="sr-only">{tr("Мови")}</dt>
             <Languages className="h-4 w-4 shrink-0 text-[#5C6672]" aria-hidden />
-            <dd>{t.languages.join(", ")}</dd>
+            <dd>{t.languages.map((l) => tr(l)).join(", ")}</dd>
           </div>
           {t.city && (
             <div className="flex items-center gap-2">
-              <dt className="sr-only">Місто</dt>
+              <dt className="sr-only">{tr("Місто")}</dt>
               <MapPin className="h-4 w-4 shrink-0 text-[#5C6672]" aria-hidden />
               <dd>{t.city}</dd>
             </div>
@@ -276,13 +272,13 @@ export function TherapistCard({
           */}
           {t.education && (
             <div className="flex items-start gap-2">
-              <dt className="sr-only">Освіта</dt>
+              <dt className="sr-only">{tr("Освіта")}</dt>
               <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-[#5C6672]" aria-hidden />
               <dd>
                 {t.education.institution}
                 {t.education.extra > 0 && (
                   <span className={cn("block text-[13px]", ink.soft)}>
-                    та ще {programsLabel(t.education.extra)} навчання
+                    {tr("та ще")} {countLabel(t.education.extra, "programs", tr)} {tr("навчання")}
                   </span>
                 )}
               </dd>
@@ -291,13 +287,13 @@ export function TherapistCard({
         </dl>
 
         {/* Теми роботи */}
-        <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Теми роботи">
+        <ul className="mt-4 flex flex-wrap gap-1.5" aria-label={tr("Теми роботи")}>
           {t.topics.slice(0, 4).map((topic) => (
             <li
               key={topic}
               className="rounded-full border border-[#142744]/10 bg-[#F8F4EC] px-2.5 py-1 text-xs text-[#4A5568]"
             >
-              {topic}
+              {tr(topic)}
             </li>
           ))}
         </ul>
@@ -305,16 +301,18 @@ export function TherapistCard({
         {/* Вартість + дія */}
         <div className="mt-auto flex items-end justify-between gap-3 pt-5">
           <div>
-            <div className={cn("text-[11px] uppercase tracking-[0.14em]", ink.soft)}>Сесія</div>
+            <div className={cn("text-[11px] uppercase tracking-[0.14em]", ink.soft)}>
+              {tr("Сесія")}
+            </div>
             <div className={cn("text-lg font-medium", ink.strong)}>
-              від {t.priceFrom.toLocaleString("uk-UA")} {t.currency}
+              {tr("від")} {t.priceFrom.toLocaleString(intlLocale(locale))} {tr(t.currency)}
               <span className={cn("ml-1 text-sm font-normal", ink.soft)}>
-                · {t.sessionMinutes} хв
+                · {t.sessionMinutes} {tr("хв")}
               </span>
             </div>
           </div>
 
-          <a
+          <Link
             href={`/specialists/${t.id}`}
             className={cn(
               "inline-flex items-center justify-center rounded-lg bg-[#1C3557] px-4 text-sm font-medium text-[#FFFDF8]",
@@ -323,8 +321,8 @@ export function TherapistCard({
               focusRing,
             )}
           >
-            Відкрити простір
-          </a>
+            {tr("Відкрити простір")}
+          </Link>
         </div>
       </div>
     </article>
@@ -334,11 +332,12 @@ export function TherapistCard({
 /* ── Loading state ──────────────────────────────────────────── */
 
 export function TherapistCardSkeleton() {
+  const { tr } = useI18n();
   return (
     <div
       className="overflow-hidden rounded-2xl border border-[#142744]/10 bg-[#FFFDF8]"
       role="status"
-      aria-label="Завантаження картки фахівця"
+      aria-label={tr("Завантаження картки фахівця")}
     >
       <div className="vsi-shimmer aspect-[4/3] w-full" />
       <div className="space-y-3 p-5">
@@ -358,7 +357,7 @@ export function TherapistCardSkeleton() {
           <div className="vsi-shimmer h-11 w-40 rounded-lg" />
         </div>
       </div>
-      <span className="sr-only">Завантажуємо профіль…</span>
+      <span className="sr-only">{tr("Завантажуємо профіль…")}</span>
 
       <style>{`
         .vsi-shimmer {

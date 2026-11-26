@@ -1,9 +1,10 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 
 import { cn } from "@/lib/utils";
 import { Wrap } from "../ui";
 import { focusRing, ink } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
 
 /**
  * Шість входів у теми — коротка назва під колом.
@@ -23,7 +24,8 @@ const ENTRIES = [
   { slug: "know-myself", label: "Сенс" },
 ];
 
-export function ThemeCircles() {
+export async function ThemeCircles() {
+  const { tr } = await getI18n();
   return (
     <section id="themes" className="bg-[#F8F4EC]">
       <Wrap className="py-10 lg:py-12">
@@ -34,7 +36,7 @@ export function ThemeCircles() {
           )}
         >
           <span aria-hidden className="h-px w-8 bg-[#B38B49]/60" />
-          Почати можна з того, що важливо саме зараз
+          {tr("Почати можна з того, що важливо саме зараз")}
           <span aria-hidden className="h-px w-8 bg-[#B38B49]/60" />
         </p>
 
@@ -74,7 +76,7 @@ export function ThemeCircles() {
                     "group-hover:text-[#142744]",
                   )}
                 >
-                  {label}
+                  {tr(label)}
                 </span>
               </Link>
             </li>

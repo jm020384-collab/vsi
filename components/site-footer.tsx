@@ -1,9 +1,11 @@
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 
 import { LogoVsiLockup } from "@/components/brand/vsi/logo-vsi";
 import { BRAND } from "@/lib/brand";
+import { getI18n } from "@/lib/i18n/server";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const { tr } = await getI18n();
   const year = new Date().getFullYear();
   return (
     <footer className="mt-20 bg-[#142744]">
@@ -11,12 +13,23 @@ export function SiteFooter() {
         <div className="grid gap-10 md:grid-cols-12">
           {/* Бренд-блок */}
           <div className="md:col-span-5">
-            <Link href="/" className="inline-block" aria-label={`${BRAND.name} — на головну`}>
-              <LogoVsiLockup align="start" logoClassName="text-[2.25rem]" tone="dark" still />
+            <Link
+              href="/"
+              className="inline-block"
+              aria-label={tr("{brand} — на головну", { brand: BRAND.name })}
+            >
+              <LogoVsiLockup
+                align="start"
+                logoClassName="text-[2.25rem]"
+                tone="dark"
+                still
+                captions={[tr("аналітично орієнтована терапія"), tr("Траєкторія цілісності")]}
+              />
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-[#C9C7D1]">
-              «vsi» — від українського «всі». Простір, у якому частини знаходять зв&apos;язок: із
-              собою, з іншими, зі світом.
+              {tr(
+                "«vsi» — від українського «всі». Простір, у якому частини знаходять зв'язок: із собою, з іншими, зі світом.",
+              )}
             </p>
 
             {/*
@@ -25,7 +38,7 @@ export function SiteFooter() {
               її на планшеті.
             */}
             <div className="mt-7">
-              <div className="small-caps text-xs font-medium text-[#AAA8B5]">Контакти</div>
+              <div className="small-caps text-xs font-medium text-[#AAA8B5]">{tr("Контакти")}</div>
               <a
                 href="https://www.facebook.com/profile.php?id=61593751903159"
                 target="_blank"
@@ -47,26 +60,26 @@ export function SiteFooter() {
 
           {/* Навігація */}
           <div className="md:col-span-3">
-            <div className="small-caps text-xs font-medium text-[#AAA8B5]">Розділи</div>
+            <div className="small-caps text-xs font-medium text-[#AAA8B5]">{tr("Розділи")}</div>
             <ul className="mt-3 space-y-2 text-sm text-[#D6D3DD]">
               <li>
                 <Link className="hover:text-[#F8F4EC]" href="/pro-metod">
-                  Про метод
+                  {tr("Про метод")}
                 </Link>
               </li>
               <li>
                 <Link className="hover:text-[#F8F4EC]" href="/therapists">
-                  Каталог фахівців
+                  {tr("Каталог фахівців")}
                 </Link>
               </li>
               <li>
                 <Link className="hover:text-[#F8F4EC]" href="/library">
-                  Журнал
+                  {tr("Журнал")}
                 </Link>
               </li>
               <li>
                 <Link className="hover:text-[#F8F4EC]" href="/register?role=THERAPIST">
-                  Я фахівець
+                  {tr("Я фахівець")}
                 </Link>
               </li>
             </ul>
@@ -74,23 +87,24 @@ export function SiteFooter() {
 
           {/* Юридичне */}
           <div className="md:col-span-4">
-            <div className="small-caps text-xs font-medium text-[#AAA8B5]">Юридичне</div>
+            <div className="small-caps text-xs font-medium text-[#AAA8B5]">{tr("Юридичне")}</div>
             <ul className="mt-3 space-y-2 text-sm text-[#D6D3DD]">
               <li>
                 <Link className="hover:text-[#F8F4EC]" href="/privacy">
-                  Політика конфіденційності
+                  {tr("Політика конфіденційності")}
                 </Link>
               </li>
               <li>
                 <Link className="hover:text-[#F8F4EC]" href="/terms">
-                  Угода користувача
+                  {tr("Угода користувача")}
                 </Link>
               </li>
             </ul>
             <p className="mt-4 text-xs leading-relaxed text-[#AAA8B5]">
-              {BRAND.name} надає інформацію про фахівців та освітній контент. Платформа не несе
-              відповідальності за якість та результат консультацій. Платформа не замінює медичну
-              допомогу в гострих станах.
+              {BRAND.name}{" "}
+              {tr(
+                "надає інформацію про фахівців та освітній контент. Платформа не несе відповідальності за якість та результат консультацій. Платформа не замінює медичну допомогу в гострих станах.",
+              )}
             </p>
           </div>
         </div>
@@ -116,9 +130,10 @@ export function SiteFooter() {
 
         <div className="mt-6 flex flex-col items-center justify-between gap-2 text-xs text-[#AAA8B5] md:flex-row">
           <div>
-            © {year} {BRAND.name}. Усі права захищено.
+            © {year} {BRAND.name}
+            {tr(". Усі права захищено.")}
           </div>
-          <div className="font-serif italic text-[#D6D3DD]">«{BRAND.tagline}»</div>
+          <div className="font-serif italic text-[#D6D3DD]">«{tr(BRAND.tagline)}»</div>
         </div>
       </div>
     </footer>

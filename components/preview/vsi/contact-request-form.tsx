@@ -9,6 +9,7 @@ import {
   type ContactRequestState,
 } from "@/lib/actions/contact-request";
 import { focusRing, ink, touch } from "./theme";
+import { useI18n } from "@/lib/i18n/client";
 
 const inputClass = cn(
   "h-11 w-full rounded-xl border border-[#142744]/15 bg-[#FFFDF8] px-3.5 text-[15px] text-[#142744]",
@@ -22,6 +23,7 @@ const inputClass = cn(
  * (приховане від людей) + ліміт за IP на сервері.
  */
 export function ContactRequestForm({ therapistSlug }: { therapistSlug: string }) {
+  const { tr } = useI18n();
   const [state, formAction, pending] = useActionState<ContactRequestState | null, FormData>(
     (prev, fd) => createContactRequestAction(prev, fd),
     null,
@@ -41,7 +43,7 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
       <div className="mt-5 flex max-w-md items-start gap-3 rounded-xl border border-[#2F6B4F]/25 bg-[#2F6B4F]/[0.06] px-5 py-4">
         <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#245A41]" aria-hidden />
         <p className="text-[14px] leading-relaxed text-[#245A41]">
-          Заявку надіслано. Фахівець отримає її й зв'яжеться з вами напряму.
+          {tr("Заявку надіслано. Фахівець отримає її й зв'яжеться з вами напряму.")}
         </p>
       </div>
     );
@@ -59,7 +61,7 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
       {/* Пастка для ботів — прихована від людей */}
       <div className="sr-only" aria-hidden="true">
         <label>
-          Залиште це поле порожнім
+          {tr("Залиште це поле порожнім")}
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
@@ -69,13 +71,13 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
           name="patientName"
           required
           defaultValue={prev?.patientName ?? ""}
-          placeholder="Ваше ім'я"
+          placeholder={tr("Ваше ім'я")}
           className={inputClass}
           onInput={clearOnEdit("patientName")}
         />
         {errorFor("patientName", fieldErrors) && (
           <p className="mt-1.5 text-[13px] text-[#8A4B33]">
-            {errorFor("patientName", fieldErrors)}
+            {tr(errorFor("patientName", fieldErrors)!)}
           </p>
         )}
       </div>
@@ -93,7 +95,7 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
           />
           {errorFor("patientEmail", fieldErrors) && (
             <p className="mt-1.5 text-[13px] text-[#8A4B33]">
-              {errorFor("patientEmail", fieldErrors)}
+              {tr(errorFor("patientEmail", fieldErrors)!)}
             </p>
           )}
         </div>
@@ -101,13 +103,13 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
           <input
             name="patientPhone"
             defaultValue={prev?.patientPhone ?? ""}
-            placeholder="Телефон (необов'язково)"
+            placeholder={tr("Телефон (необов'язково)")}
             className={inputClass}
             onInput={clearOnEdit("patientPhone")}
           />
           {errorFor("patientPhone", fieldErrors) && (
             <p className="mt-1.5 text-[13px] text-[#8A4B33]">
-              {errorFor("patientPhone", fieldErrors)}
+              {tr(errorFor("patientPhone", fieldErrors)!)}
             </p>
           )}
         </div>
@@ -116,7 +118,7 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
       <input
         name="preferredTime"
         defaultValue={prev?.preferredTime ?? ""}
-        placeholder="Зручний час (необов'язково)"
+        placeholder={tr("Зручний час (необов'язково)")}
         className={inputClass}
       />
 
@@ -127,12 +129,14 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
           minLength={10}
           defaultValue={prev?.message ?? ""}
           rows={4}
-          placeholder="Коротко опишіть, що вас турбує і чому звертаєтесь саме зараз"
+          placeholder={tr("Коротко опишіть, що вас турбує і чому звертаєтесь саме зараз")}
           className={cn(inputClass, "h-auto py-3 leading-relaxed")}
           onInput={clearOnEdit("message")}
         />
         {errorFor("message", fieldErrors) && (
-          <p className="mt-1.5 text-[13px] text-[#8A4B33]">{errorFor("message", fieldErrors)}</p>
+          <p className="mt-1.5 text-[13px] text-[#8A4B33]">
+            {tr(errorFor("message", fieldErrors)!)}
+          </p>
         )}
       </div>
 
@@ -144,12 +148,12 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
           defaultChecked={prev?.consent ?? false}
           className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#142744]/25"
         />
-        Погоджуюся на обробку цих даних фахівцем для першого контакту.
+        {tr("Погоджуюся на обробку цих даних фахівцем для першого контакту.")}
       </label>
 
       {state?.ok === false && (
         <p className="rounded-lg border border-[#8A4B33]/25 bg-[#8A4B33]/[0.06] px-4 py-3 text-[14px] text-[#8A4B33]">
-          {state.error}
+          {tr(state.error)}
         </p>
       )}
 
@@ -163,7 +167,7 @@ export function ContactRequestForm({ therapistSlug }: { therapistSlug: string })
           focusRing,
         )}
       >
-        {pending ? "Надсилаємо…" : "Залишити заявку через VSI"}
+        {pending ? tr("Надсилаємо…") : tr("Залишити заявку через VSI")}
       </button>
     </form>
   );

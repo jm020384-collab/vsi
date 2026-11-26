@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/i18n/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -28,6 +28,7 @@ import {
   type WorkFormat,
 } from "./data";
 import { featherEdges, focusRing, ink, serif, touch } from "./theme";
+import { useI18n } from "@/lib/i18n/client";
 
 const AGE_GROUPS: AgeGroup[] = ["children", "teens", "adults"];
 
@@ -75,6 +76,7 @@ const PILLARS = [
 ];
 
 export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
+  const { tr } = useI18n();
   // Довідники — виводяться з переданих даних, щоб не розходились
   const LANGUAGES = useMemo(
     () => [...new Set(therapists.flatMap((t) => t.languages))],
@@ -120,8 +122,8 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
       const okQ =
         !needle ||
         t.name.toLowerCase().includes(needle) ||
-        t.approach.toLowerCase().includes(needle) ||
-        t.topics.some((topic) => topic.toLowerCase().includes(needle)) ||
+        tr(t.approach).toLowerCase().includes(needle) ||
+        t.topics.some((topic) => tr(topic).toLowerCase().includes(needle)) ||
         (t.city ?? "").toLowerCase().includes(needle);
       const okAge = !ageGroup || (t.ageGroups ?? ["adults"]).includes(ageGroup);
       const okWork = !workFormat || (t.workFormats ?? ["individual"]).includes(workFormat);
@@ -138,7 +140,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
     // Порядок навмисно випадковий: без «за релевантністю» чи «за ціною».
     // Його тасує сервер на кожне відкриття сторінки (див. page.tsx), а
     // тут він лише зберігається, щоб картки не стрибали при фільтрації.
-  }, [therapists, q, view, ageGroup, workFormat, meeting, lang, city, onlyAvailable]);
+  }, [therapists, q, view, ageGroup, workFormat, meeting, lang, city, onlyAvailable, tr]);
 
   const resetRefined = () => {
     setAgeGroup(null);
@@ -177,7 +179,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
           <div>
             <div className="flex items-center gap-4">
               <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
-                Фахівці VSI
+                {tr("Фахівці VSI")}
               </p>
               <span aria-hidden className="h-px w-16 bg-[#B38B49]/50" />
             </div>
@@ -186,16 +188,18 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
               className={`mt-5 text-balance text-[2.6rem] font-normal leading-[1.08] sm:text-5xl ${ink.strong}`}
               style={serif}
             >
-              Познайомитися з фахівцями
+              {tr("Познайомитися з фахівцями")}
             </h1>
 
             <p className={`mt-7 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
-              У VSI представлені психологи та психотерапевти з професійною освітою, підготовкою у
-              психотерапевтичних методах і практичним досвідом.
+              {tr(
+                "У VSI представлені психологи та психотерапевти з професійною освітою, підготовкою у психотерапевтичних методах і практичним досвідом.",
+              )}
             </p>
             <p className={`mt-4 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
-              Ми формуємо спільноту навколо професійної етики, постійного навчання, супервізії та
-              відповідального ставлення до психотерапевтичної роботи.
+              {tr(
+                "Ми формуємо спільноту навколо професійної етики, постійного навчання, супервізії та відповідального ставлення до психотерапевтичної роботи.",
+              )}
             </p>
 
             {/* Веде до самого каталогу нижче, а не на іншу сторінку */}
@@ -208,7 +212,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
               )}
               style={serif}
             >
-              Переглянути фахівців
+              {tr("Переглянути фахівців")}
               <ArrowRight
                 className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
                 aria-hidden
@@ -218,7 +222,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
 
           <Image
             src="/brand/motifs/therapists-hero.png"
-            alt="Світла арка в кількох планах, довкола неї — золоті орбіти й гілка"
+            alt={tr("Світла арка в кількох планах, довкола неї — золоті орбіти й гілка")}
             width={1536}
             height={1024}
             priority
@@ -253,9 +257,11 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                 className={`mt-5 text-[19px] font-normal leading-snug ${ink.strong}`}
                 style={serif}
               >
-                {title}
+                {tr(title)}
               </h2>
-              <p className={`mt-3 text-pretty text-[14px] leading-relaxed ${ink.muted}`}>{text}</p>
+              <p className={`mt-3 text-pretty text-[14px] leading-relaxed ${ink.muted}`}>
+                {tr(text)}
+              </p>
             </li>
           ))}
         </ul>
@@ -267,7 +273,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
             className={`text-pretty text-center text-[16px] italic leading-snug ${ink.body}`}
             style={serif}
           >
-            Оберіть фахівця за підходом, темами роботи та форматом зустрічей.
+            {tr("Оберіть фахівця за підходом, темами роботи та форматом зустрічей.")}
           </p>
           <span aria-hidden className="h-px flex-1 bg-[#B38B49]/35" />
         </div>
@@ -292,7 +298,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
               style={serif}
             >
               <Filter className="h-4 w-4 text-[#B38B49]" strokeWidth={1.4} aria-hidden />
-              Фільтри для пошуку
+              {tr("Фільтри для пошуку")}
               <ChevronDown
                 className={cn(
                   "h-4 w-4 transition-transform motion-reduce:transition-none",
@@ -318,8 +324,8 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                   type="search"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="Ім'я, тема або місто"
-                  aria-label="Пошук фахівця"
+                  placeholder={tr("Ім'я, тема або місто")}
+                  aria-label={tr("Пошук фахівця")}
                   className={cn(
                     "h-12 w-full rounded-xl border border-[#142744]/15 bg-[#FFFDF8] pl-11 pr-10 text-[15px] text-[#142744]",
                     "placeholder:text-[#7A828C]",
@@ -330,7 +336,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                   <button
                     type="button"
                     onClick={() => setQ("")}
-                    aria-label="Очистити пошук"
+                    aria-label={tr("Очистити пошук")}
                     className="absolute right-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-[#5C6672] hover:text-[#142744]"
                   >
                     <X className="h-4 w-4" aria-hidden />
@@ -343,7 +349,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                   <span
                     className={`text-[11px] font-medium uppercase tracking-[0.16em] ${ink.soft}`}
                   >
-                    З ким працює
+                    {tr("З ким працює")}
                   </span>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {AGE_GROUPS.map((g) => (
@@ -354,7 +360,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                         aria-pressed={ageGroup === g}
                         className={chip(ageGroup === g)}
                       >
-                        {AGE_GROUP_LABEL[g]}
+                        {tr(AGE_GROUP_LABEL[g])}
                       </button>
                     ))}
                   </div>
@@ -364,7 +370,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                   <span
                     className={`text-[11px] font-medium uppercase tracking-[0.16em] ${ink.soft}`}
                   >
-                    Формат роботи
+                    {tr("Формат роботи")}
                   </span>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {WORK_FORMATS.map((f) => (
@@ -375,7 +381,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                         aria-pressed={workFormat === f}
                         className={chip(workFormat === f)}
                       >
-                        {WORK_FORMAT_LABEL[f]}
+                        {tr(WORK_FORMAT_LABEL[f])}
                       </button>
                     ))}
                   </div>
@@ -385,7 +391,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                   <span
                     className={`text-[11px] font-medium uppercase tracking-[0.16em] ${ink.soft}`}
                   >
-                    Формат зустрічі
+                    {tr("Формат зустрічі")}
                   </span>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {(
@@ -402,7 +408,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                         aria-pressed={meeting === m.value}
                         className={chip(meeting === m.value)}
                       >
-                        {m.label}
+                        {tr(m.label)}
                       </button>
                     ))}
                   </div>
@@ -412,7 +418,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                   <span
                     className={`text-[11px] font-medium uppercase tracking-[0.16em] ${ink.soft}`}
                   >
-                    Мова
+                    {tr("Мова")}
                   </span>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {LANGUAGES.map((l) => (
@@ -423,7 +429,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                         aria-pressed={lang === l}
                         className={chip(lang === l)}
                       >
-                        {l}
+                        {tr(l)}
                       </button>
                     ))}
                   </div>
@@ -435,7 +441,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                     <label
                       className={`text-[11px] font-medium uppercase tracking-[0.16em] ${ink.soft}`}
                     >
-                      Локація
+                      {tr("Локація")}
                     </label>
                     <div className="relative mt-2 max-w-xs">
                       <MapPin
@@ -446,7 +452,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                         list="vsi-city-options"
                         value={city ?? ""}
                         onChange={(e) => setCity(e.target.value || null)}
-                        placeholder="Пошук міста"
+                        placeholder={tr("Пошук міста")}
                         className={cn(
                           "h-11 w-full rounded-xl border border-[#142744]/15 bg-[#FFFDF8] pl-10 pr-3 text-sm text-[#142744]",
                           "placeholder:text-[#7A828C]",
@@ -470,7 +476,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                   aria-pressed={onlyAvailable}
                   className={chip(onlyAvailable)}
                 >
-                  Приймає нових клієнтів
+                  {tr("Приймає нових клієнтів")}
                 </button>
 
                 {hasRefinedFilters && (
@@ -483,7 +489,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                     )}
                   >
                     <X className="h-3.5 w-3.5" aria-hidden />
-                    Скинути уточнення
+                    {tr("Скинути уточнення")}
                   </button>
                 )}
               </div>
@@ -492,7 +498,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
 
           {hasActiveFilters && !loading && (
             <p className={`mt-4 text-sm ${ink.soft}`}>
-              Показано {results.length} з {therapists.length}
+              {tr("Показано")} {results.length} {tr("з")} {therapists.length}
             </p>
           )}
         </div>
@@ -520,7 +526,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                 focusRing,
               )}
             >
-              {tab.label}
+              {tr(tab.label)}
             </button>
           ))}
           <Link
@@ -530,7 +536,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
               focusRing,
             )}
           >
-            Читати їхні тексти →
+            {tr("Читати їхні тексти →")}
           </Link>
         </div>
       </div>
@@ -569,11 +575,12 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
               className={`mt-5 text-2xl font-normal ${ink.strong}`}
               style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
             >
-              За цими критеріями нікого не знайшли
+              {tr("За цими критеріями нікого не знайшли")}
             </h2>
             <p className={`mx-auto mt-3 max-w-md text-[15px] leading-relaxed ${ink.muted}`}>
-              Спробуйте прибрати частину уточнень або змінити запит. Або залиште заявку — ми
-              підберемо фахівця вручну й повернемось протягом двох робочих днів.
+              {tr(
+                "Спробуйте прибрати частину уточнень або змінити запит. Або залиште заявку — ми підберемо фахівця вручну й повернемось протягом двох робочих днів.",
+              )}
             </p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               <button
@@ -586,7 +593,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                   focusRing,
                 )}
               >
-                Скинути все
+                {tr("Скинути все")}
               </button>
               <a
                 href="#"
@@ -597,7 +604,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                   focusRing,
                 )}
               >
-                Залишити заявку
+                {tr("Залишити заявку")}
               </a>
             </div>
           </div>

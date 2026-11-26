@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import { Eyebrow, Lead, SectionTitle, Wrap } from "../ui";
 import { GlassPanel } from "../decor";
+import { getI18n } from "@/lib/i18n/server";
 
 /**
  * Іконки намальовані на власному темно-синьому тлі (кути близько
@@ -41,7 +42,8 @@ const FADE_TO_BACKDROP = {
   WebkitMaskImage: "radial-gradient(closest-side circle at 50% 50%, #000 82%, transparent 100%)",
 } as const;
 
-export function Ethics() {
+export async function Ethics() {
+  const { tr } = await getI18n();
   return (
     <section id="ethics" className="relative overflow-hidden bg-[#142744]">
       <div
@@ -56,22 +58,24 @@ export function Ethics() {
       <Wrap className="relative py-10 lg:py-14">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,420px)_1fr] lg:gap-16">
           <div>
-            <Eyebrow tone="dark">Етика і безпека</Eyebrow>
+            <Eyebrow tone="dark">{tr("Етика і безпека")}</Eyebrow>
             <SectionTitle tone="dark" className="mt-6">
-              Довіра — це процедура, а не обіцянка
+              {tr("Довіра — це процедура, а не обіцянка")}
             </SectionTitle>
             <Lead tone="dark" className="mt-6">
-              Терапія працює лише там, де є безпека. Тому ми описуємо правила прямо: що захищено,
-              ким перевірено і що робити, якщо щось пішло не так.
+              {tr(
+                "Терапія працює лише там, де є безпека. Тому ми описуємо правила прямо: що захищено, ким перевірено і що робити, якщо щось пішло не так.",
+              )}
             </Lead>
 
             <GlassPanel tone="dark" className="mt-8 p-6">
               <p className="text-sm leading-relaxed text-[#D6D3DD]">
-                <span className="font-medium text-[#F8F4EC]">Кризова допомога.</span> Платформа не
-                працює з невідкладними станами. Якщо є загроза життю — зверніться до екстреної
-                допомоги за номером{" "}
-                <span className="whitespace-nowrap font-medium text-[#F8F4EC]">103</span> або на
-                цілодобову лінію запобігання самогубствам{" "}
+                <span className="font-medium text-[#F8F4EC]">{tr("Кризова допомога.")}</span>{" "}
+                {tr(
+                  "Платформа не працює з невідкладними станами. Якщо є загроза життю — зверніться до екстреної допомоги за номером",
+                )}{" "}
+                <span className="whitespace-nowrap font-medium text-[#F8F4EC]">103</span>{" "}
+                {tr("або на цілодобову лінію запобігання самогубствам")}{" "}
                 <span className="whitespace-nowrap font-medium text-[#F8F4EC]">7333</span>.
               </p>
             </GlassPanel>
@@ -100,9 +104,9 @@ export function Ethics() {
                   className="mt-3 text-xl font-normal leading-snug text-[#F8F4EC]"
                   style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
                 >
-                  {title}
+                  {tr(title)}
                 </h3>
-                <p className="mt-3 text-[15px] leading-relaxed text-[#C9C7D1]">{body}</p>
+                <p className="mt-3 text-[15px] leading-relaxed text-[#C9C7D1]">{tr(body)}</p>
               </li>
             ))}
           </ul>

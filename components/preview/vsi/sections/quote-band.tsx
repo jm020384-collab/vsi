@@ -1,5 +1,6 @@
 import { Wrap } from "../ui";
 import { VSI } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
 
 /**
  * Стрічка-цитата на глибокому синьому — мотив бренд-борду.
@@ -81,9 +82,10 @@ function CornerRays({ flip }: { flip?: boolean }) {
   );
 }
 
-export function QuoteBand() {
+export async function QuoteBand() {
+  const { tr } = await getI18n();
   return (
-    <section aria-label="Цитата" className="bg-[#F8F4EC]">
+    <section aria-label={tr("Цитата")} className="bg-[#F8F4EC]">
       <Wrap className="py-4 lg:py-6">
         <figure className="relative overflow-hidden rounded-3xl bg-[#142744] px-6 py-14 sm:px-12 lg:py-16">
           {/* Кутове золоте мереживо */}
@@ -109,10 +111,10 @@ export function QuoteBand() {
               className="text-balance text-2xl font-normal italic leading-snug text-[#F8F4EC] sm:text-3xl"
               style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
             >
-              «Там, де зустрічаються усвідомлення і співчуття, починається свобода вибору.»
+              {tr("«Там, де зустрічаються усвідомлення і співчуття, починається свобода вибору.»")}
             </blockquote>
             <figcaption className="mt-5 text-[13px] uppercase tracking-[0.2em] text-[#AAA8B5]">
-              Карл Густав Юнг
+              {tr("Карл Густав Юнг")}
             </figcaption>
 
             <div className="mt-8 flex justify-center">

@@ -4,15 +4,17 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n/client";
 
 export function ThemeToggle() {
+  const { tr } = useI18n();
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
   return (
     <Button
       variant="ghost"
       size="icon"
-      aria-label={isDark ? "Світла тема" : "Темна тема"}
+      aria-label={isDark ? tr("Світла тема") : tr("Темна тема")}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
       <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

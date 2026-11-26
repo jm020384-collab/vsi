@@ -4,6 +4,8 @@ import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ButtonLink, Wrap } from "../ui";
 import { focusRing, focusRingDark, ink } from "../theme";
+import { getI18n } from "@/lib/i18n/server";
+import Link from "@/components/i18n/link";
 
 /**
  * Два природні входи в один професійний простір VSI — не аудиторні
@@ -34,7 +36,8 @@ const AUDIENCES = [
  * маскою, тож власний паперовий фон зображення безшовно зливається
  * з тлом секції. На мобільному візуал стає під текст.
  */
-export function Hero() {
+export async function Hero() {
+  const { tr } = await getI18n();
   return (
     <section id="top" className="relative bg-[#F8F4EC]">
       {/*
@@ -58,7 +61,9 @@ export function Hero() {
         <div className="relative h-[300px] w-full sm:h-[400px] lg:absolute lg:inset-0 lg:h-auto">
           <Image
             src="/brand/motifs/hero.png"
-            alt="Арка, розділена навпіл: ліворуч денне небо із сонцем, праворуч нічне із місяцем; довкола гори, вода й золоті орбіти"
+            alt={tr(
+              "Арка, розділена навпіл: ліворуч денне небо із сонцем, праворуч нічне із місяцем; довкола гори, вода й золоті орбіти",
+            )}
             fill
             priority
             sizes="100vw"
@@ -101,24 +106,26 @@ export function Hero() {
             <h1
               className={`mt-4 text-balance text-[14px] font-medium uppercase leading-relaxed tracking-[0.2em] sm:text-[15px] ${ink.strong}`}
             >
-              Аналітично орієнтована психотерапія
+              {tr("Аналітично орієнтована психотерапія")}
             </h1>
             <p className="mt-3 flex items-center gap-3 text-[12px] font-medium uppercase tracking-[0.24em] text-[#876428] sm:text-[13px]">
               <span aria-hidden className="h-px w-6 bg-[#B38B49]/70" />
-              Траєкторія цілісності
+              {tr("Траєкторія цілісності")}
             </p>
 
             <p className={`mt-5 max-w-sm text-pretty text-[16px] leading-[1.75] ${ink.body}`}>
-              Професійний простір аналітичної думки, психотерапевтичної практики та зустрічі.
+              {tr(
+                "Професійний простір аналітичної думки, психотерапевтичної практики та зустрічі.",
+              )}
             </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href="/explore" variant="primary">
-                Досліджувати
+                {tr("Досліджувати")}
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </ButtonLink>
               <ButtonLink href="/therapists" variant="outline">
-                Познайомитися з фахівцями
+                {tr("Познайомитися з фахівцями")}
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </ButtonLink>
             </div>
@@ -156,7 +163,7 @@ export function Hero() {
                       )}
                       style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
                     >
-                      {a.title}
+                      {tr(a.title)}
                     </h2>
                     <p
                       className={cn(
@@ -164,9 +171,9 @@ export function Hero() {
                         dark ? "text-[#C9C7D1]" : ink.soft,
                       )}
                     >
-                      {a.text}
+                      {tr(a.text)}
                     </p>
-                    <a
+                    <Link
                       href={a.href}
                       className={cn(
                         "group/cta mt-5 inline-flex items-center gap-1.5 text-sm font-medium",
@@ -177,12 +184,12 @@ export function Hero() {
                         dark ? focusRingDark : focusRing,
                       )}
                     >
-                      {a.cta}
+                      {tr(a.cta)}
                       <ArrowRight
                         className="h-3.5 w-3.5 transition-transform duration-200 group-hover/cta:translate-x-1 motion-reduce:transition-none"
                         aria-hidden
                       />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               );

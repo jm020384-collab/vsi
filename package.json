@@ -16,7 +16,9 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "i18n:check": "node scripts/i18n-keys.mjs",
+    "i18n:content": "node scripts/i18n-content.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
