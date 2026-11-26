@@ -2,31 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
-import { z } from "zod";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { ARTICLE_KINDS } from "@/lib/schemas/article";
-import { LIBRARY_CATEGORIES } from "@/components/preview/vsi/data";
-
-const PUBLISH_STATUSES = ["DRAFT", "REVIEW", "PUBLISHED"] as const;
-
-const articleSchema = z.object({
-  title: z.string().min(6, "Заголовок надто короткий").max(160),
-  excerpt: z.string().min(20, "Короткий опис надто короткий").max(400),
-  coverUrl: z.string().url().optional().nullable(),
-  content: z.string().min(80, "Текст надто короткий"),
-  // Категорії — фіксований список (LIBRARY_CATEGORIES), не довільний текст:
-  // /library фільтрує рівно за цими значеннями, довільні теги там ніколи
-  // не збігались і робили реальні статті невидимими під жодним фільтром.
-  tags: z.array(z.enum(LIBRARY_CATEGORIES)).max(6),
-  kind: z.enum(ARTICLE_KINDS).default("ARTICLE"),
-  abstract: z.string().max(600).optional().nullable(),
-  topicSlug: z.string().max(80).optional().nullable(),
-  references: z.array(z.string()).max(20),
-  mediaUrl: z.string().url().optional().or(z.literal("")).nullable(),
-  status: z.enum(PUBLISH_STATUSES),
-});
+import { ARTICLE_FIELD_LABELS, articleSchema } from "@/lib/schemas/article-form";
+import { describeFieldErrors, unixLines } from "@/lib/forms/errors";
 
 export type ArticleState =
   | { ok: true; slug: string }
@@ -48,12 +28,12 @@ export async function createArticleAction(
 
   const raw = {
     title: formData.get("title"),
-    excerpt: formData.get("excerpt"),
+    excerpt: unixLines(formData.get("excerpt")),
     coverUrl: formData.get("coverUrl") || null,
-    content: formData.get("content"),
+    content: unixLines(formData.get("content")),
     tags: formData.getAll("tags"),
     kind: formData.get("kind") || "ARTICLE",
-    abstract: formData.get("abstract") || null,
+    abstract: unixLines(formData.get("abstract")) || null,
     topicSlug: formData.get("topicSlug") || null,
     references: String(formData.get("references") ?? "")
       .split("\n")
@@ -65,17 +45,20 @@ export async function createArticleAction(
 
   const parsed = articleSchema.safeParse(raw);
   if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors as Record<string, string[]>;
+    // Лише назви полів, без тексту: щоб у журналі було видно, на чому спотикаються.
+    console.warn("[article] не пройшла перевірку:", Object.keys(fieldErrors).join(", "));
     return {
       ok: false,
-      error: "Перевірте форму",
-      fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+      error: describeFieldErrors("Текст не збережено", fieldErrors, ARTICLE_FIELD_LABELS),
+      fieldErrors,
     };
   }
 
   const { tags, status, ...data } = parsed.data;
   const publish = status === "PUBLISHED";
 
-  const baseSlug = slugify(data.title, { lower: true, strict: true, locale: "uk" });
+  const baseSlug = slugify(data.title, { lower: true, strict: true, locale: "uk" }) || "text";
   let slug = baseSlug;
   let suffix = 0;
   for (;;) {

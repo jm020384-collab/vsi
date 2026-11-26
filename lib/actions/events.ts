@@ -8,47 +8,9 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { hashIp } from "@/lib/hash";
-import { EVENT_TYPES } from "@/lib/schemas/event";
+import { eventSchema, invalidEvent } from "@/lib/schemas/event-form";
+import { unixLines } from "@/lib/forms/errors";
 import { registrationClosedReason } from "@/lib/event-registration";
-import { EVENT_RECURRENCES, parseEventDateTime } from "@/lib/event-recurrence";
-
-const eventSchema = z.object({
-  title: z.string().min(4, "Заголовок надто короткий").max(160),
-  description: z.string().min(20, "Опис надто короткий").max(1000),
-  imageUrl: z.string().url().optional().nullable(),
-  type: z.enum(EVENT_TYPES),
-  format: z.enum(["ONLINE", "OFFLINE", "BOTH"]),
-  language: z.string().min(2).max(40),
-  // Година з форми — київська; читаємо її без зсуву поясів.
-  startsAt: z.preprocess(
-    (value) => (typeof value === "string" ? (parseEventDateTime(value) ?? value) : value),
-    z.coerce.date({ errorMap: () => ({ message: "Вкажіть дату й час" }) }),
-  ),
-  seatsTotal: z.coerce.number().int().min(1).optional().nullable(),
-  recurrence: z.enum(EVENT_RECURRENCES).default("ONCE"),
-  // Дата без години лягає на полудень (див. parseEventDateTime), щоб не
-  // опинитися попереднім днем.
-  recurrenceEndsAt: z
-    .union([z.string(), z.date()])
-    .nullable()
-    .optional()
-    .transform((value) => {
-      if (!value) return null;
-      if (value instanceof Date) return value;
-      return parseEventDateTime(value);
-    }),
-  audience: z.enum(["PUBLIC", "PROFESSIONALS", "BOTH"]).default("PUBLIC"),
-  contactName: z.string().max(120).optional().nullable(),
-  contactEmail: z.string().email("Введіть коректний email").optional().nullable(),
-  contactPhone: z
-    .string()
-    // Той самий шаблон, що в анкеті: реальні номери бувають із комами й
-    // кількома країнами одразу, а 20 символів на це не вистачало.
-    .regex(/^[+0-9\s\-(),;/]{7,120}$/, "Введіть коректний номер")
-    .optional()
-    .nullable(),
-  price: z.coerce.number().int().min(0, "Вартість не може бути від'ємною").optional().nullable(),
-});
 
 export type EventState =
   | { ok: true; slug: string }
@@ -73,7 +35,7 @@ export async function createEventAction(
 
   const raw = {
     title: formData.get("title"),
-    description: formData.get("description"),
+    description: unixLines(formData.get("description")),
     imageUrl: formData.get("imageUrl") || null,
     type: formData.get("type"),
     format: formData.get("format"),
@@ -91,11 +53,7 @@ export async function createEventAction(
 
   const parsed = eventSchema.safeParse(raw);
   if (!parsed.success) {
-    return {
-      ok: false,
-      error: "Перевірте форму — деякі поля заповнені некоректно",
-      fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
-    };
+    return invalidEvent("create", parsed.error);
   }
 
   const baseSlug = slugify(parsed.data.title, { lower: true, strict: true, locale: "uk" });
@@ -144,7 +102,7 @@ export async function updateEventAction(
 
   const parsed = eventSchema.safeParse({
     title: formData.get("title"),
-    description: formData.get("description"),
+    description: unixLines(formData.get("description")),
     imageUrl: formData.get("imageUrl") || null,
     type: formData.get("type"),
     format: formData.get("format"),
@@ -160,11 +118,7 @@ export async function updateEventAction(
     price: formData.get("price") || null,
   });
   if (!parsed.success) {
-    return {
-      ok: false,
-      error: "Перевірте форму — деякі поля заповнені некоректно",
-      fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
-    };
+    return invalidEvent("update", parsed.error);
   }
 
   await prisma.event.update({ where: { id: eventId }, data: parsed.data });

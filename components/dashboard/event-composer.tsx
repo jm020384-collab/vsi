@@ -5,7 +5,9 @@ import { Check, Image as ImageIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { createEventAction, updateEventAction, type EventState } from "@/lib/actions/events";
-import { EVENT_TYPES } from "@/lib/schemas/event";
+import { EVENT_LIMITS, EVENT_TYPES } from "@/lib/schemas/event";
+import { submitKeepingValues } from "@/lib/forms/keep-values";
+import { CharCount } from "@/components/dashboard/char-count";
 import { EVENT_RECURRENCES, RECURRENCE_LABEL, type EventRecurrence } from "@/lib/event-recurrence";
 import { PhotoUploader } from "@/components/dashboard/photo-uploader";
 import { focusRing, ink, touch } from "@/components/preview/vsi/theme";
@@ -61,6 +63,7 @@ export function EventComposer({ initial }: { initial?: EventInitialValues }) {
   // останньої зустрічі й як підписати поле дати.
   const [recurrence, setRecurrence] = useState<string>(initial?.recurrence ?? "ONCE");
   const repeats = recurrence !== "ONCE";
+  const [descriptionLength, setDescriptionLength] = useState(initial?.description.length ?? 0);
 
   if (state?.ok) {
     return (
@@ -83,7 +86,8 @@ export function EventComposer({ initial }: { initial?: EventInitialValues }) {
 
   return (
     <form
-      action={formAction}
+      method="post"
+      onSubmit={submitKeepingValues(formAction)}
       className="mt-6 space-y-4 rounded-2xl border border-[#142744]/10 bg-[#FFFDF8] p-6"
     >
       <div>
@@ -109,7 +113,9 @@ export function EventComposer({ initial }: { initial?: EventInitialValues }) {
           rows={3}
           className={cn(inputClass, "h-auto py-3 leading-relaxed")}
           placeholder="Кому підійде і чого очікувати"
+          onChange={(e) => setDescriptionLength(e.target.value.length)}
         />
+        <CharCount length={descriptionLength} {...EVENT_LIMITS.description} />
         {fieldErrors?.description?.[0] && (
           <p className="mt-1.5 text-[13px] text-[#8A4B33]">{fieldErrors.description[0]}</p>
         )}
@@ -287,7 +293,10 @@ export function EventComposer({ initial }: { initial?: EventInitialValues }) {
       <input type="hidden" name="language" value="uk" />
 
       {state?.ok === false && (
-        <p className="rounded-lg border border-[#8A4B33]/25 bg-[#8A4B33]/[0.06] px-4 py-3 text-[14px] text-[#8A4B33]">
+        <p
+          role="alert"
+          className="rounded-lg border border-[#8A4B33]/25 bg-[#8A4B33]/[0.06] px-4 py-3 text-[14px] text-[#8A4B33]"
+        >
           {state.error}
         </p>
       )}

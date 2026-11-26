@@ -6,7 +6,9 @@ import { ArrowLeft, Image as ImageIcon, PartyPopper } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { createArticleAction, type ArticleState } from "@/lib/actions/articles";
-import { ARTICLE_KINDS } from "@/lib/schemas/article";
+import { ARTICLE_KINDS, ARTICLE_LIMITS } from "@/lib/schemas/article";
+import { submitKeepingValues } from "@/lib/forms/keep-values";
+import { CharCount } from "@/components/dashboard/char-count";
 import { LIBRARY_CATEGORIES, THEMES } from "@/components/preview/vsi/data";
 import { PhotoUploader } from "@/components/dashboard/photo-uploader";
 import { focusRing, ink } from "@/components/preview/vsi/theme";
@@ -42,6 +44,8 @@ export function ArticleComposer() {
     null,
   );
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [excerptLength, setExcerptLength] = useState(0);
+  const [abstractLength, setAbstractLength] = useState(0);
 
   if (state?.ok) {
     return (
@@ -106,7 +110,7 @@ export function ArticleComposer() {
         Новий текст
       </h1>
 
-      <form action={formAction} className="mt-8 space-y-5">
+      <form method="post" onSubmit={submitKeepingValues(formAction)} className="mt-8 space-y-5">
         <div>
           <label className={cn("mb-1.5 block text-sm font-medium", ink.strong)}>
             Тип матеріалу
@@ -173,7 +177,9 @@ export function ArticleComposer() {
             rows={2}
             className={cn(inputClass, "leading-relaxed")}
             placeholder="Два-три речення для анонсу в бібліотеці"
+            onChange={(e) => setExcerptLength(e.target.value.length)}
           />
+          <CharCount length={excerptLength} {...ARTICLE_LIMITS.excerpt} />
           {fieldErrors?.excerpt?.[0] && (
             <p className="mt-1.5 text-[13px] text-[#8A4B33]">{fieldErrors.excerpt[0]}</p>
           )}
@@ -188,7 +194,9 @@ export function ArticleComposer() {
             rows={3}
             className={cn(inputClass, "leading-relaxed")}
             placeholder="Стисле наукове резюме тексту"
+            onChange={(e) => setAbstractLength(e.target.value.length)}
           />
+          <CharCount length={abstractLength} {...ARTICLE_LIMITS.abstract} />
         </div>
 
         <div>
@@ -266,7 +274,10 @@ export function ArticleComposer() {
         </div>
 
         {state?.ok === false && (
-          <p className="rounded-lg border border-[#8A4B33]/25 bg-[#8A4B33]/[0.06] px-4 py-3 text-[14px] text-[#8A4B33]">
+          <p
+            role="alert"
+            className="rounded-lg border border-[#8A4B33]/25 bg-[#8A4B33]/[0.06] px-4 py-3 text-[14px] text-[#8A4B33]"
+          >
             {state.error}
           </p>
         )}
