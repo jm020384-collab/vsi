@@ -26,6 +26,8 @@ const sans = Inter({
 const serif = Cormorant_Garamond({
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["400", "500", "600", "700"],
+  // Без справжнього курсиву браузер просто нахиляє пряме накреслення.
+  style: ["normal", "italic"],
   variable: "--font-serif",
   display: "swap",
 });

@@ -95,7 +95,7 @@ export async function Hero() {
             заголовком сторінки лишається сам напрям роботи, інакше
             в пошуку й для скрінрідера сторінка звалася б просто «VSI».
           */}
-          <div className="max-w-[30rem]">
+          <div className="max-w-[34rem]">
             <p
               aria-hidden
               className={`text-[3.25rem] font-normal leading-none tracking-[0.14em] sm:text-[4rem] ${ink.strong}`}
@@ -103,21 +103,23 @@ export async function Hero() {
             >
               VSI
             </p>
+            <div
+              aria-hidden
+              className="mt-5 h-px w-full bg-gradient-to-r from-[#B38B49] via-[#B38B49]/60 to-transparent"
+            />
             <h1
-              className={`mt-4 text-balance text-[14px] font-medium uppercase leading-relaxed tracking-[0.2em] sm:text-[15px] ${ink.strong}`}
+              className={`mt-4 text-balance text-[1.6rem] font-medium italic leading-[1.2] sm:text-[2rem] ${ink.strong}`}
+              style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
             >
-              {tr("Аналітично орієнтована психотерапія")}
+              {tr("Професійна спільнота аналітично орієнтованих психологів і психотерапевтів.")}
             </h1>
-            <p className="mt-3 flex items-center gap-3 text-[12px] font-medium uppercase tracking-[0.24em] text-[#876428] sm:text-[13px]">
-              <span aria-hidden className="h-px w-6 bg-[#B38B49]/70" />
-              {tr("Траєкторія цілісності")}
-            </p>
 
-            <p className={`mt-5 max-w-sm text-pretty text-[16px] leading-[1.75] ${ink.body}`}>
+            <p className={`mt-3 text-pretty text-[16px] leading-[1.7] sm:text-[17px] ${ink.body}`}>
               {tr(
-                "Професійний простір аналітичної думки, психотерапевтичної практики та зустрічі.",
+                "Простір, у якому ви можете знайти психолога чи психотерапевта та поглибити розуміння себе і процесів психічного життя.",
               )}
             </p>
+            <div aria-hidden className="mt-5 h-px w-32 bg-[#B38B49]/80" />
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href="/explore" variant="primary">
