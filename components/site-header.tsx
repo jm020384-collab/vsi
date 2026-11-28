@@ -93,7 +93,7 @@ export function SiteHeader() {
                   className={cn(
                     // Пʼять пунктів засічковим шрифтом не вміщаються в рядок на
                     // 1024px — там вони дрібніші й щільніші, повний розмір з xl.
-                    "whitespace-nowrap rounded-full px-3 py-2 text-[15px] xl:px-4 xl:text-[17px]",
+                    "whitespace-nowrap rounded-full px-2 py-2 text-[14px] xl:px-4 xl:text-[17px]",
                     "transition-colors motion-reduce:transition-none",
                     active
                       ? "border border-[#B38B49]/55 bg-[#B38B49]/[0.14] text-[#E7C77B]"
@@ -113,7 +113,7 @@ export function SiteHeader() {
           <ThemeToggle />
 
           {status === "authenticated" && user ? (
-            <div className="hidden items-center gap-4 lg:flex">
+            <div className="hidden items-center gap-2 lg:flex xl:gap-4">
               <Link
                 href={isPro ? "/dashboard" : "/"}
                 style={serif}
@@ -144,7 +144,7 @@ export function SiteHeader() {
               </button>
             </div>
           ) : (
-            <div className="hidden items-center gap-4 lg:flex">
+            <div className="hidden items-center gap-2 lg:flex xl:gap-4">
               <Link
                 href="/login"
                 style={serif}

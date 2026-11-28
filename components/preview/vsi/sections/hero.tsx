@@ -46,19 +46,19 @@ export async function Hero() {
         Затемнення-скрим ліворуч гарантує контраст навіть тоді, коли
         кадрування зрізає світлу частину (вузькі екрани).
       */}
-      <div className="lg:relative lg:min-h-[600px]">
+      <div className="lg:relative lg:min-h-[480px] lg:overflow-hidden">
         {/*
-          Вузькі екрани й широкі показують візуал по-різному.
+          Арка має бути видна цілою, тому висота картинки не залежить від
+          ширини екрана. Кадр 1694×690 — це оригінал без зайвого неба
+          зверху й води знизу. На широкому екрані він займає всю висоту
+          блоку, тримається правого краю, а лівий бік розчиняється в
+          кремовому тлі, де лежить текст. Якщо розтягнути його на всю
+          ширину, як раніше, верх арки обрізається.
 
-          На широкому ліворуч лишається порожнє небо, тож текст спокійно
-          лягає поверх зображення. На вузькому такого поля немає: щоб
-          текст читався, вуаль доводилось робити майже непрозорою — і
-          зображення під нею гинуло. Тому нижче за lg арка стає окремою
-          смугою над текстом: видно її на повний контраст, а текст лежить
-          на чистому тлі. Смуга ще й вища за пропорцію кадру, тож
-          object-cover зрізає боки — арка виходить крупнішою.
+          Нижче за lg картинка стає окремою смугою над текстом; на телефоні
+          зрізаються боки, а арка лишається в кадрі.
         */}
-        <div className="relative h-[300px] w-full sm:h-[400px] lg:absolute lg:inset-0 lg:h-auto">
+        <div className="relative h-[240px] w-full sm:aspect-[1694/690] sm:h-auto lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-auto">
           <Image
             src="/brand/motifs/hero.png"
             alt={tr(
@@ -66,35 +66,36 @@ export async function Hero() {
             )}
             fill
             priority
-            sizes="100vw"
-            className="object-cover object-[64%_center] lg:object-center"
-          />
-          {/*
-            Вуаль потрібна лише там, де текст лежить поверх зображення.
-            Позиції всіх трьох точок задані явно: без них Tailwind ставив
-            кінцеву точку раніше за середню, і градієнт вироджувався в
-            суцільну заливку, яка перекривала зображення.
-          */}
-          <div
-            aria-hidden
-            className={cn(
-              "absolute inset-0 hidden bg-gradient-to-r lg:block",
-              "from-[#F8F4EC] from-0% via-[#F8F4EC]/60 via-30% to-transparent to-60%",
-            )}
+            sizes="(min-width: 1024px) 1200px, 100vw"
+            className="object-cover object-[64%_center] sm:object-[center_21%] lg:[mask-image:linear-gradient(to_right,transparent,black_40%)]"
           />
           {/* М'який стик смуги з кремовим тлом під нею */}
           <div
             aria-hidden
-            className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#F8F4EC] to-transparent lg:hidden"
+            className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[#F8F4EC] to-transparent lg:hidden"
           />
         </div>
+        {/*
+          Вуаль під текстом: на вузьких настільних екранах картинка заходить
+          під нього. Позиції всіх трьох точок задані явно: без них Tailwind
+          ставив кінцеву точку раніше за середню, і градієнт вироджувався в
+          суцільну заливку.
+        */}
+        <div
+          aria-hidden
+          className={cn(
+            "absolute inset-0 hidden bg-gradient-to-r lg:block",
+            "from-[#F8F4EC] from-0% via-[#F8F4EC]/50 via-30% to-transparent to-55%",
+          )}
+        />
 
-        <Wrap className="relative flex items-center py-8 sm:py-10 lg:min-h-[600px]">
+        <Wrap className="relative flex items-center py-7 sm:py-8 lg:min-h-[480px]">
           {/*
             Знак «VSI» — великим планом, як у макеті, але це декор:
             заголовком сторінки лишається сам напрям роботи, інакше
             в пошуку й для скрінрідера сторінка звалася б просто «VSI».
           */}
+          {/* До xl текст вужчий, щоб золоте кільце арки його не перетинало. */}
           <div className="max-w-[34rem]">
             <p
               aria-hidden
@@ -108,13 +109,15 @@ export async function Hero() {
               className="mt-5 h-px w-full bg-gradient-to-r from-[#B38B49] via-[#B38B49]/60 to-transparent"
             />
             <h1
-              className={`mt-4 text-balance text-[1.6rem] font-medium italic leading-[1.2] sm:text-[2rem] ${ink.strong}`}
+              className={`mt-4 text-balance text-[1.6rem] font-medium italic leading-[1.2] sm:text-[2rem] lg:max-w-[27rem] xl:max-w-none ${ink.strong}`}
               style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
             >
               {tr("Професійна спільнота аналітично орієнтованих психологів і психотерапевтів.")}
             </h1>
 
-            <p className={`mt-3 text-pretty text-[16px] leading-[1.7] sm:text-[17px] ${ink.body}`}>
+            <p
+              className={`mt-3 text-pretty text-[16px] leading-[1.7] sm:text-[17px] lg:max-w-[27rem] xl:max-w-none ${ink.body}`}
+            >
               {tr(
                 "Простір, у якому ви можете знайти психолога чи психотерапевта та поглибити розуміння себе і процесів психічного життя.",
               )}
@@ -137,7 +140,7 @@ export async function Hero() {
 
       <Wrap>
         {/* ── Два входи в один простір ── */}
-        <div className="pb-10 pt-10 lg:pb-12 lg:pt-12">
+        <div className="pb-10 pt-8 lg:pb-12">
           <div className="grid gap-6 lg:grid-cols-2">
             {AUDIENCES.map((a, i) => {
               const dark = i === 1;
