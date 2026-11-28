@@ -68,7 +68,7 @@ export function SiteHeader() {
       />
 
       <div className="container relative flex items-center justify-between gap-4 py-3">
-        <div className="flex items-center gap-4 xl:gap-6">
+        <div className="flex items-center gap-4 xl:gap-4">
           <Link
             href="/"
             className={cn("group flex items-center rounded-xl", FOCUS)}

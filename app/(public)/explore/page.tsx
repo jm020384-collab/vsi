@@ -82,9 +82,9 @@ export default async function ExplorePage() {
         />
       </svg>
 
-      <div className="relative mx-auto w-full max-w-[1180px] px-5 pb-20 sm:px-8 lg:px-10">
+      <div className="relative mx-auto w-full max-w-[1180px] px-5 pb-14 sm:px-8 lg:px-10">
         {/* ── Шапка ── */}
-        <div className="max-w-2xl pt-10 lg:pt-14">
+        <div className="max-w-2xl pt-7 lg:pt-10">
           <p className="inline-flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.22em] text-[#5C6672]">
             <span aria-hidden className="h-px w-6 bg-[#B38B49]" />
             {tr("Мапа тем")}
@@ -103,7 +103,7 @@ export default async function ExplorePage() {
         </div>
 
         {/* ── Кластери у зміщеній редакційній сітці ── */}
-        <div className="mt-14 grid gap-x-10 gap-y-12 lg:grid-cols-12">
+        <div className="mt-10 grid gap-x-10 gap-y-8 lg:grid-cols-12">
           {THEMES.map((theme, i) => {
             const c = themeContent(theme, texts, upcoming);
             const total =
@@ -183,7 +183,7 @@ export default async function ExplorePage() {
         </div>
 
         {/* ── Перетини ── */}
-        <div className="mt-20 border-t border-[#142744]/10 pt-10">
+        <div className="mt-14 border-t border-[#142744]/10 pt-7">
           <h2
             className={`text-2xl font-normal ${ink.strong}`}
             style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
@@ -193,7 +193,7 @@ export default async function ExplorePage() {
           <p className={`mt-2 max-w-xl text-[15px] leading-relaxed ${ink.muted}`}>
             {tr("Теми не живуть окремо. Найцікавіше починається там, де одна переходить в іншу.")}
           </p>
-          <ul className="mt-6 flex flex-wrap gap-2.5">
+          <ul className="mt-4 flex flex-wrap gap-2.5">
             {CROSSINGS.map(([a, b]) => {
               const ta = findTheme(a)?.entry;
               const tb = findTheme(b)?.entry;
@@ -231,7 +231,7 @@ export default async function ExplorePage() {
         </div>
 
         {/* ── Далі ── */}
-        <div className="mt-14 flex flex-wrap gap-3">
+        <div className="mt-10 flex flex-wrap gap-3">
           <Link
             href="/therapists"
             className={cn(

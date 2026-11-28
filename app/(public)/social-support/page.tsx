@@ -50,9 +50,9 @@ const STEPS = [
 export default async function SocialSupportPage() {
   const { tr } = await getI18n();
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-5 pb-24 sm:px-8 lg:px-10">
+    <div className="mx-auto w-full max-w-[1180px] px-5 pb-16 sm:px-8 lg:px-10">
       {/* ── Знайомство з програмою ── */}
-      <section className="grid items-center gap-8 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:gap-12 lg:pt-14">
+      <section className="grid items-center gap-6 pt-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:gap-8 lg:pt-10">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
             {tr("Програма VSI")}
@@ -66,12 +66,12 @@ export default async function SocialSupportPage() {
           >
             {tr("Соціальна психологічна підтримка")}
           </h1>
-          <p className={cn("mt-6 max-w-md text-pretty text-[17px] leading-[1.7]", ink.body)}>
+          <p className={cn("mt-4 max-w-md text-pretty text-[17px] leading-[1.7]", ink.body)}>
             {tr(
               "Програма для людей, які потребують професійної психологічної допомоги, але наразі мають обмежені фінансові можливості.",
             )}
           </p>
-          <span aria-hidden className="mt-8 block h-px w-28 bg-[#B38B49]/60" />
+          <span aria-hidden className="mt-6 block h-px w-28 bg-[#B38B49]/60" />
         </div>
 
         {/*
@@ -100,7 +100,7 @@ export default async function SocialSupportPage() {
         через border-left у колонок, а не окремими елементами: інакше при
         переносі на вузькому екрані вони висіли б у порожнечі.
       */}
-      <ul className="mt-12 grid gap-y-10 sm:grid-cols-2 lg:mt-14 lg:grid-cols-4 lg:gap-y-0">
+      <ul className="mt-8 grid gap-y-7 sm:grid-cols-2 lg:mt-10 lg:grid-cols-4 lg:gap-y-0">
         {PILLARS.map(({ icon: Icon, title, text }, i) => (
           <li
             key={title}
@@ -131,7 +131,7 @@ export default async function SocialSupportPage() {
       </ul>
 
       {/* ── Заклик ── */}
-      <div className="mt-14 flex justify-center">
+      <div className="mt-10 flex justify-center">
         <Link
           href="/social-support/apply"
           className={cn(
@@ -152,7 +152,7 @@ export default async function SocialSupportPage() {
         Застереження окремою смугою: воно має бути помічене до подання
         заявки, а не загубитися серед решти тексту.
       */}
-      <div className="mt-10 flex items-start gap-4 rounded-2xl bg-[#B38B49]/[0.07] px-7 py-6">
+      <div className="mt-7 flex items-start gap-4 rounded-2xl bg-[#B38B49]/[0.07] px-7 py-4">
         <span
           aria-hidden
           className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#B38B49]/45"
@@ -167,7 +167,7 @@ export default async function SocialSupportPage() {
       </div>
 
       {/* ── Для фахівців · Як це працює ── */}
-      <section className="relative mt-20">
+      <section className="relative mt-14">
         <svg
           aria-hidden
           viewBox="0 0 260 260"
@@ -182,7 +182,7 @@ export default async function SocialSupportPage() {
           />
         </svg>
 
-        <div className="relative grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="relative grid gap-8 lg:grid-cols-2 lg:gap-11">
           <div>
             <div className="flex items-center gap-4">
               <Users className="h-7 w-7 shrink-0 text-[#B38B49]" strokeWidth={1.2} aria-hidden />
@@ -201,7 +201,7 @@ export default async function SocialSupportPage() {
             <Link
               href="/dashboard/contact"
               className={cn(
-                "mt-8 inline-flex min-h-[54px] items-center gap-2.5 rounded-full border border-[#B38B49]/55 px-8 text-[15px] font-medium text-[#142744]",
+                "mt-6 inline-flex min-h-[54px] items-center gap-2.5 rounded-full border border-[#B38B49]/55 px-8 text-[15px] font-medium text-[#142744]",
                 "transition-colors hover:border-[#B38B49] hover:bg-[#B38B49]/[0.07] motion-reduce:transition-none",
                 focusRing,
               )}
@@ -222,7 +222,7 @@ export default async function SocialSupportPage() {
               </h2>
             </div>
 
-            <ol className="mt-6 space-y-5">
+            <ol className="mt-4 space-y-5">
               {STEPS.map((step, i) => (
                 <li key={step} className="flex items-start gap-4">
                   <span

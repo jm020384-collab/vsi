@@ -174,20 +174,20 @@ export async function Approach() {
         </defs>
       </svg>
 
-      <Wrap className="py-10 lg:py-14">
+      <Wrap className="py-7 lg:py-10">
         <div className="mx-auto max-w-2xl text-center">
           <Eyebrow className="justify-center">{tr("Про підхід")}</Eyebrow>
-          <SectionTitle className="mt-6">
+          <SectionTitle className="mt-4">
             {tr("Терапія, що працює з причиною, а не лише з симптомом")}
           </SectionTitle>
-          <Lead className="mt-6">
+          <Lead className="mt-4">
             {tr(
               "Аналітично орієнтована психотерапія допомагає зрозуміти, що стоїть за тривогою, повторюваними труднощами чи внутрішніми конфліктами. Вона досліджує особисту історію, стосунки, психологічні захисти та несвідомі процеси, щоб розширити розуміння себе і можливість більш вільного вибору.",
             )}
           </Lead>
         </div>
 
-        <div className="mt-8 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:mt-10 lg:grid-cols-4">
+        <div className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:mt-7 lg:grid-cols-4">
           {PRINCIPLES.map(({ icon: Icon, title, body }) => (
             <div key={title} className="group text-center">
               {/* Іконка в тонкому колі — мотив бренд-борду */}
@@ -211,7 +211,7 @@ export async function Approach() {
         </div>
 
         {/* Клінічна традиція і професійні стандарти */}
-        <div className="mx-auto mt-16 max-w-3xl rounded-2xl border border-[#142744]/10 bg-[#F8F4EC] p-6 text-center sm:p-8">
+        <div className="mx-auto mt-11 max-w-3xl rounded-2xl border border-[#142744]/10 bg-[#F8F4EC] p-6 text-center sm:p-8">
           <p className={`text-[15px] leading-relaxed ${ink.muted}`}>
             <span className={`font-medium ${ink.strong}`}>
               {tr("Аналітична традиція має понад століття клінічного розвитку")}

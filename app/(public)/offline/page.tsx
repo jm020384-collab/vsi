@@ -16,15 +16,15 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function OfflinePage() {
   const { tr } = await getI18n();
   return (
-    <div className="container max-w-md py-24 text-center">
+    <div className="container max-w-md py-16 text-center">
       <WifiOff className="mx-auto h-12 w-12 text-muted-foreground" />
-      <h1 className="mt-6 text-3xl font-semibold">{tr("Немає інтернету")}</h1>
+      <h1 className="mt-4 text-3xl font-semibold">{tr("Немає інтернету")}</h1>
       <p className="mt-3 text-muted-foreground">
         {tr(
           "Ви офлайн. Раніше переглянуті профілі та статті можуть бути доступні. Спробуйте оновити сторінку після відновлення з'єднання.",
         )}
       </p>
-      <div className="mt-8">
+      <div className="mt-6">
         <Button asChild>
           <Link href="/">{tr("На головну")}</Link>
         </Button>

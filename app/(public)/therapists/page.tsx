@@ -31,7 +31,7 @@ export default async function TherapistsPage() {
   return (
     <>
       <TherapistCatalog therapists={therapists} />
-      <TranslatedNote show={content.used} className="mb-10 px-5 text-center" />
+      <TranslatedNote show={content.used} className="mb-7 px-5 text-center" />
     </>
   );
 }

@@ -86,8 +86,8 @@ export async function QuoteBand() {
   const { tr } = await getI18n();
   return (
     <section aria-label={tr("Цитата")} className="bg-[#F8F4EC]">
-      <Wrap className="py-4 lg:py-6">
-        <figure className="relative overflow-hidden rounded-3xl bg-[#142744] px-6 py-14 sm:px-12 lg:py-16">
+      <Wrap className="py-4 lg:py-4">
+        <figure className="relative overflow-hidden rounded-3xl bg-[#142744] px-6 py-10 sm:px-12 lg:py-11">
           {/* Кутове золоте мереживо */}
           <div className="pointer-events-none absolute -left-2 top-1/2 -translate-y-1/2 opacity-80">
             <CornerRays />
@@ -117,7 +117,7 @@ export async function QuoteBand() {
               {tr("Карл Густав Юнг")}
             </figcaption>
 
-            <div className="mt-8 flex justify-center">
+            <div className="mt-6 flex justify-center">
               <StateCircles />
             </div>
           </div>

@@ -170,12 +170,12 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 sm:px-8 lg:px-10">
       {/* ── Шапка сторінки: редакційна, без слідів маркетплейсу ── */}
-      <div className="relative pt-10 lg:pt-14">
+      <div className="relative pt-7 lg:pt-10">
         {/*
           Орбітального мережива тут більше немає: орбіти вже намальовані
           всередині самої ілюстрації, накладений SVG дублював би мотив.
         */}
-        <section className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-10">
+        <section className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-7">
           <div>
             <div className="flex items-center gap-4">
               <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#876428]">
@@ -191,7 +191,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
               {tr("Познайомитися з фахівцями")}
             </h1>
 
-            <p className={`mt-7 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
+            <p className={`mt-5 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
               {tr(
                 "У VSI представлені психологи та психотерапевти з професійною освітою, підготовкою у психотерапевтичних методах і практичним досвідом.",
               )}
@@ -206,7 +206,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
             <a
               href="#catalog"
               className={cn(
-                "group mt-9 inline-flex min-h-[58px] items-center gap-4 rounded-full bg-[#142744] px-9 text-[16px] text-[#F8F4EC]",
+                "group mt-6 inline-flex min-h-[58px] items-center gap-4 rounded-full bg-[#142744] px-9 text-[16px] text-[#F8F4EC]",
                 "transition-colors hover:bg-[#1C3557] motion-reduce:transition-none",
                 focusRing,
               )}
@@ -236,7 +236,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
           Розділювач — ліва межа сусідньої колонки, а не окрема лінія:
           при переносі на вузькому екрані окрема лінія висіла б у порожнечі.
         */}
-        <ul className="mt-16 grid gap-y-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-0">
+        <ul className="mt-11 grid gap-y-7 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-0">
           {PILLARS.map(({ icon: Icon, title, text }, i) => (
             <li
               key={title}
@@ -267,7 +267,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
         </ul>
 
         {/* ── Перехід до каталогу ── */}
-        <div className="mt-16 flex items-center gap-6">
+        <div className="mt-11 flex items-center gap-4">
           <span aria-hidden className="h-px flex-1 bg-[#B38B49]/35" />
           <p
             className={`text-pretty text-center text-[16px] italic leading-snug ${ink.body}`}
@@ -278,12 +278,12 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
           <span aria-hidden className="h-px flex-1 bg-[#B38B49]/35" />
         </div>
 
-        <div className="mt-7 flex justify-center">
+        <div className="mt-5 flex justify-center">
           <Sparkle className="h-5 w-5 text-[#B38B49]" strokeWidth={1.2} aria-hidden />
         </div>
 
         {/* ── Фільтри: кнопка по центру, панель розкривається на запит ── */}
-        <div className="mt-7">
+        <div className="mt-5">
           <div className="flex justify-center">
             <button
               type="button"
@@ -506,7 +506,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
         {/* ── Способи познайомитися — не сортування, а різні входи ── */}
         <div
           id="catalog"
-          className="mt-8 flex scroll-mt-28 flex-wrap items-center gap-x-1 gap-y-2 border-b border-[#142744]/10 pb-px"
+          className="mt-6 flex scroll-mt-28 flex-wrap items-center gap-x-1 gap-y-2 border-b border-[#142744]/10 pb-px"
         >
           {VIEW_TABS.map((tab) => (
             <button
@@ -542,15 +542,15 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
       </div>
 
       {/* ── Результати — одразу після вступу, без стіни фільтрів ── */}
-      <div className="pb-20 pt-8" aria-live="polite" aria-busy={loading}>
+      <div className="pb-14 pt-6" aria-live="polite" aria-busy={loading}>
         {loading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <TherapistCardSkeleton key={i} />
             ))}
           </div>
         ) : results.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {results.map((t) => (
               <TherapistCard
                 key={t.id}
@@ -562,7 +562,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
           </div>
         ) : (
           /* ── Empty state ── */
-          <div className="border-[#142744]/18 rounded-2xl border border-dashed bg-[#FFFDF8]/60 px-6 py-16 text-center">
+          <div className="border-[#142744]/18 rounded-2xl border border-dashed bg-[#FFFDF8]/60 px-6 py-11 text-center">
             <Image
               src="/brand/motifs/search.png"
               alt=""
@@ -582,7 +582,7 @@ export function TherapistCatalog({ therapists }: { therapists: Therapist[] }) {
                 "Спробуйте прибрати частину уточнень або змінити запит. Або залиште заявку — ми підберемо фахівця вручну й повернемось протягом двох робочих днів.",
               )}
             </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
               <button
                 type="button"
                 onClick={resetAll}

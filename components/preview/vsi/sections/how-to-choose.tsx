@@ -48,15 +48,15 @@ export async function HowToChoose() {
   const { tr } = await getI18n();
   return (
     <section id="how-to-choose" className="bg-[#E9DECE]">
-      <Wrap className="py-10 lg:py-14">
+      <Wrap className="py-7 lg:py-10">
         {/*
           Лід ширший за звичні 672px: за макетом він має лягти рівно в
           три рядки, а на вузькій колонці розсипався б на п'ять.
         */}
         <div className="max-w-[780px]">
           <Eyebrow>{tr("Як обрати фахівця")}</Eyebrow>
-          <SectionTitle className="mt-6">{tr("Чотири кроки без поспіху")}</SectionTitle>
-          <Lead className="mt-6">
+          <SectionTitle className="mt-4">{tr("Чотири кроки без поспіху")}</SectionTitle>
+          <Lead className="mt-4">
             {tr(
               "Вибір терапевта не означає пошук «найкращого» фахівця. Важливо знайти людину, з якою вам буде достатньо безпечно говорити про складне, ставити запитання і поступово входити в терапевтичну роботу.",
             )}
@@ -71,7 +71,7 @@ export async function HowToChoose() {
           Наведення тут не підсвічується — картки не клікабельні, і рух
           під курсором обіцяв би перехід, якого немає.
         */}
-        <ol className="mt-12 grid gap-5 sm:grid-cols-2 lg:mt-14 lg:grid-cols-4">
+        <ol className="mt-8 grid gap-5 sm:grid-cols-2 lg:mt-10 lg:grid-cols-4">
           {STEPS.map(({ n, title, body }) => (
             <li
               key={n}
@@ -108,7 +108,7 @@ export async function HowToChoose() {
           #876428) — на пергаменті світліший відтінок дає лише 4.1:1,
           а тонкий сериф великого кеглю потребує запасу.
         */}
-        <div className="mt-10 grid gap-4 sm:grid-cols-[minmax(0,210px)_minmax(0,1fr)] sm:gap-0">
+        <div className="mt-7 grid gap-4 sm:grid-cols-[minmax(0,210px)_minmax(0,1fr)] sm:gap-0">
           <p
             className="self-center text-[28px] leading-none text-[#6E5120] sm:pr-10 sm:text-right"
             style={serif}

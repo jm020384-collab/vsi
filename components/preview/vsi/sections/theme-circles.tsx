@@ -28,7 +28,7 @@ export async function ThemeCircles() {
   const { tr } = await getI18n();
   return (
     <section id="themes" className="bg-[#F8F4EC]">
-      <Wrap className="py-10 lg:py-12">
+      <Wrap className="py-7 lg:py-8">
         <p
           className={cn(
             "flex items-center justify-center gap-3 text-center text-[11px] font-medium uppercase tracking-[0.22em]",
@@ -40,7 +40,7 @@ export async function ThemeCircles() {
           <span aria-hidden className="h-px w-8 bg-[#B38B49]/60" />
         </p>
 
-        <ul className="mt-9 grid grid-cols-3 gap-x-4 gap-y-8 sm:gap-x-6 lg:grid-cols-6">
+        <ul className="mt-6 grid grid-cols-3 gap-x-4 gap-y-6 sm:gap-x-6 lg:grid-cols-6">
           {ENTRIES.map(({ slug, label }) => (
             <li key={slug}>
               <Link

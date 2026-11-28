@@ -627,7 +627,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
   if (!vm) notFound();
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 sm:px-8 lg:px-10">
+    <div className="mx-auto w-full max-w-[1180px] px-5 pb-14 sm:px-8 lg:px-10">
       {/* Лише схвалені справжні профілі й лише те, що видно на сторінці. */}
       {vm.isReal && vm.verified && (
         <JsonLd
@@ -648,7 +648,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
         />
       )}
 
-      <div className="flex items-center justify-between gap-4 pt-8 lg:pt-12">
+      <div className="flex items-center justify-between gap-4 pt-6 lg:pt-8">
         <Link
           href="/therapists"
           className={cn(
@@ -688,7 +688,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
         поля анкети, що й розділ «Позиція» нижче, і в шапці була б тим
         самим текстом двічі поспіль. Коротким вступом слугує опис підходу.
       */}
-      <div className="relative mt-6">
+      <div className="relative mt-4">
         <svg
           aria-hidden
           viewBox="0 0 240 240"
@@ -704,7 +704,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
           <circle cx="236" cy="232" r="6" fill="#B38B49" fillOpacity="0.75" />
         </svg>
 
-        <div className="relative grid gap-10 md:grid-cols-[minmax(0,380px)_1fr] md:gap-14">
+        <div className="relative grid gap-7 md:grid-cols-[minmax(0,380px)_1fr] md:gap-10">
           <div>
             {/*
               Без арки: будь-яка її форма зрізає верх кадру, і обличчя
@@ -749,14 +749,14 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
 
             {vm.lead && (
               <p
-                className={`mt-6 max-w-xl text-pretty text-[19px] leading-[1.6] ${ink.body}`}
+                className={`mt-4 max-w-xl text-pretty text-[19px] leading-[1.6] ${ink.body}`}
                 style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
               >
                 {vm.lead}
               </p>
             )}
 
-            <span aria-hidden className="mt-7 block h-px w-full max-w-xl bg-[#142744]/10" />
+            <span aria-hidden className="mt-5 block h-px w-full max-w-xl bg-[#142744]/10" />
 
             <dl className={`mt-5 flex flex-wrap gap-x-7 gap-y-3 text-[15px] ${ink.body}`}>
               <div className="flex items-center gap-2">
@@ -793,7 +793,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               )}
             </dl>
 
-            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
               <a
                 href="#contact"
                 className={cn(
@@ -820,7 +820,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
               людині треба знати, щоб вирішити, чи писати. Форма запису лишається
               внизу сторінки, кнопка веде до неї якорем #contact.
             */}
-            <section aria-labelledby="conditions" className="mt-10 max-w-xl">
+            <section aria-labelledby="conditions" className="mt-7 max-w-xl">
               <SectionTitleRow id="conditions">{tr("Умови роботи")}</SectionTitleRow>
               <dl className={`mt-4 space-y-3 text-[15px] ${ink.body}`}>
                 <div className="flex justify-between gap-4 border-b border-[#142744]/[0.07] pb-2.5">
@@ -892,7 +892,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
           лишалося порожнє поле.
         */}
         {vm.topics.length > 0 && (
-          <ul className="mt-10 flex flex-wrap gap-2.5">
+          <ul className="mt-7 flex flex-wrap gap-2.5">
             {vm.topics.map((topic) => (
               <li
                 key={topic}
@@ -908,7 +908,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
       {/* ── Внутрішня навігація простору ── */}
       <nav
         aria-label={tr("Розділи простору")}
-        className="sticky top-[104px] z-20 -mx-5 mt-10 border-y border-[#142744]/10 bg-[#F8F4EC]/90 px-5 backdrop-blur-md sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10"
+        className="sticky top-[104px] z-20 -mx-5 mt-7 border-y border-[#142744]/10 bg-[#F8F4EC]/90 px-5 backdrop-blur-md sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10"
       >
         <div className="flex gap-1 overflow-x-auto">
           {SECTIONS.map((s, i) => (
@@ -941,10 +941,10 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
         Повні переліки лишаються в розділах нижче — тут лише те, що
         читають першим.
       */}
-      <section aria-labelledby="position" className="mt-10">
+      <section aria-labelledby="position" className="mt-7">
         <SectionTitleRow id="position">{tr("Про фахівця")}</SectionTitleRow>
 
-        <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)] lg:gap-16">
+        <div className="mt-4 grid gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)] lg:gap-11">
           <div className="max-w-2xl">
             {vm.position.length > 0 ? (
               <div className="space-y-4">
@@ -965,7 +965,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
             )}
           </div>
 
-          <div className="space-y-7">
+          <div className="space-y-5">
             {vm.educationSummary && (
               <InfoRow icon={GraduationCap} title={tr("Освіта")}>
                 {vm.educationSummary}
@@ -1000,7 +1000,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
         умови роботи й контакт — навмисно останніми. Логіка сторінки:
         спершу знайомство, потім контакт.
       */}
-      <div className="mt-14 max-w-2xl space-y-14">
+      <div className="mt-10 max-w-2xl space-y-10">
         <section aria-labelledby="practice">
           <SectionTitleRow id="practice">{tr("Практика")}</SectionTitleRow>
           {vm.practice.length > 0 ? (
@@ -1150,7 +1150,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
           <SectionTitleRow id="path">{tr("Освіта та професійна підготовка")}</SectionTitleRow>
 
           {vm.educationGroups.length > 0 ? (
-            <div className="mt-5 space-y-7">
+            <div className="mt-5 space-y-5">
               {vm.educationGroups.map((group) => (
                 <div key={group.title}>
                   <h3 className={`text-[11px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
@@ -1241,7 +1241,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
           ) : vm.path.length > 0 ? (
             <ol className="mt-5 space-y-0 border-l border-[#142744]/15 pl-6">
               {vm.path.map((step, i) => (
-                <li key={i} className="relative pb-6 last:pb-0">
+                <li key={i} className="relative pb-4 last:pb-0">
                   <span
                     aria-hidden
                     className="absolute -left-[27.5px] top-1.5 h-[7px] w-[7px] rounded-full bg-[#B38B49]"
@@ -1312,7 +1312,7 @@ export default async function SpecialistSpacePage({ params }: PageProps) {
 
       {/* ── Продовжити рух ── */}
       {vm.topics.length > 0 && (
-        <div className="mt-16 border-t border-[#142744]/10 pt-8">
+        <div className="mt-11 border-t border-[#142744]/10 pt-6">
           <p className={`text-[15px] ${ink.muted}`}>{tr("Продовжити дослідження")}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {vm.topics.slice(0, 4).map((topic) => (

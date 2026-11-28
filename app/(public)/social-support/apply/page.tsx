@@ -37,7 +37,7 @@ export default async function SocialSupportApplyPage() {
   const languages = await loadLanguages();
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 pt-10 sm:px-8 lg:px-10 lg:pt-14">
+    <div className="mx-auto w-full max-w-[1180px] px-5 pb-14 pt-7 sm:px-8 lg:px-10 lg:pt-10">
       <div className="mx-auto max-w-xl">
         <Link
           href="/social-support"

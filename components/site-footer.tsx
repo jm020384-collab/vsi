@@ -8,9 +8,9 @@ export async function SiteFooter() {
   const { tr } = await getI18n();
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-20 bg-[#142744]">
-      <div className="container py-14">
-        <div className="grid gap-10 md:grid-cols-12">
+    <footer className="mt-14 bg-[#142744]">
+      <div className="container py-10">
+        <div className="grid gap-7 md:grid-cols-12">
           {/* Бренд-блок */}
           <div className="md:col-span-5">
             <Link
@@ -37,7 +37,7 @@ export async function SiteFooter() {
               підвалу 5+3+4 вже заповнена, а четверта колонка зламала б
               її на планшеті.
             */}
-            <div className="mt-7">
+            <div className="mt-5">
               <div className="small-caps text-xs font-medium text-[#AAA8B5]">{tr("Контакти")}</div>
               <a
                 href="https://www.facebook.com/profile.php?id=61593751903159"
@@ -110,7 +110,7 @@ export async function SiteFooter() {
         </div>
 
         {/* Тонкий золотий роздільник із однією сферою — мотив знака */}
-        <div aria-hidden className="mt-12 flex items-center justify-center gap-4">
+        <div aria-hidden className="mt-8 flex items-center justify-center gap-4">
           <span className="bg-[#F8F4EC]/12 h-px flex-1" />
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
             <ellipse
@@ -128,7 +128,7 @@ export async function SiteFooter() {
           <span className="bg-[#F8F4EC]/12 h-px flex-1" />
         </div>
 
-        <div className="mt-6 flex flex-col items-center justify-between gap-2 text-xs text-[#AAA8B5] md:flex-row">
+        <div className="mt-4 flex flex-col items-center justify-between gap-2 text-xs text-[#AAA8B5] md:flex-row">
           <div>
             © {year} {BRAND.name}
             {tr(". Усі права захищено.")}

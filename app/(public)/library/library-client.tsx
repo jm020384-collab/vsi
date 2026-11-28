@@ -53,13 +53,13 @@ export function LibraryClient({
   );
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 sm:px-8 lg:px-10">
+    <div className="mx-auto w-full max-w-[1180px] px-5 pb-14 sm:px-8 lg:px-10">
       {/*
         Шапка за макетом: текст ліворуч, ілюстрація праворуч — так само,
         як у «Фахівцях». Раніше тут був квадратний значок 112×112 над
         заголовком по центру; повноцінна ілюстрація його замінює.
       */}
-      <section className="grid gap-10 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-10 lg:pt-14">
+      <section className="grid gap-7 pt-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-7 lg:pt-10">
         <div>
           <div className="flex items-center gap-4">
             <span aria-hidden className="h-px w-8 bg-[#B38B49]/50" />
@@ -76,9 +76,9 @@ export function LibraryClient({
             {tr("Тексти, лекції та дослідження")}
           </h1>
 
-          <span aria-hidden className="mt-7 block h-px w-24 bg-[#B38B49]/60" />
+          <span aria-hidden className="mt-5 block h-px w-24 bg-[#B38B49]/60" />
 
-          <p className={`mt-7 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
+          <p className={`mt-5 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
             {tr(
               "Статті, лекції, аналітичні роздуми та матеріали з психоаналітичної традиції й суміжних сфер — для професійного розвитку, натхнення і глибшого розуміння психічного життя.",
             )}
@@ -101,7 +101,7 @@ export function LibraryClient({
 
       {/* ── Категорії ── */}
       <div
-        className="mt-14 flex flex-wrap gap-2"
+        className="mt-10 flex flex-wrap gap-2"
         role="group"
         aria-label={tr("Категорії бібліотеки")}
       >
@@ -140,18 +140,18 @@ export function LibraryClient({
         ))}
       </div>
 
-      <TranslatedNote show={translated} className="mt-6" />
+      <TranslatedNote show={translated} className="mt-4" />
 
       {/* ── Матеріали ── */}
-      <div className="mt-8" aria-live="polite">
+      <div className="mt-6" aria-live="polite">
         {items.length === 0 ? (
-          <div className="border-[#142744]/18 rounded-2xl border border-dashed bg-[#FFFDF8]/60 px-6 py-14 text-center">
+          <div className="border-[#142744]/18 rounded-2xl border border-dashed bg-[#FFFDF8]/60 px-6 py-10 text-center">
             <p className={`mx-auto max-w-md text-[15px] leading-relaxed ${ink.muted}`}>
               {tr("У цій категорії поки немає матеріалів — вони готуються.")}
             </p>
           </div>
         ) : (
-          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((m) => (
               <li key={m.id}>
                 <Link

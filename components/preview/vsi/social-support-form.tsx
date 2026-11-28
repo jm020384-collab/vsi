@@ -62,7 +62,7 @@ export function SocialSupportForm({
     return (
       <div
         id="apply"
-        className="mt-8 flex max-w-xl items-start gap-3 rounded-2xl border border-[#2F6B4F]/25 bg-[#2F6B4F]/[0.06] px-6 py-5"
+        className="mt-6 flex max-w-xl items-start gap-3 rounded-2xl border border-[#2F6B4F]/25 bg-[#2F6B4F]/[0.06] px-6 py-5"
       >
         <Check className="mt-0.5 h-5 w-5 shrink-0 text-[#245A41]" aria-hidden />
         <div className="text-[15px] leading-relaxed text-[#245A41]">
@@ -86,7 +86,7 @@ export function SocialSupportForm({
       id="apply"
       action={formAction}
       onSubmit={() => setEdited({})}
-      className="mt-8 max-w-xl space-y-6 rounded-2xl border border-[#142744]/10 bg-[#FFFDF8] p-6 sm:p-8"
+      className="mt-6 max-w-xl space-y-4 rounded-2xl border border-[#142744]/10 bg-[#FFFDF8] p-6 sm:p-8"
     >
       {/* Пастка для ботів — прихована від людей */}
       <div className="sr-only" aria-hidden="true">

@@ -157,7 +157,7 @@ export function TherapistCard({
           <Link
             href={`/specialists/${t.id}`}
             className={cn(
-              "group/cta mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-medium text-[#1C3557]",
+              "group/cta mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-medium text-[#1C3557]",
               "transition-colors hover:text-[#142744] motion-reduce:transition-none",
               focusRing,
             )}

@@ -120,7 +120,7 @@ export async function SpecialistsRow({ therapists }: { therapists: Therapist[] }
 
   return (
     <section id="therapists" className="bg-[#F8F4EC]">
-      <Wrap className="pb-4 pt-4 lg:pb-5 lg:pt-6">
+      <Wrap className="pb-4 pt-4 lg:pb-5 lg:pt-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2
             className={cn(
@@ -150,7 +150,7 @@ export async function SpecialistsRow({ therapists }: { therapists: Therapist[] }
 
       <div
         className={cn(
-          "overflow-x-auto overscroll-x-contain pb-6 lg:overflow-x-visible lg:pb-8",
+          "overflow-x-auto overscroll-x-contain pb-4 lg:overflow-x-visible lg:pb-6",
           "snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
           "[--rail-pad:1.25rem] sm:[--rail-pad:2rem]",
           "lg:[--rail-pad:max(2.5rem,calc((100%-1180px)/2+2.5rem))]",

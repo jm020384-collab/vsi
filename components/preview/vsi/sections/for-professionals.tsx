@@ -39,8 +39,8 @@ export async function ForProfessionals() {
   const { tr } = await getI18n();
   return (
     <section id="for-professionals" className="bg-[#142744]">
-      <Wrap className="py-10 lg:py-12">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-14">
+      <Wrap className="py-7 lg:py-8">
+        <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-10">
           <div>
             <h2 className="text-[13px] font-medium uppercase tracking-[0.2em] text-[#E9DECE]">
               {tr("Для фахівців")}
@@ -51,7 +51,7 @@ export async function ForProfessionals() {
             <Link
               href="/register"
               className={cn(
-                "group/cta mt-6 inline-flex min-h-[46px] items-center gap-2 rounded-xl border border-[#F8F4EC]/30 px-5 text-sm font-medium text-[#F8F4EC]",
+                "group/cta mt-4 inline-flex min-h-[46px] items-center gap-2 rounded-xl border border-[#F8F4EC]/30 px-5 text-sm font-medium text-[#F8F4EC]",
                 "transition-colors hover:border-[#F8F4EC]/60 hover:bg-[#F8F4EC]/[0.08] motion-reduce:transition-none",
                 focusRingDark,
               )}
@@ -64,7 +64,7 @@ export async function ForProfessionals() {
             </Link>
           </div>
 
-          <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
             {FEATURES.map(({ icon: Icon, title, text }) => (
               <li key={title}>
                 <span

@@ -55,20 +55,20 @@ export async function Ethics() {
         }}
       />
 
-      <Wrap className="relative py-10 lg:py-14">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,420px)_1fr] lg:gap-16">
+      <Wrap className="relative py-7 lg:py-10">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,420px)_1fr] lg:gap-11">
           <div>
             <Eyebrow tone="dark">{tr("Етика і безпека")}</Eyebrow>
-            <SectionTitle tone="dark" className="mt-6">
+            <SectionTitle tone="dark" className="mt-4">
               {tr("Довіра — це процедура, а не обіцянка")}
             </SectionTitle>
-            <Lead tone="dark" className="mt-6">
+            <Lead tone="dark" className="mt-4">
               {tr(
                 "Терапія працює лише там, де є безпека. Тому ми описуємо правила прямо: що захищено, ким перевірено і що робити, якщо щось пішло не так.",
               )}
             </Lead>
 
-            <GlassPanel tone="dark" className="mt-8 p-6">
+            <GlassPanel tone="dark" className="mt-6 p-6">
               <p className="text-sm leading-relaxed text-[#D6D3DD]">
                 <span className="font-medium text-[#F8F4EC]">{tr("Кризова допомога.")}</span>{" "}
                 {tr(
@@ -87,7 +87,7 @@ export async function Ethics() {
             його немає. Рамка без заливки — щоб іконки лягали просто на
             тло секції й не утворювали видимих плиток.
           */}
-          <ul className="grid gap-x-10 gap-y-12 rounded-[28px] border border-[#F8F4EC]/15 p-8 sm:grid-cols-2 lg:p-10">
+          <ul className="grid gap-x-10 gap-y-8 rounded-[28px] border border-[#F8F4EC]/15 p-8 sm:grid-cols-2 lg:p-10">
             {PILLARS.map(({ icon, title, body }) => (
               <li key={title}>
                 <Image

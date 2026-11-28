@@ -52,13 +52,13 @@ export default function ErrorBoundary({ error, reset }: { error: Error; reset: (
   if (reloading) return <div className="min-h-[60vh]" aria-busy />;
 
   return (
-    <div className="container max-w-md py-24 text-center">
+    <div className="container max-w-md py-16 text-center">
       <h1 className="text-3xl font-semibold">{tr("Щось пішло не так")}</h1>
       <p className="mt-3 text-muted-foreground">
         {tr("Спробуйте оновити сторінку або повторіть пізніше.")}
       </p>
       {/* Для застарілої збірки reset() не допоможе: потрібні нові файли. */}
-      <Button className="mt-6" onClick={stale ? () => window.location.reload() : reset}>
+      <Button className="mt-4" onClick={stale ? () => window.location.reload() : reset}>
         {tr("Спробувати ще раз")}
       </Button>
     </div>

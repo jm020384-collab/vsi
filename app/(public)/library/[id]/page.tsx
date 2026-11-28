@@ -167,7 +167,7 @@ export default async function ArticlePage({ params }: PageProps) {
   if (!m) notFound();
 
   return (
-    <div className="mx-auto w-full max-w-[760px] px-5 pb-20 sm:px-8">
+    <div className="mx-auto w-full max-w-[760px] px-5 pb-14 sm:px-8">
       {m.publishedAt && (
         <JsonLd
           data={{
@@ -186,7 +186,7 @@ export default async function ArticlePage({ params }: PageProps) {
           }}
         />
       )}
-      <div className="pt-8 lg:pt-12">
+      <div className="pt-6 lg:pt-8">
         <Link
           href="/library"
           className={cn(
@@ -243,10 +243,10 @@ export default async function ArticlePage({ params }: PageProps) {
 
       <TranslatedNote show={m.translated} className="mt-4" />
 
-      <hr className="mt-6 border-[#142744]/10" />
+      <hr className="mt-4 border-[#142744]/10" />
 
       {/* ── Текст ── */}
-      <article className="mt-8">
+      <article className="mt-6">
         {m.bodyParagraphs && m.bodyParagraphs.length > 0 ? (
           <div className="space-y-5">
             {m.bodyParagraphs.map((p, i) => (
@@ -267,7 +267,7 @@ export default async function ArticlePage({ params }: PageProps) {
           <div>
             <p className={`text-pretty text-[17px] leading-[1.85] ${ink.body}`}>{m.excerpt}</p>
             <p
-              className={`mt-6 rounded-xl border border-dashed border-[#142744]/15 bg-[#FFFDF8]/70 px-5 py-4 text-[14px] italic ${ink.soft}`}
+              className={`mt-4 rounded-xl border border-dashed border-[#142744]/15 bg-[#FFFDF8]/70 px-5 py-4 text-[14px] italic ${ink.soft}`}
             >
               {tr("Повний текст цього матеріалу готується до публікації.")}
             </p>
@@ -275,7 +275,7 @@ export default async function ArticlePage({ params }: PageProps) {
         )}
 
         {m.sources && m.sources.length > 0 && (
-          <div className="mt-10 border-t border-[#142744]/10 pt-5">
+          <div className="mt-7 border-t border-[#142744]/10 pt-5">
             <h2 className={`text-[13px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
               {tr("Джерела")}
             </h2>
@@ -289,7 +289,7 @@ export default async function ArticlePage({ params }: PageProps) {
       </article>
 
       {/* ── Продовжити дослідження ── */}
-      <footer className="mt-14 border-t border-[#B38B49]/30 pt-8">
+      <footer className="mt-10 border-t border-[#B38B49]/30 pt-6">
         <h2
           className={`text-2xl font-normal ${ink.strong}`}
           style={{ fontFamily: "var(--vsi-serif), Georgia, serif" }}
@@ -322,7 +322,7 @@ export default async function ArticlePage({ params }: PageProps) {
         )}
 
         {m.relatedArticles.length > 0 && (
-          <div className="mt-7">
+          <div className="mt-5">
             <h3 className={`text-[12px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
               {tr("Пов'язані матеріали")}
             </h3>
@@ -355,7 +355,7 @@ export default async function ArticlePage({ params }: PageProps) {
         )}
 
         {m.authorHref && (
-          <div className="mt-7">
+          <div className="mt-5">
             <h3 className={`text-[12px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
               {tr("Простір автора")}
             </h3>
@@ -394,7 +394,7 @@ export default async function ArticlePage({ params }: PageProps) {
         )}
 
         {m.topicSpecialists.length > 0 && m.concepts[0] && (
-          <div className="mt-7">
+          <div className="mt-5">
             <h3 className={`text-[12px] font-medium uppercase tracking-[0.18em] ${ink.soft}`}>
               {tr("Фахівці за темою «")}
               {tr(m.concepts[0].title)}»

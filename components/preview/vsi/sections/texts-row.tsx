@@ -18,7 +18,7 @@ export async function TextsRow({ materials }: { materials: Material[] }) {
 
   return (
     <section id="materials" className="bg-[#F8F4EC]">
-      <Wrap className="py-4 lg:py-6">
+      <Wrap className="py-4 lg:py-4">
         <div className="rounded-2xl border border-[#142744]/10 bg-[#FFFDF8]/70 p-5 sm:p-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2

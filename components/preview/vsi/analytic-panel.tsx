@@ -19,7 +19,7 @@ export async function AnalyticPanel({ note }: { note: AnalyticNote }) {
   return (
     <section
       aria-labelledby="theme-analytic"
-      className="mt-12 rounded-[28px] border border-[#142744]/10 bg-[#FFFDF8] p-7 sm:p-9 lg:p-10"
+      className="mt-8 rounded-[28px] border border-[#142744]/10 bg-[#FFFDF8] p-7 sm:p-9 lg:p-10"
     >
       <p className={`inline-flex items-center gap-3 ${EYEBROW}`}>
         <span aria-hidden className="h-px w-6 bg-[#B38B49]" />
@@ -43,7 +43,7 @@ export async function AnalyticPanel({ note }: { note: AnalyticNote }) {
         ))}
       </div>
 
-      <div className="mt-8 border-t border-[#142744]/10 pt-7">
+      <div className="mt-6 border-t border-[#142744]/10 pt-5">
         <h3 className={EYEBROW}>{tr("Поняття")}</h3>
         <dl className="mt-4 grid gap-x-8 gap-y-5 sm:grid-cols-3">
           {terms.map(({ term, gloss }) => (
@@ -57,7 +57,7 @@ export async function AnalyticPanel({ note }: { note: AnalyticNote }) {
         </dl>
       </div>
 
-      <div className="mt-8 grid gap-6 border-t border-[#142744]/10 pt-7 lg:grid-cols-2 lg:gap-10">
+      <div className="mt-6 grid gap-4 border-t border-[#142744]/10 pt-5 lg:grid-cols-2 lg:gap-7">
         {/*
           Вправа — єдине на сторінці, що пропонує щось зробити, тому
           лежить на підкладці: інакше губиться серед переліків.
@@ -93,7 +93,7 @@ export async function AnalyticPanel({ note }: { note: AnalyticNote }) {
 
         <div>
           <h3 className={EYEBROW}>{tr("Література")}</h3>
-          <ul className="mt-4 space-y-6">
+          <ul className="mt-4 space-y-4">
             {reading.map((b) => (
               <li key={b.title}>
                 <p className={`text-[17px] font-normal leading-snug ${ink.strong}`} style={serif}>
@@ -113,7 +113,7 @@ export async function AnalyticPanel({ note }: { note: AnalyticNote }) {
       </div>
 
       <p
-        className={`mt-8 border-t border-[#142744]/10 pt-5 text-[13px] leading-relaxed ${ink.soft}`}
+        className={`mt-6 border-t border-[#142744]/10 pt-5 text-[13px] leading-relaxed ${ink.soft}`}
       >
         {tr(
           "Цей розділ оглядовий: він описує спосіб думати про тему, а не ставить діагноз і не замінює роботу з фахівцем.",

@@ -84,9 +84,9 @@ export default async function ThemePage({ params }: PageProps) {
   ].filter(Boolean) as string[];
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 sm:px-8 lg:px-10">
+    <div className="mx-auto w-full max-w-[1180px] px-5 pb-14 sm:px-8 lg:px-10">
       {/* ── Шапка теми ── */}
-      <div className="pt-8 lg:pt-12">
+      <div className="pt-6 lg:pt-8">
         <Link
           href={parent ? `/themes/${parent.slug}` : "/#themes"}
           className={cn(
@@ -126,7 +126,7 @@ export default async function ThemePage({ params }: PageProps) {
 
         {/* Підтеми великої теми */}
         {subthemes && subthemes.length > 0 && (
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             {subthemes.map((s) => (
               <Link
                 key={s.slug}
@@ -146,7 +146,7 @@ export default async function ThemePage({ params }: PageProps) {
 
         {/* Суміжні поняття — рух між темами */}
         {entry.related && entry.related.length > 0 && (
-          <div className="mt-6">
+          <div className="mt-4">
             <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#5C6672]">
               {tr("Суміжні поняття")}
             </span>
@@ -185,11 +185,11 @@ export default async function ThemePage({ params }: PageProps) {
       */}
       {note && <AnalyticPanel note={note} />}
 
-      <TranslatedNote show={content.used} className="mt-10" />
+      <TranslatedNote show={content.used} className="mt-7" />
 
       {/* ── Статті та лекції — свідомо ПЕРЕД фахівцями ── */}
       {(articles.length > 0 || lectures.length > 0) && (
-        <section className="mt-12" aria-labelledby="theme-materials">
+        <section className="mt-8" aria-labelledby="theme-materials">
           <h2
             id="theme-materials"
             className={`text-3xl font-normal ${ink.strong}`}
@@ -197,7 +197,7 @@ export default async function ThemePage({ params }: PageProps) {
           >
             {tr("Читати і слухати")}
           </h2>
-          <ul className="mt-6 grid gap-5 sm:grid-cols-2">
+          <ul className="mt-4 grid gap-5 sm:grid-cols-2">
             {[...articles, ...lectures].map((m) => (
               <li key={m.id}>
                 <Link
@@ -242,7 +242,7 @@ export default async function ThemePage({ params }: PageProps) {
 
       {/* ── Фахівці ── */}
       {therapists.length > 0 && (
-        <section className="mt-14" aria-labelledby="theme-therapists">
+        <section className="mt-10" aria-labelledby="theme-therapists">
           <div className="flex items-end justify-between gap-4">
             <h2
               id="theme-therapists"
@@ -262,7 +262,7 @@ export default async function ThemePage({ params }: PageProps) {
               <ArrowUpRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {therapists.map((t) => (
               <TherapistCard key={t.id} therapist={t} seed={Number(t.id.slice(1)) || 0} />
             ))}
@@ -272,7 +272,7 @@ export default async function ThemePage({ params }: PageProps) {
 
       {/* ── Групи ── */}
       {events.length > 0 && (
-        <section className="mt-14" aria-labelledby="theme-events">
+        <section className="mt-10" aria-labelledby="theme-events">
           <h2
             id="theme-events"
             className={`text-3xl font-normal ${ink.strong}`}
@@ -280,7 +280,7 @@ export default async function ThemePage({ params }: PageProps) {
           >
             {tr("Групи та події за темою")}
           </h2>
-          <ul className="mt-6 grid gap-5 lg:grid-cols-2">
+          <ul className="mt-4 grid gap-5 lg:grid-cols-2">
             {events.map((e) => {
               const full = e.seatsLeft === 0;
               return (
@@ -349,7 +349,7 @@ export default async function ThemePage({ params }: PageProps) {
 
       {/* ── Якщо тема поки порожня ── */}
       {counts.length === 0 && (
-        <div className="border-[#142744]/18 mt-14 rounded-2xl border border-dashed bg-[#FFFDF8]/60 px-6 py-14 text-center">
+        <div className="border-[#142744]/18 mt-10 rounded-2xl border border-dashed bg-[#FFFDF8]/60 px-6 py-10 text-center">
           <p className={`mx-auto max-w-md text-[15px] leading-relaxed ${ink.muted}`}>
             {tr(
               "За цією темою поки немає підібраного контенту. Загляньте до повного каталогу — або залиште запит, і ми підберемо фахівця вручну.",
@@ -358,7 +358,7 @@ export default async function ThemePage({ params }: PageProps) {
           <Link
             href="/therapists"
             className={cn(
-              "mt-6 inline-flex items-center justify-center rounded-xl bg-[#1C3557] px-6 text-sm font-medium text-[#FFFDF8]",
+              "mt-4 inline-flex items-center justify-center rounded-xl bg-[#1C3557] px-6 text-sm font-medium text-[#FFFDF8]",
               "transition-colors hover:bg-[#142744] motion-reduce:transition-none",
               touch,
               focusRing,

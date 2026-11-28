@@ -119,14 +119,14 @@ export default async function EventsPage() {
   const { events, isLoggedIn } = await loadEvents(locale, content);
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 sm:px-8 lg:px-10">
+    <div className="mx-auto w-full max-w-[1180px] px-5 pb-14 sm:px-8 lg:px-10">
       {/*
         Шапка за макетом: текст ліворуч, ілюстрація праворуч — у тій самій
         сітці, що «Про простір», «Фахівці», «Тексти» й «Підтримка», тож
         картинка скрізь одного розміру. Надзаголовка тут немає навмисно:
         на макеті одразу йде заголовок.
       */}
-      <section className="grid gap-8 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-6 lg:pt-14">
+      <section className="grid gap-6 pt-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-4 lg:pt-10">
         <div>
           <h1
             className={`text-balance text-[2.6rem] font-normal leading-[1.08] sm:text-5xl ${ink.strong}`}
@@ -135,7 +135,7 @@ export default async function EventsPage() {
             {tr("Групи, семінари, інтенсиви")}
           </h1>
 
-          <p className={`mt-6 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
+          <p className={`mt-4 max-w-md text-pretty text-[15px] leading-[1.75] ${ink.muted}`}>
             {tr(
               "Групові та освітні формати, що поглиблюють розуміння себе, стосунків і внутрішніх процесів у спільному, безпечному просторі.",
             )}
@@ -145,7 +145,7 @@ export default async function EventsPage() {
             Розділювачі — ліва межа сусідньої колонки, а не окремі лінії:
             інакше при переносі вони висіли б у порожнечі.
           */}
-          <ul className="mt-10 grid max-w-[420px] grid-cols-3">
+          <ul className="mt-7 grid max-w-[420px] grid-cols-3">
             {HERO_NOTES.map(({ icon: Icon, lines }, i) => (
               <li
                 key={lines.join(" ")}
@@ -165,7 +165,7 @@ export default async function EventsPage() {
           <a
             href="#events-list"
             className={cn(
-              "group mt-10 inline-flex min-h-[56px] items-center gap-4 rounded-full bg-[#142744] px-9 text-[16px] text-[#F8F4EC]",
+              "group mt-7 inline-flex min-h-[56px] items-center gap-4 rounded-full bg-[#142744] px-9 text-[16px] text-[#F8F4EC]",
               "transition-colors hover:bg-[#1C3557] motion-reduce:transition-none",
               focusRing,
             )}
@@ -192,7 +192,7 @@ export default async function EventsPage() {
       </section>
 
       {events.length === 0 && (
-        <div className="mt-14 rounded-2xl border border-dashed border-[#142744]/20 bg-[#FFFDF8]/60 px-6 py-14 text-center">
+        <div className="mt-10 rounded-2xl border border-dashed border-[#142744]/20 bg-[#FFFDF8]/60 px-6 py-10 text-center">
           <p className={cn("mx-auto max-w-md text-[15px] leading-relaxed", ink.muted)}>
             {tr(
               "Найближчих подій поки немає. Щойно фахівці оголосять нові групи й семінари, вони з'являться тут.",
@@ -201,9 +201,9 @@ export default async function EventsPage() {
         </div>
       )}
 
-      <TranslatedNote show={content.used} className="mt-10" />
+      <TranslatedNote show={content.used} className="mt-7" />
 
-      <ul id="events-list" className="mt-14 grid scroll-mt-28 gap-5 md:grid-cols-2">
+      <ul id="events-list" className="mt-10 grid scroll-mt-28 gap-5 md:grid-cols-2">
         {events.map((e) => {
           const full = e.seatsLeft === 0;
           const pct =

@@ -158,18 +158,18 @@ export async function Themes() {
   const { tr } = await getI18n();
   return (
     <section id="themes" className="bg-[#FFFDF8]">
-      <Wrap className="py-20 lg:py-28">
+      <Wrap className="py-14 lg:py-20">
         <div className="max-w-2xl">
           <Eyebrow>{tr("Тематичні входи")}</Eyebrow>
-          <SectionTitle className="mt-6">{tr("Що привело вас сюди?")}</SectionTitle>
-          <Lead className="mt-6">
+          <SectionTitle className="mt-4">{tr("Що привело вас сюди?")}</SectionTitle>
+          <Lead className="mt-4">
             {tr(
               "Не діагноз і не «проблема» — тема. Оберіть ту, що відгукується: за нею відкриються фахівці, які з нею працюють, статті, лекції та групи.",
             )}
           </Lead>
         </div>
 
-        <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {THEMES.map((theme) => (
             <li key={theme.slug} className="h-full">
               <Link
@@ -209,7 +209,7 @@ export async function Themes() {
         </ul>
 
         {/* Тихий вихід для тих, хто не впізнав себе */}
-        <p className={cn("mt-8 text-[15px]", ink.muted)}>
+        <p className={cn("mt-6 text-[15px]", ink.muted)}>
           {tr("Не впізнали себе в жодній темі?")}{" "}
           <Link
             href="/explore"

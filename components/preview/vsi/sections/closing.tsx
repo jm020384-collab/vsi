@@ -34,7 +34,7 @@ export async function Closing() {
   const { tr } = await getI18n();
   return (
     <section id="closing" className="bg-[#F8F4EC]">
-      <Wrap className="pb-12 pt-4 text-center lg:pb-16 lg:pt-6">
+      <Wrap className="pb-8 pt-4 text-center lg:pb-11 lg:pt-4">
         <div className="flex items-center justify-center gap-4">
           <Ornament />
           <h2
@@ -54,7 +54,7 @@ export async function Closing() {
           )}
         </p>
 
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/explore" variant="primary">
             {tr("Досліджувати")}
             <ArrowRight className="h-4 w-4" aria-hidden />

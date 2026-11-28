@@ -22,7 +22,7 @@ export async function EventsRow({ events }: { events: PublicEvent[] }) {
 
   return (
     <section id="events" className="bg-[#F8F4EC]">
-      <Wrap className="py-10 lg:py-12">
+      <Wrap className="py-7 lg:py-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className={cn("text-[13px] font-medium uppercase tracking-[0.18em]", ink.strong)}>
             {tr("Найближче в аналітичному середовищі")}
@@ -43,7 +43,7 @@ export async function EventsRow({ events }: { events: PublicEvent[] }) {
           </Link>
         </div>
 
-        <ul className="mt-6 grid gap-4 lg:grid-cols-3">
+        <ul className="mt-4 grid gap-4 lg:grid-cols-3">
           {items.map((e) => (
             <li key={e.id}>
               <Link

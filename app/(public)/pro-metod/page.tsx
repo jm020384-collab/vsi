@@ -155,7 +155,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 export default async function ProMethodPage() {
   const { tr } = await getI18n();
   return (
-    <div className="pb-24">
+    <div className="pb-16">
       {/* ── Знайомство з напрямком ── */}
       {/*
         Сітка така сама, як у «Фахівцях», «Текстах» і «Соціальній
@@ -165,7 +165,7 @@ export default async function ProMethodPage() {
       <section
         className={cn(
           SHELL,
-          "grid gap-8 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-6 lg:pt-16",
+          "grid gap-6 pt-7 lg:grid-cols-[minmax(0,1fr)_minmax(0,47%)] lg:items-center lg:gap-4 lg:pt-11",
         )}
       >
         <div>
@@ -181,7 +181,7 @@ export default async function ProMethodPage() {
           >
             {tr("Аналітично орієнтована психотерапія")}
           </h1>
-          <p className={cn("mt-6 max-w-lg text-pretty text-[19px] leading-[1.6]", ink.body)}>
+          <p className={cn("mt-4 max-w-lg text-pretty text-[19px] leading-[1.6]", ink.body)}>
             {tr(
               "Простір для глибшого розуміння психічного життя, стосунків і внутрішніх процесів людини.",
             )}
@@ -192,7 +192,7 @@ export default async function ProMethodPage() {
             )}
           </p>
 
-          <div className="mt-9 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/therapists"
               className={cn(
@@ -246,12 +246,12 @@ export default async function ProMethodPage() {
       <section
         className={cn(
           SHELL,
-          "mt-20 grid gap-12 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-14",
+          "mt-14 grid gap-8 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:gap-10",
         )}
       >
         <div>
           <SectionTitle>{tr("Не лише прибрати симптом")}</SectionTitle>
-          <div className={cn("mt-6 space-y-5 text-[14px] leading-[1.75]", ink.muted)}>
+          <div className={cn("mt-4 space-y-5 text-[14px] leading-[1.75]", ink.muted)}>
             <p className="text-pretty">
               {tr(
                 "Тривога, повторювані труднощі у стосунках, внутрішня напруга, кризи, втрата опори або відчуття, що певні життєві ситуації постійно повторюються, можуть стати початком глибшого дослідження себе.",
@@ -274,7 +274,7 @@ export default async function ProMethodPage() {
           Чотири стани руху. На вузькому екрані стрілки ховаються:
           у сітці 2×2 вони вказували б у порожнечу.
         */}
-        <ol className="grid gap-y-10 sm:grid-cols-2 lg:flex lg:items-start lg:gap-x-1 lg:border-l lg:border-[#B38B49]/25 lg:pl-14">
+        <ol className="grid gap-y-7 sm:grid-cols-2 lg:flex lg:items-start lg:gap-x-1 lg:border-l lg:border-[#B38B49]/25 lg:pl-14">
           {STAGES.map(({ icon: Icon, label, text }, i) => (
             <li key={label} className="flex items-start lg:flex-1">
               <div className="flex flex-1 flex-col items-center px-1 text-center">
@@ -303,14 +303,14 @@ export default async function ProMethodPage() {
       </section>
 
       {/* ── Що лежить в основі роботи ── */}
-      <section className={cn(SHELL, "mt-20")}>
+      <section className={cn(SHELL, "mt-14")}>
         <SectionTitle>{tr("Що лежить в основі роботи")}</SectionTitle>
 
         {/*
           Розділювач — ліва межа сусідньої колонки, а не окрема лінія:
           при переносі на вузькому екрані окрема лінія висіла б у порожнечі.
         */}
-        <ul className="mt-10 grid gap-y-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-0">
+        <ul className="mt-7 grid gap-y-7 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-0">
           {FOUNDATIONS.map(({ icon: Icon, title, text }, i) => (
             <li
               key={title}
@@ -337,7 +337,7 @@ export default async function ProMethodPage() {
       </section>
 
       {/* ── Професійний простір ── */}
-      <section className="relative mt-20 overflow-hidden bg-[#142744]">
+      <section className="relative mt-14 overflow-hidden bg-[#142744]">
         <svg
           aria-hidden
           viewBox="0 0 240 240"
@@ -361,7 +361,7 @@ export default async function ProMethodPage() {
         <div
           className={cn(
             SHELL,
-            "relative grid gap-10 py-14 lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)] lg:gap-12",
+            "relative grid gap-7 py-10 lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)] lg:gap-8",
           )}
         >
           <div>
@@ -387,7 +387,7 @@ export default async function ProMethodPage() {
             </p>
           </div>
 
-          <ul className="grid grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-3 lg:grid-cols-6 lg:gap-x-5 lg:border-l lg:border-[#F8F4EC]/15 lg:pl-12">
+          <ul className="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-3 lg:grid-cols-6 lg:gap-x-5 lg:border-l lg:border-[#F8F4EC]/15 lg:pl-12">
             {PROFESSIONAL.map(({ icon: Icon, title, text }) => (
               <li key={title}>
                 <Icon className="h-6 w-6 text-[#D9B269]" strokeWidth={1.1} aria-hidden />
@@ -407,11 +407,11 @@ export default async function ProMethodPage() {
       </section>
 
       {/* ── Два входи ── */}
-      <section className={cn(SHELL, "mt-16 grid gap-7 lg:grid-cols-2")}>
+      <section className={cn(SHELL, "mt-11 grid gap-5 lg:grid-cols-2")}>
         {AUDIENCES.map(({ icon: Icon, title, paragraphs, cta, href }) => (
           <div
             key={title}
-            className="flex h-full flex-col rounded-[28px] border border-[#B38B49]/35 bg-[#FFFDF8]/70 px-8 py-9 sm:px-10"
+            className="flex h-full flex-col rounded-[28px] border border-[#B38B49]/35 bg-[#FFFDF8]/70 px-8 py-6 sm:px-10"
           >
             <div className="flex items-center gap-4">
               <Icon className="h-7 w-7 shrink-0 text-[#B38B49]" strokeWidth={1.1} aria-hidden />
@@ -423,7 +423,7 @@ export default async function ProMethodPage() {
               </h2>
             </div>
 
-            <div className={cn("mt-6 space-y-4 text-[15px] leading-[1.75]", ink.muted)}>
+            <div className={cn("mt-4 space-y-4 text-[15px] leading-[1.75]", ink.muted)}>
               {paragraphs.map((p) => (
                 <p key={p.slice(0, 32)} className="text-pretty">
                   {tr(p)}
@@ -432,7 +432,7 @@ export default async function ProMethodPage() {
             </div>
 
             {/* mt-auto тримає кнопки на одній лінії, коли тексти різної довжини */}
-            <div className="mt-auto pt-8">
+            <div className="mt-auto pt-6">
               <Link
                 href={href}
                 className={cn(
@@ -456,12 +456,12 @@ export default async function ProMethodPage() {
       <section
         className={cn(
           SHELL,
-          "mt-20 grid items-center gap-10 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:gap-12",
+          "mt-14 grid items-center gap-7 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:gap-8",
         )}
       >
         <div>
           <SectionTitle>{tr("Траєкторія цілісності")}</SectionTitle>
-          <div className={cn("mt-6 space-y-4 text-[14px] leading-[1.8]", ink.muted)}>
+          <div className={cn("mt-4 space-y-4 text-[14px] leading-[1.8]", ink.muted)}>
             <p className="text-pretty">
               {tr("Ми не бачимо психотерапію як шлях до ідеальної версії себе.")}
             </p>

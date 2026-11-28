@@ -88,7 +88,7 @@ export async function Hero() {
           )}
         />
 
-        <Wrap className="relative flex items-center py-7 sm:py-8 lg:min-h-[480px]">
+        <Wrap className="relative flex items-center py-5 sm:py-6 lg:min-h-[480px]">
           {/*
             Знак «VSI» — великим планом, як у макеті, але це декор:
             заголовком сторінки лишається сам напрям роботи, інакше
@@ -123,7 +123,7 @@ export async function Hero() {
             </p>
             <div aria-hidden className="mt-5 h-px w-32 bg-[#B38B49]/80" />
 
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href="/explore" variant="primary">
                 {tr("Досліджувати")}
                 <ArrowRight className="h-4 w-4" aria-hidden />
@@ -139,15 +139,15 @@ export async function Hero() {
 
       <Wrap>
         {/* ── Два входи в один простір ── */}
-        <div className="pb-10 pt-8 lg:pb-12">
-          <div className="grid gap-6 lg:grid-cols-2">
+        <div className="pb-7 pt-6 lg:pb-8">
+          <div className="grid gap-4 lg:grid-cols-2">
             {AUDIENCES.map((a, i) => {
               const dark = i === 1;
               return (
                 <div
                   key={a.title}
                   className={cn(
-                    "flex items-center gap-5 rounded-2xl p-6 lg:gap-6 lg:p-8",
+                    "flex items-center gap-5 rounded-2xl p-6 lg:gap-4 lg:p-8",
                     dark ? "bg-[#142744]" : "border border-[#142744]/10 bg-[#FFFDF8]",
                   )}
                 >
