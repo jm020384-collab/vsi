@@ -40,34 +40,33 @@ export async function Hero() {
   const { tr } = await getI18n();
   return (
     <section id="top" className="relative bg-[#F8F4EC]">
-      {/*
-        Фонове зображення на всю ширину. Композиція сама тримає арку
-        праворуч, а ліворуч лишає небо й воду — саме туди лягає текст.
-        Затемнення-скрим ліворуч гарантує контраст навіть тоді, коли
-        кадрування зрізає світлу частину (вузькі екрани).
-      */}
       <div className="lg:relative lg:min-h-[480px] lg:overflow-hidden">
         {/*
           Арка має бути видна цілою, тому висота картинки не залежить від
-          ширини екрана. Кадр 1694×690 — це оригінал без зайвого неба
-          зверху й води знизу. На широкому екрані він займає всю висоту
-          блоку, тримається правого краю, а лівий бік розчиняється в
-          кремовому тлі, де лежить текст. Якщо розтягнути його на всю
-          ширину, як раніше, верх арки обрізається.
+          ширини екрана: якщо розтягнути її на всю ширину, верх арки
+          обрізається. Кадр 1819×690 — без зайвого неба зверху й води
+          знизу; hero-wide.jpg — це hero.png із дзеркально добудованими
+          праворуч 125 px краєвиду, щоб було куди розчинити край.
+
+          Від xl картинка прив'язана не до краю екрана, а до центральної
+          колонки з текстом (її половина — 550px): арка стоїть поруч із
+          поясненням на будь-якому широкому моніторі, а обидва боки
+          картинки переходять у кремове тло. На 1024–1279px вона тримається
+          правого краю.
 
           Нижче за lg картинка стає окремою смугою над текстом; на телефоні
           зрізаються боки, а арка лишається в кадрі.
         */}
-        <div className="relative h-[240px] w-full sm:aspect-[1694/690] sm:h-auto lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-auto">
+        <div className="relative h-[240px] w-full sm:aspect-[1819/690] sm:h-auto lg:absolute lg:inset-y-0 lg:right-[-87px] lg:h-full lg:w-auto xl:left-[calc(50%-635px)] xl:right-auto">
           <Image
-            src="/brand/motifs/hero.png"
+            src="/brand/motifs/hero-wide.jpg"
             alt={tr(
               "Арка, розділена навпіл: ліворуч денне небо із сонцем, праворуч нічне із місяцем; довкола гори, вода й золоті орбіти",
             )}
             fill
             priority
-            sizes="(min-width: 1024px) 1200px, 100vw"
-            className="object-cover object-[64%_center] sm:object-[center_21%] lg:[mask-image:linear-gradient(to_right,transparent,black_40%)]"
+            sizes="(min-width: 1024px) 1280px, 100vw"
+            className="object-cover object-[64%_center] sm:object-[center_21%] lg:[mask-image:linear-gradient(to_right,transparent,black_38%)] xl:[mask-image:linear-gradient(to_right,transparent_5%,black_40%,black_86%,transparent)]"
           />
           {/* М'який стик смуги з кремовим тлом під нею */}
           <div
@@ -84,7 +83,7 @@ export async function Hero() {
         <div
           aria-hidden
           className={cn(
-            "absolute inset-0 hidden bg-gradient-to-r lg:block",
+            "absolute inset-0 hidden bg-gradient-to-r lg:block xl:hidden",
             "from-[#F8F4EC] from-0% via-[#F8F4EC]/50 via-30% to-transparent to-55%",
           )}
         />
